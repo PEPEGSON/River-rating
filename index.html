@@ -242,22 +242,21 @@
       text-align: right;
     }
 
-    /* ✅ IMPORTANT: horizontal scrolling on mobile */
-    .wide-wrap {
+    /* ✅ Horizontal scroll for wide table */
+    .wide-wrap{
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
+      overscroll-behavior-x: contain;
+      touch-action: pan-x pan-y;
+    }
+    #leaderboardWide{
+      min-width: max-content; /* forces scroll when many date columns */
     }
 
     table{
       width: 100%;
       border-collapse: collapse;
     }
-
-    /* Make wide table keep its intrinsic width so it can scroll */
-    #leaderboardWide{
-      min-width: max-content;
-    }
-
     thead th{
       position: sticky;
       top: 0;
@@ -289,7 +288,7 @@
       background: rgba(255,255,255,.06);
     }
 
-    /* ===== Ranking colors: Top 5 gold, next 5 silver, rest bronze + zebra ===== */
+    /* Rank colors */
     tbody tr.rank-gold{
       background: linear-gradient(to right, rgba(214,181,106,.22), rgba(214,181,106,.06));
     }
@@ -322,7 +321,7 @@
     #leaderboardWideWrap { display: block; }
     #leaderboardCompact { display: none; }
 
-    /* ✅ Portrait mobile header: center season, title */
+    /* ✅ Portrait: season centered + compact table without dates */
     @media (max-width: 760px) and (orientation: portrait) {
       .topbar{
         display: flex;
@@ -690,7 +689,7 @@
     const dateCols = buildDateColumns(matchesFiltered);
     const matrix   = buildPointsMatrix(matchesFiltered);
 
-    // WIDE (desktop / landscape / horizontal scroll dates)
+    // WIDE (desktop/landscape): dates + horizontal scroll
     const headWide = `<thead><tr>
       <th>№</th><th>Игрок</th><th>Очки сезона</th><th>Total</th>
       ${dateCols.map(d => `<th>${d.label}</th>`).join("")}
@@ -724,7 +723,7 @@
 
     tableWideEl.innerHTML = headWide + bodyWide;
 
-    // COMPACT (portrait phone): ONLY № / Игрок / Сезон / Total (no dates)
+    // COMPACT (portrait phone): NO dates
     const headCompact = `<thead><tr>
       <th>№</th><th>Игрок</th><th>Сезон</th><th>Total</th>
     </tr></thead>`;
