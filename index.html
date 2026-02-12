@@ -19,10 +19,13 @@
       --text: rgba(255,255,255,.90);
       --muted: rgba(255,255,255,.62);
       --muted2: rgba(255,255,255,.42);
+
       --gold: #d6b56a;
       --gold2: #f0de9a;
+
       --shadow: 0 20px 60px rgba(0,0,0,.55);
       --shadow2: 0 10px 30px rgba(0,0,0,.45);
+
       --radius: 18px;
     }
 
@@ -62,7 +65,7 @@
       margin: 22px auto 40px;
     }
 
-    /* Header */
+    /* Header (desktop/landscape) */
     .topbar{
       display: grid;
       grid-template-columns: 1fr auto 1fr; /* left / center / right */
@@ -79,9 +82,8 @@
     .brand{
       display:flex;
       align-items:center;
-      gap: 12px;
+      justify-content:flex-start;
       min-width: 240px;
-      justify-content: flex-start;
     }
     .brand img{
       height: 44px;
@@ -90,7 +92,6 @@
       filter: drop-shadow(0 10px 18px rgba(0,0,0,.55));
     }
 
-    /* ✅ Centered title */
     .center-title{
       text-align: center;
       line-height: 1;
@@ -99,10 +100,11 @@
       font-family: Cinzel, serif;
       font-weight: 700;
       letter-spacing: .10em;
-      font-size: 22px;            /* bigger */
+      font-size: 22px;
       text-transform: uppercase;
       color: rgba(255,255,255,.94);
       text-shadow: 0 18px 40px rgba(0,0,0,.6);
+      white-space: nowrap;
     }
 
     .season-name{
@@ -157,7 +159,7 @@
       margin-left: 8px;
     }
 
-    /* Premium buttons */
+    /* Buttons */
     .btn{
       appearance: none;
       border: 1px solid rgba(214,181,106,.42);
@@ -190,6 +192,7 @@
       cursor: pointer;
       backdrop-filter: blur(10px);
       box-shadow: 0 10px 24px rgba(0,0,0,.35);
+      max-width: 78vw;
     }
     .select-wrap{
       position: relative;
@@ -239,8 +242,22 @@
       text-align: right;
     }
 
-    .wide-wrap { overflow-x: auto; }
-    table{ width: 100%; border-collapse: collapse; }
+    /* ✅ IMPORTANT: horizontal scrolling on mobile */
+    .wide-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table{
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    /* Make wide table keep its intrinsic width so it can scroll */
+    #leaderboardWide{
+      min-width: max-content;
+    }
+
     thead th{
       position: sticky;
       top: 0;
@@ -272,14 +289,18 @@
       background: rgba(255,255,255,.06);
     }
 
-    tbody tr[data-place="1"]{
-      background: linear-gradient(to right, rgba(214,181,106,.18), rgba(214,181,106,.04));
+    /* ===== Ranking colors: Top 5 gold, next 5 silver, rest bronze + zebra ===== */
+    tbody tr.rank-gold{
+      background: linear-gradient(to right, rgba(214,181,106,.22), rgba(214,181,106,.06));
     }
-    tbody tr[data-place="2"]{
-      background: linear-gradient(to right, rgba(255,255,255,.10), rgba(255,255,255,.02));
+    tbody tr.rank-silver{
+      background: linear-gradient(to right, rgba(220, 226, 235, .18), rgba(220, 226, 235, .05));
     }
-    tbody tr[data-place="3"]{
-      background: linear-gradient(to right, rgba(214,181,106,.10), rgba(214,181,106,.02));
+    tbody tr.rank-bronze{
+      background: linear-gradient(to right, rgba(205, 127, 50, .14), rgba(205, 127, 50, .04));
+    }
+    tbody tr.zebra-dark{
+      filter: brightness(0.92);
     }
 
     .place-badge{
@@ -290,44 +311,42 @@
       height: 26px;
       padding: 0 10px;
       border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.25);
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.28);
       color: rgba(255,255,255,.92);
       font-weight: 700;
       margin: 0 auto;
-    }
-    tr[data-place="1"] .place-badge{
-      border-color: rgba(240,222,154,.65);
-      background: rgba(214,181,106,.22);
-      color: rgba(240,222,154,.95);
-      box-shadow: 0 10px 20px rgba(214,181,106,.10);
-    }
-    tr[data-place="2"] .place-badge{
-      border-color: rgba(255,255,255,.25);
-      background: rgba(255,255,255,.10);
-    }
-    tr[data-place="3"] .place-badge{
-      border-color: rgba(214,181,106,.35);
-      background: rgba(214,181,106,.12);
     }
 
     /* Layout switch */
     #leaderboardWideWrap { display: block; }
     #leaderboardCompact { display: none; }
 
-    /* ✅ Portrait mobile: show compact WITHOUT last 3 dates */
+    /* ✅ Portrait mobile header: center season, title */
     @media (max-width: 760px) and (orientation: portrait) {
       .topbar{
-        grid-template-columns: auto 1fr;
-        grid-template-areas:
-          "brand season"
-          "title title";
-        row-gap: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        text-align: center;
       }
-      .brand{ grid-area: brand; min-width: 0; }
-      .season-name{ grid-area: season; }
-      .center-title{ grid-area: title; text-align: left; }
-      .center-title .title{ font-size: 18px; letter-spacing: .08em; }
+      .brand{
+        min-width: 0;
+        justify-content: center;
+      }
+      .brand img{ height: 42px; }
+
+      .season-name{
+        text-align: center;
+        justify-self: unset;
+        max-width: 92vw;
+      }
+
+      .center-title .title{
+        font-size: 18px;
+        letter-spacing: .08em;
+      }
 
       #leaderboardWideWrap { display: none; }
       #leaderboardCompact { display: table; }
@@ -671,32 +690,31 @@
     const dateCols = buildDateColumns(matchesFiltered);
     const matrix   = buildPointsMatrix(matchesFiltered);
 
-    rows.sort((a, b) => {
-      const pa = Number(a.place);
-      const pb = Number(b.place);
-      if (pa !== pb) return pa - pb;
-      const sa = Number(a.season_score);
-      const sb = Number(b.season_score);
-      return sb - sa;
-    });
-
-    // WIDE (landscape / desktop)
+    // WIDE (desktop / landscape / horizontal scroll dates)
     const headWide = `<thead><tr>
-      <th>Место</th><th>Игрок</th><th>Очки сезона</th><th>Total</th>
+      <th>№</th><th>Игрок</th><th>Очки сезона</th><th>Total</th>
       ${dateCols.map(d => `<th>${d.label}</th>`).join("")}
     </tr></thead>`;
 
-    const bodyWide = `<tbody>` + rows.map(r => {
+    const bodyWide = `<tbody>` + rows.map((r, idx) => {
       const pid = String(r.player_id);
+      const num = idx + 1;
+
+      const rankClass =
+        (num <= 5) ? "rank-gold" :
+        (num <= 10) ? "rank-silver" :
+        "rank-bronze";
+
+      const zebraClass = (num % 2 === 0) ? "zebra-dark" : "";
+
       const mp = matrix.get(pid);
       const cells = dateCols.map(d => {
         const v = mp ? (mp.get(d.key) || 0) : 0;
         return `<td>${v ? v : "—"}</td>`;
       }).join("");
 
-      const place = String(r.place ?? "");
-      return `<tr data-player="${pid}" data-place="${place}">
-        <td><span class="place-badge">${place}</span></td>
+      return `<tr class="${rankClass} ${zebraClass}" data-player="${pid}">
+        <td><span class="place-badge">${num}</span></td>
         <td>${r.name ?? ""}</td>
         <td>${r.season_score ?? ""}</td>
         <td>${r.all_seasons_score ?? ""}</td>
@@ -706,15 +724,23 @@
 
     tableWideEl.innerHTML = headWide + bodyWide;
 
-    // COMPACT (portrait): ONLY место/игрок/сезон/total (без 3 дат)
+    // COMPACT (portrait phone): ONLY № / Игрок / Сезон / Total (no dates)
     const headCompact = `<thead><tr>
-      <th>Место</th><th>Игрок</th><th>Сезон</th><th>Total</th>
+      <th>№</th><th>Игрок</th><th>Сезон</th><th>Total</th>
     </tr></thead>`;
 
-    const bodyCompact = `<tbody>` + rows.map(r => {
-      const place = String(r.place ?? "");
-      return `<tr data-player="${String(r.player_id)}" data-place="${place}">
-        <td><span class="place-badge">${place}</span></td>
+    const bodyCompact = `<tbody>` + rows.map((r, idx) => {
+      const num = idx + 1;
+
+      const rankClass =
+        (num <= 5) ? "rank-gold" :
+        (num <= 10) ? "rank-silver" :
+        "rank-bronze";
+
+      const zebraClass = (num % 2 === 0) ? "zebra-dark" : "";
+
+      return `<tr class="${rankClass} ${zebraClass}" data-player="${String(r.player_id)}">
+        <td><span class="place-badge">${num}</span></td>
         <td>${r.name ?? ""}</td>
         <td>${r.season_score ?? ""}</td>
         <td>${r.all_seasons_score ?? ""}</td>
