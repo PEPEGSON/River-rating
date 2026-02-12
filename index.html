@@ -685,7 +685,23 @@
       loadMatchesOnce()
     ]);
 
-    const rows = await lbRes.json();
+    // --- LOAD + SORT rows BY points (Season / Total) ---
+    const rowsRaw = await lbRes.json();
+    const toNum = (v) => {
+      const s = String(v ?? "").trim().replace(/\s+/g, "").replace(",", ".");
+      const n = Number(s);
+      return Number.isFinite(n) ? n : 0;
+    };
+    const rows = [...rowsRaw].sort((a, b) => {
+      const keyA = (seasonId === "TOTAL") ? toNum(a.all_seasons_score) : toNum(a.season_score);
+      const keyB = (seasonId === "TOTAL") ? toNum(b.all_seasons_score) : toNum(b.season_score);
+      if (keyB !== keyA) return keyB - keyA;
+
+      const nameA = String(a.name ?? "").trim();
+      const nameB = String(b.name ?? "").trim();
+      return nameA.localeCompare(nameB, "ru", { sensitivity: "base" });
+    });
+
     const matches = normalizeMatches(rawMatches);
     const matchesFiltered = filterMatchesByMode(matches, seasonId);
 
