@@ -93,16 +93,13 @@
   </div>
 
 <script>
-  // Твои значения
   const SHEET_ID = "1Pj2H4dT3f0W7rmWQPPgj1_FHbCPSIDsRmO56I-VmZls";
   const PROFILE_API_BASE = "https://script.google.com/macros/s/AKfycbwKd6_brG1Pgy3U3AUX_cNCUoznk2nYzIOYKo790MDs48ktJwlKvdQ_P8TNXqvPJsGkTQ/exec";
 
-  // opensheet endpoints
   const LEADERBOARD_URL = `https://opensheet.elk.sh/${SHEET_ID}/Leaderboard`;
   const SEASONS_URL     = `https://opensheet.elk.sh/${SHEET_ID}/Seasons`;
   const MATCHES_URL     = `https://opensheet.elk.sh/${SHEET_ID}/Matches`;
 
-  // DOM
   const statusEl       = document.getElementById("status");
   const seasonSelect   = document.getElementById("seasonSelect");
   const prevBtn        = document.getElementById("prevSeasonBtn");
@@ -118,7 +115,6 @@
   closeBtn.onclick = () => modalEl.style.display = "none";
   modalEl.onclick = (e) => { if (e.target === modalEl) modalEl.style.display = "none"; };
 
-  // cache
   let seasonsCache = [];
   let matchesCache = null;
 
@@ -126,7 +122,6 @@
   function norm(x) { return String(x ?? "").trim(); }
   function normUp(x) { return norm(x).toUpperCase(); }
 
-  // ---- date helpers ----
   function parseDate(v) {
     if (v instanceof Date) return v;
     const s = norm(v);
@@ -141,7 +136,6 @@
     return `${dd}.${mm}`;
   }
 
-  // ключ даты делаем ISO, чтобы разные годы не конфликтовали
   function ymd(d) {
     const yyyy = d.getFullYear();
     const mm = String(d.getMonth() + 1).padStart(2, "0");
@@ -149,7 +143,6 @@
     return `${yyyy}-${mm}-${dd}`;
   }
 
-  // ---- API ----
   async function getCurrentSeasonFromApi() {
     const res = await fetch(PROFILE_API_BASE);
     const data = await res.json();
@@ -160,7 +153,6 @@
     await fetch(`${PROFILE_API_BASE}?season_id=${encodeURIComponent(seasonId)}`);
   }
 
-  // ---- loads ----
   async function loadSeasons() {
     setStatus("Загрузка сезонов…");
     const res = await fetch(SEASONS_URL);
@@ -242,7 +234,6 @@
     return undefined;
   }
 
-  // В Matches ожидаем: date, season, player_id, points
   function normalizeMatches(rows) {
     return rows.map(r => ({
       date: getField(r, ["date", "Date", "A"]),
@@ -257,42 +248,29 @@
     return matches.filter(m => normUp(m.season) === seasonId);
   }
 
-  // ---- КОЛОНКИ ДАТ: только если дата реально есть в данных ----
-  // + "справа налево": новые даты слева, старые справа
+  // даты, которые реально есть в данных (новые слева)
   function buildDateColumns(matchesFiltered) {
-    // key (YYYY-MM-DD) -> { ts, label(dd.mm) }
-    const map = new Map();
-
+    const map = new Map(); // ymd -> {ts,label}
     for (const m of matchesFiltered) {
       const d = parseDate(m.date);
       if (!d) continue;
-
       const key = ymd(d);
       const ts = d.getTime();
       const label = ddmm(d);
-
-      // если вдруг несколько строк на одну дату — берём самый свежий ts (на всякий)
-      if (!map.has(key) || ts > map.get(key).ts) {
-        map.set(key, { ts, label });
-      }
+      if (!map.has(key) || ts > map.get(key).ts) map.set(key, { ts, label });
     }
-
-    // сортируем по ts убыванию: новые слева -> это и есть "справа налево"
     return [...map.entries()]
-      .sort((a, b) => b[1].ts - a[1].ts)
+      .sort((a, b) => b[1].ts - a[1].ts)   // новые слева
       .map(([key, v]) => ({ key, label: v.label, ts: v.ts }));
   }
 
-  // matrix[player_id][dateKey] = sum(points)
   function buildPointsMatrix(matchesFiltered) {
-    const matrix = new Map();
+    const matrix = new Map(); // pid -> Map(ymd -> sum)
     for (const m of matchesFiltered) {
       const d = parseDate(m.date);
       if (!d) continue;
-
       const dateKey = ymd(d);
       const pid = String(m.player_id);
-
       if (!matrix.has(pid)) matrix.set(pid, new Map());
       const mp = matrix.get(pid);
       mp.set(dateKey, (mp.get(dateKey) || 0) + (Number(m.points) || 0));
@@ -300,22 +278,10 @@
     return matrix;
   }
 
-  // last3 for compact table (по выбранному сезону или total)
-  function buildLast3(matchesFiltered) {
-    const byPlayer = new Map();
-    for (const m of matchesFiltered) {
-      const d = parseDate(m.date);
-      if (!d) continue;
-      const pid = String(m.player_id);
-      if (!byPlayer.has(pid)) byPlayer.set(pid, []);
-      byPlayer.get(pid).push({ ts: d.getTime(), label: ddmm(d), points: Number(m.points) || 0 });
-    }
-    const out = new Map();
-    for (const [pid, arr] of byPlayer.entries()) {
-      arr.sort((a, b) => b.ts - a.ts);
-      out.set(pid, arr.slice(0, 3).map(x => ({ date: x.label, points: x.points })));
-    }
-    return out;
+  function buildLast3GlobalDates(matchesFiltered) {
+    // берём последние 3 даты, когда вообще были игры (по фильтру сезона/total)
+    const cols = buildDateColumns(matchesFiltered); // уже отсортированы новые слева
+    return cols.slice(0, 3); // [{key,label}]
   }
 
   async function renderAll() {
@@ -335,13 +301,11 @@
     const matches = normalizeMatches(rawMatches);
     const matchesFiltered = filterMatchesByMode(matches, seasonId);
 
-    // Даты: только те, что реально есть в данных
-    const dateCols = buildDateColumns(matchesFiltered);
+    const dateCols = buildDateColumns(matchesFiltered);           // для wide
+    const matrix   = buildPointsMatrix(matchesFiltered);
+    const last3Dates = buildLast3GlobalDates(matchesFiltered);    // для compact header
 
-    const matrix = buildPointsMatrix(matchesFiltered);
-    const last3 = buildLast3(matchesFiltered);
-
-    // сортировка по месту (1 сверху)
+    // сортировка: 1 сверху
     rows.sort((a, b) => {
       const pa = Number(a.place);
       const pb = Number(b.place);
@@ -353,18 +317,13 @@
 
     // WIDE
     const headWide = `<tr>
-      <th>Место</th>
-      <th>Игрок</th>
-      <th>Очки сезона</th>
-      <th>Total</th>
+      <th>Место</th><th>Игрок</th><th>Очки сезона</th><th>Total</th>
       ${dateCols.map(d => `<th>${d.label}</th>`).join("")}
     </tr>`;
 
     const bodyWide = rows.map(r => {
       const pid = String(r.player_id);
       const mp = matrix.get(pid);
-
-      // если игрок не играл в эту дату -> "—"
       const cells = dateCols.map(d => {
         const v = mp ? (mp.get(d.key) || 0) : 0;
         return `<td>${v ? v : "—"}</td>`;
@@ -381,31 +340,41 @@
 
     tableWideEl.innerHTML = headWide + bodyWide;
 
-    // COMPACT (вертикальный телефон)
+    // COMPACT: заголовки = последние 3 даты (не "Игра 1/2/3")
+    const d1 = last3Dates[0]?.label || "—";
+    const d2 = last3Dates[1]?.label || "—";
+    const d3 = last3Dates[2]?.label || "—";
+
+    const k1 = last3Dates[0]?.key || null;
+    const k2 = last3Dates[1]?.key || null;
+    const k3 = last3Dates[2]?.key || null;
+
     const headCompact = `<tr>
       <th>Место</th><th>Игрок</th><th>Сезон</th><th>Total</th>
-      <th>Игра 1</th><th>Игра 2</th><th>Игра 3</th>
+      <th>${d1}</th><th>${d2}</th><th>${d3}</th>
     </tr>`;
 
     const bodyCompact = rows.map(r => {
       const pid = String(r.player_id);
-      const g = last3.get(pid) || [];
-      const c1 = g[0] ? `${g[0].date}: ${g[0].points}` : "—";
-      const c2 = g[1] ? `${g[1].date}: ${g[1].points}` : "—";
-      const c3 = g[2] ? `${g[2].date}: ${g[2].points}` : "—";
+      const mp = matrix.get(pid);
+
+      const v1 = (k1 && mp) ? (mp.get(k1) || 0) : 0;
+      const v2 = (k2 && mp) ? (mp.get(k2) || 0) : 0;
+      const v3 = (k3 && mp) ? (mp.get(k3) || 0) : 0;
 
       return `<tr data-player="${pid}">
         <td>${r.place ?? ""}</td>
         <td>${r.name ?? ""}</td>
         <td>${r.season_score ?? ""}</td>
         <td>${r.all_seasons_score ?? ""}</td>
-        <td>${c1}</td><td>${c2}</td><td>${c3}</td>
+        <td>${v1 ? v1 : "—"}</td>
+        <td>${v2 ? v2 : "—"}</td>
+        <td>${v3 ? v3 : "—"}</td>
       </tr>`;
     }).join("");
 
     tableCompactEl.innerHTML = headCompact + bodyCompact;
 
-    // клики по строкам
     [...document.querySelectorAll("tr[data-player]")].forEach(tr => {
       tr.onclick = () => openProfile(tr.getAttribute("data-player"));
     });
@@ -413,7 +382,7 @@
     setStatus("");
   }
 
-  // ---- modal/profile (оставляем как было) ----
+  // ---- modal/profile ----
   function renderSmallTable(headers, rows) {
     if (!rows || !rows.length) return `<div class="hint">Нет данных</div>`;
     let h = `<table style="width:100%"><tr>${headers.map(x => `<th>${x}</th>`).join("")}</tr>`;
@@ -460,7 +429,6 @@
     `;
   }
 
-  // ---- start ----
   (async () => {
     try {
       await loadSeasons();
