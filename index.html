@@ -22,6 +22,8 @@
 
       --gold: #d6b56a;
       --gold2: #f0de9a;
+      --silver: rgba(220, 226, 235, .95);
+      --bronze: rgba(205, 127, 50, .95);
 
       --shadow: 0 20px 60px rgba(0,0,0,.55);
       --shadow2: 0 10px 30px rgba(0,0,0,.45);
@@ -236,13 +238,10 @@
       font-size: 13px;
       color: rgba(255,255,255,.88);
     }
-    .panel-hint{
-      font-size: 12px;
-      color: var(--muted);
-      text-align: right;
-    }
+    /* ✅ removed hint text completely */
+    .panel-hint{ display:none; }
 
-    /* ✅ Horizontal scroll always (desktop + phone portrait too) */
+    /* Horizontal scroll always */
     .wide-wrap{
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
@@ -253,10 +252,8 @@
       min-width: max-content;
     }
 
-    table{
-      width: 100%;
-      border-collapse: collapse;
-    }
+    table{ width: 100%; border-collapse: collapse; }
+
     thead th{
       position: sticky;
       top: 0;
@@ -284,22 +281,57 @@
       transition: background .14s ease;
       cursor: pointer;
     }
-    tbody tr:hover{
-      background: rgba(255,255,255,.06);
+    tbody tr:hover{ background: rgba(255,255,255,.06); }
+
+    /* =========================
+       ✅ NEW: elemental stripes
+       1-3 fire, 4-6 earth, 7-10 air, 11-13 water
+       Others: zebra gray
+       ========================= */
+
+    /* Base zebra for non-element rows */
+    tbody tr.zebra-light{ background: rgba(255,255,255,.02); }
+    tbody tr.zebra-dark { background: rgba(0,0,0,.18); }
+
+    /* Fire (1-3): flowing ember gradient */
+    tbody tr.rank-fire{
+      background:
+        radial-gradient(1200px 80px at 18% 40%, rgba(255, 184, 77, .18), transparent 55%),
+        radial-gradient(900px 80px at 55% 55%, rgba(255, 92, 0, .14), transparent 58%),
+        radial-gradient(900px 80px at 82% 45%, rgba(255, 238, 170, .10), transparent 55%),
+        linear-gradient(90deg, rgba(255, 90, 0, .18), rgba(255, 195, 77, .12), rgba(120, 20, 0, .14));
     }
 
-    /* Rank colors */
-    tbody tr.rank-gold{
-      background: linear-gradient(to right, rgba(214,181,106,.22), rgba(214,181,106,.06));
+    /* Earth (4-6): sand/soil gradient */
+    tbody tr.rank-earth{
+      background:
+        radial-gradient(900px 80px at 20% 50%, rgba(214,181,106,.16), transparent 55%),
+        radial-gradient(900px 80px at 60% 55%, rgba(140, 92, 35, .14), transparent 55%),
+        linear-gradient(90deg, rgba(90, 55, 18, .16), rgba(214,181,106,.10), rgba(30, 18, 8, .16));
     }
-    tbody tr.rank-silver{
-      background: linear-gradient(to right, rgba(220, 226, 235, .18), rgba(220, 226, 235, .05));
+
+    /* Air (7-10): cool wind gradient */
+    tbody tr.rank-air{
+      background:
+        radial-gradient(900px 80px at 22% 45%, rgba(220, 240, 255, .12), transparent 55%),
+        radial-gradient(900px 80px at 62% 55%, rgba(160, 205, 255, .10), transparent 55%),
+        linear-gradient(90deg, rgba(40, 70, 110, .16), rgba(160, 205, 255, .08), rgba(10, 12, 18, .18));
     }
-    tbody tr.rank-bronze{
-      background: linear-gradient(to right, rgba(205, 127, 50, .14), rgba(205, 127, 50, .04));
+
+    /* Water (11-13): deep water gradient */
+    tbody tr.rank-water{
+      background:
+        radial-gradient(900px 80px at 18% 55%, rgba(90, 200, 255, .12), transparent 55%),
+        radial-gradient(900px 80px at 62% 45%, rgba(0, 120, 255, .10), transparent 55%),
+        linear-gradient(90deg, rgba(0, 55, 120, .16), rgba(90, 200, 255, .08), rgba(8, 12, 20, .18));
     }
-    tbody tr.zebra-dark{
-      filter: brightness(0.92);
+
+    /* Keep hover readable on element rows */
+    tbody tr.rank-fire:hover,
+    tbody tr.rank-earth:hover,
+    tbody tr.rank-air:hover,
+    tbody tr.rank-water:hover{
+      filter: brightness(1.06);
     }
 
     .place-badge{
@@ -313,11 +345,31 @@
       border: 1px solid rgba(255,255,255,.18);
       background: rgba(0,0,0,.28);
       color: rgba(255,255,255,.92);
-      font-weight: 700;
+      font-weight: 800;
       margin: 0 auto;
     }
 
-    /* Portrait: header stacks, BUT table stays wide + scrollable */
+    /* ✅ Badge colors for 1/2/3 */
+    .place-badge.place-1{
+      border-color: rgba(240,222,154,.55);
+      background: rgba(214,181,106,.18);
+      color: var(--gold2);
+      text-shadow: 0 10px 22px rgba(214,181,106,.35);
+    }
+    .place-badge.place-2{
+      border-color: rgba(255,255,255,.30);
+      background: rgba(220,226,235,.14);
+      color: var(--silver);
+      text-shadow: 0 10px 22px rgba(220,226,235,.25);
+    }
+    .place-badge.place-3{
+      border-color: rgba(205,127,50,.35);
+      background: rgba(205,127,50,.14);
+      color: var(--bronze);
+      text-shadow: 0 10px 22px rgba(205,127,50,.25);
+    }
+
+    /* Portrait header stacks */
     @media (max-width: 760px) and (orientation: portrait) {
       .topbar{
         display: flex;
@@ -326,20 +378,10 @@
         gap: 10px;
         text-align: center;
       }
-      .brand{
-        min-width: 0;
-        justify-content: center;
-      }
+      .brand{ min-width: 0; justify-content: center; }
       .brand img{ height: 42px; }
-      .season-name{
-        text-align: center;
-        justify-self: unset;
-        max-width: 92vw;
-      }
-      .center-title .title{
-        font-size: 18px;
-        letter-spacing: .08em;
-      }
+      .season-name{ text-align: center; justify-self: unset; max-width: 92vw; }
+      .center-title .title{ font-size: 18px; letter-spacing: .08em; }
     }
 
     /* Modal */
@@ -486,7 +528,6 @@
   function norm(x) { return String(x ?? "").trim(); }
   function normUp(x) { return norm(x).toUpperCase(); }
 
-  // ===== Dates: support "DD.MM" as text =====
   function parseDdMm(s){
     const t = norm(s);
     const m = t.match(/^(\d{1,2})\.(\d{1,2})$/);
@@ -520,13 +561,11 @@
     return normUp(data.current_season_id || "");
   }
   async function setSeason(seasonId) {
-    // важный вызов, который записывает G2/B2 в таблице (как у тебя уже сделано)
     await fetch(`${PROFILE_API_BASE}?season_id=${encodeURIComponent(seasonId)}`, { cache: "no-store" });
   }
 
   async function loadSeasons() {
     setStatus("Загрузка сезонов…");
-    // ✅ Берём сезоны из Apps Script (единый источник, одинаково на телефоне и ПК)
     const res = await fetch(`${PROFILE_API_BASE}?mode=meta`, { cache: "no-store" });
     const data = await res.json();
     seasonsCache = Array.isArray(data.seasons) ? data.seasons : [];
@@ -623,7 +662,6 @@
   }
 
   function normalizeMatches(rows) {
-    // dashboard отдаёт нормальные ключи, но оставим совместимость
     const getField = (r, keys) => {
       for (const k of keys) if (r && r[k] !== undefined) return r[k];
       return undefined;
@@ -649,29 +687,23 @@
       const label = dateLabelFromCell(m.date);
       if (!map.has(key)) map.set(key, { key, label });
     }
-    // newest on the left (как у тебя было)
     return [...map.values()].sort((a,b) => (a.key < b.key ? 1 : -1));
   }
 
   function buildPointsAndSums(matchesAll, seasonId){
     const filtered = filterMatchesByMode(matchesAll, seasonId);
-
     const dateCols = buildDateColumns(filtered);
 
-    // matrix: player -> dateKey -> points
     const matrix = new Map();
-    // sums for sort/display
-    const seasonSum = new Map(); // per player, for selected season (or TOTAL)
-    const totalSum  = new Map(); // per player, across all seasons
+    const seasonSum = new Map();
+    const totalSum  = new Map();
 
-    // total across ALL matches (even if current season is S01)
     for (const m of matchesAll) {
       const pid = String(m.player_id);
       const add = toNum(m.points);
       totalSum.set(pid, (totalSum.get(pid) || 0) + add);
     }
 
-    // season sums + matrix from filtered
     for (const m of filtered) {
       const dateKey = dateKeyFromCell(m.date);
       if (!dateKey) continue;
@@ -686,7 +718,6 @@
       mp.set(dateKey, (mp.get(dateKey) || 0) + add);
     }
 
-    // if TOTAL mode: "seasonSum" should equal totalSum for display/sort
     if (seasonId === "TOTAL") {
       for (const [pid, v] of totalSum.entries()) seasonSum.set(pid, v);
     }
@@ -699,26 +730,37 @@
     return undefined;
   }
 
+  function rankRowClass(place){
+    // 1-3 fire, 4-6 earth, 7-10 air, 11-13 water, rest zebra (handled separately)
+    if (place >= 1 && place <= 3) return "rank-fire";
+    if (place >= 4 && place <= 6) return "rank-earth";
+    if (place >= 7 && place <= 10) return "rank-air";
+    if (place >= 11 && place <= 13) return "rank-water";
+    return ""; // zebra fallback
+  }
+
+  function badgeClass(place){
+    if (place === 1) return "place-1";
+    if (place === 2) return "place-2";
+    if (place === 3) return "place-3";
+    return "";
+  }
+
   async function renderLeaderboard() {
     const seasonId = normUp(seasonSelect.value);
     const dash = await loadDashboard(seasonId);
 
-    // IMPORTANT: matches in dashboard are already filtered by season unless TOTAL (в Apps Script)
-    // но нам нужно totalSum по всем сезонам => если не TOTAL, подгрузим ещё TOTAL для totalSum один раз
     let allMatchesForTotal = null;
-
     const leaderboardRows = dash.leaderboard.map(r => ({
       player_id: String(pick(r, ["player_id","playerId","A"]) ?? "").trim(),
       name: pick(r, ["name","B"]) ?? ""
     })).filter(x => x.player_id);
 
-    // matches for current mode (S01 or TOTAL)
     const matchesCur = normalizeMatches(dash.matches);
 
     if (seasonId === "TOTAL") {
       allMatchesForTotal = matchesCur;
     } else {
-      // подгружаем TOTAL matches один раз (чтобы Total всегда был правильный на всех устройствах)
       if (!dashCache.has("TOTAL")) {
         const dTotal = await loadDashboard("TOTAL");
         dashCache.set("TOTAL", { leaderboard: dTotal.leaderboard, matches: dTotal.matches });
@@ -726,10 +768,8 @@
       allMatchesForTotal = normalizeMatches(dashCache.get("TOTAL").matches);
     }
 
-    // строим матрицу и суммы (и season, и total) из matches, чтобы не было расхождений ПК/телефон
     const { dateCols, matrix, seasonSum, totalSum } = buildPointsAndSums(allMatchesForTotal, seasonId);
 
-    // сортировка по computed sums
     const rows = [...leaderboardRows].sort((a, b) => {
       const aSeason = seasonSum.get(a.player_id) || 0;
       const bSeason = seasonSum.get(b.player_id) || 0;
@@ -749,14 +789,14 @@
 
     const bodyWide = `<tbody>` + rows.map((r, idx) => {
       const pid = r.player_id;
-      const num = idx + 1;
+      const place = idx + 1;
 
-      const rankClass =
-        (num <= 5) ? "rank-gold" :
-        (num <= 10) ? "rank-silver" :
-        "rank-bronze";
+      const elemClass = rankRowClass(place);
 
-      const zebraClass = (num % 2 === 0) ? "zebra-dark" : "";
+      // ✅ zebra only for "non-element" rows
+      const zebraClass = (!elemClass)
+        ? (place % 2 === 0 ? "zebra-dark" : "zebra-light")
+        : "";
 
       const mp = matrix.get(pid);
       const cells = dateCols.map(d => {
@@ -767,8 +807,8 @@
       const seasonPts = seasonSum.get(pid) || 0;
       const totalPts  = totalSum.get(pid) || 0;
 
-      return `<tr class="${rankClass} ${zebraClass}" data-player="${pid}">
-        <td><span class="place-badge">${num}</span></td>
+      return `<tr class="${elemClass} ${zebraClass}" data-player="${pid}">
+        <td><span class="place-badge ${badgeClass(place)}">${place}</span></td>
         <td>${r.name ?? ""}</td>
         <td>${seasonPts}</td>
         <td>${totalPts}</td>
