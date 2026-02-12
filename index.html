@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>River Rating</title>
 
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -20,13 +19,15 @@
       --muted: rgba(255,255,255,.62);
       --muted2: rgba(255,255,255,.42);
 
-      --gold: #d6b56a;
-      --gold2: #f0de9a;
-
       --shadow: 0 20px 60px rgba(0,0,0,.55);
       --shadow2: 0 10px 30px rgba(0,0,0,.45);
 
       --radius: 18px;
+
+      /* ✔ tuning */
+      --elem-opacity: .42;     /* общая видимость текстуры */
+      --elem-vignette: .30;    /* затемнение для читабельности */
+      --fade: 22px;            /* мягкая граница между блоками */
     }
 
     * { box-sizing: border-box; }
@@ -39,7 +40,6 @@
       overflow-x: hidden;
     }
 
-    /* Background image + overlays */
     body::before{
       content:"";
       position: fixed;
@@ -65,7 +65,6 @@
       margin: 22px auto 40px;
     }
 
-    /* Header */
     .topbar{
       display: grid;
       grid-template-columns: 1fr auto 1fr;
@@ -118,7 +117,6 @@
       max-width: 520px;
     }
 
-    /* Controls panel */
     .controls{
       margin-top: 14px;
       padding: 12px 16px;
@@ -159,7 +157,6 @@
       margin-left: 8px;
     }
 
-    /* Buttons */
     .btn{
       appearance: none;
       border: 1px solid rgba(214,181,106,.42);
@@ -180,7 +177,6 @@
       box-shadow: 0 12px 26px rgba(0,0,0,.45);
     }
 
-    /* Select */
     select{
       appearance: none;
       border: 1px solid rgba(255,255,255,.14);
@@ -210,7 +206,6 @@
       transform: translateY(1px);
     }
 
-    /* Table panel */
     .panel{
       margin-top: 14px;
       border-radius: var(--radius);
@@ -237,7 +232,6 @@
       color: rgba(255,255,255,.88);
     }
 
-    /* ✅ Horizontal scroll for wide table (ALL modes) */
     .wide-wrap{
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
@@ -272,23 +266,104 @@
       color: rgba(255,255,255,.86);
       white-space: nowrap;
       text-align: center;
+      position: relative;
+      z-index: 2;
     }
     tbody tr{
       transition: background .14s ease;
       cursor: pointer;
       position: relative;
-      overflow: hidden;
-      isolation: isolate;
+      z-index: 2;
     }
-    tbody tr:hover{
-      background: rgba(255,255,255,.06);
+    tbody tr:hover{ background: rgba(255,255,255,.06); }
+
+    /* =========================
+       ✅ ELEMENT BLOCK BACKGROUNDS (ONE IMAGE PER 3 ROWS)
+       We paint ALL element textures on tbody once (4 layers),
+       aligned to groups of 3 rows using background-position/size.
+       Then top 12 rows stay transparent so no seams.
+       ========================= */
+
+    /* default zebra for rows 13+ only */
+    tbody tr.zebra-dark{ filter: brightness(0.92); }
+
+    /* rows 1-12 should not add their own background, let tbody show through */
+    tbody tr.elem-row{
+      background: transparent !important;
     }
 
-    /* default zebra for non-element rows */
-    tbody tr.zebra-dark{
-      filter: brightness(0.92);
+    /* tbody background layers */
+    #leaderboardWide tbody{
+      position: relative;
+      /* four textures stacked + vignette */
+      background-image:
+        linear-gradient(to right, rgba(0,0,0,var(--elem-vignette)), rgba(0,0,0,0), rgba(0,0,0,var(--elem-vignette))),
+        url("./assets/fire.png"),
+        url("./assets/earth.png"),
+        url("./assets/air.png"),
+        url("./assets/water.png");
+      background-repeat:
+        no-repeat,
+        no-repeat, no-repeat, no-repeat, no-repeat;
+      background-size:
+        100% 100%,
+        100% calc(var(--rowH) * 3),
+        100% calc(var(--rowH) * 3),
+        100% calc(var(--rowH) * 3),
+        100% calc(var(--rowH) * 3);
+      /* positions will be set by JS via CSS vars */
+      background-position:
+        0 0,
+        0 var(--fireY),
+        0 var(--earthY),
+        0 var(--airY),
+        0 var(--waterY);
+      opacity: 1;
     }
 
+    /* subtle visibility control using overlay */
+    #leaderboardWide tbody::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:1;
+      pointer-events:none;
+
+      /* this layer makes textures soft + smooth transitions between blocks */
+      background:
+        linear-gradient(to bottom,
+          rgba(0,0,0,0) 0,
+          rgba(0,0,0,0) calc(var(--rowH) * 3 - var(--fade)),
+          rgba(0,0,0,.18) calc(var(--rowH) * 3),
+          rgba(0,0,0,0) calc(var(--rowH) * 3 + var(--fade)),
+
+          rgba(0,0,0,0) calc(var(--rowH) * 6 - var(--fade)),
+          rgba(0,0,0,.18) calc(var(--rowH) * 6),
+          rgba(0,0,0,0) calc(var(--rowH) * 6 + var(--fade)),
+
+          rgba(0,0,0,0) calc(var(--rowH) * 9 - var(--fade)),
+          rgba(0,0,0,.18) calc(var(--rowH) * 9),
+          rgba(0,0,0,0) calc(var(--rowH) * 9 + var(--fade))
+        );
+      /* small soften */
+      filter: blur(0.6px);
+      opacity: 1;
+    }
+
+    /* reduce texture intensity uniformly (works reliably) */
+    #leaderboardWide tbody::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:1;
+      pointer-events:none;
+      background: rgba(0,0,0,0);
+      mix-blend-mode: normal;
+      /* "dim" textures: */
+      box-shadow: inset 0 0 0 9999px rgba(0,0,0, calc(1 - var(--elem-opacity)));
+    }
+
+    /* Place badge */
     .place-badge{
       display:inline-flex;
       align-items:center;
@@ -303,8 +378,6 @@
       font-weight: 800;
       margin: 0 auto;
     }
-
-    /* Medal badges only for #1-#3 */
     .place-badge.place-1{
       color: rgba(255, 226, 120, .98);
       border-color: rgba(255, 226, 120, .55);
@@ -321,73 +394,6 @@
       box-shadow: 0 0 14px rgba(205, 127, 50, .12);
     }
 
-    /* =========================
-       ELEMENT ROWS WITH IMAGES (background only, subtle)
-       1-3 fire, 4-6 earth, 7-9 air, 10-12 water
-       ========================= */
-
-    tbody tr.rank-fire::before,
-    tbody tr.rank-earth::before,
-    tbody tr.rank-air::before,
-    tbody tr.rank-water::before{
-      content:"";
-      position:absolute;
-      inset: -10px;
-      z-index: 0;
-      pointer-events:none;
-
-      background-repeat: repeat;
-      background-size: 520px auto;
-      background-position: 0% 50%;
-      opacity: .26;                 /* очень мягко */
-      filter: saturate(1.05) contrast(1.05);
-      mix-blend-mode: screen;
-      will-change: background-position;
-      animation: texMove 18s linear infinite;
-    }
-
-    /* тёмная “читабельная” вуаль поверх текстуры */
-    tbody tr.rank-fire::after,
-    tbody tr.rank-earth::after,
-    tbody tr.rank-air::after,
-    tbody tr.rank-water::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      z-index:0;
-      pointer-events:none;
-      background: linear-gradient(90deg, rgba(0,0,0,.18), rgba(0,0,0,.06), rgba(0,0,0,.18));
-    }
-
-    /* контент поверх слоёв */
-    tbody tr.rank-fire > td,
-    tbody tr.rank-earth > td,
-    tbody tr.rank-air > td,
-    tbody tr.rank-water > td{
-      position: relative;
-      z-index: 1;
-    }
-
-    tbody tr.rank-fire::before{  background-image: url("./assets/fire.png"); }
-    tbody tr.rank-earth::before{ background-image: url("./assets/earth.png"); }
-    tbody tr.rank-air::before{   background-image: url("./assets/air.png"); }
-    tbody tr.rank-water::before{ background-image: url("./assets/water.png"); }
-
-    @keyframes texMove{
-      0%   { background-position: 0% 50%; }
-      100% { background-position: 100% 50%; }
-    }
-
-    @media (prefers-reduced-motion: reduce){
-      tbody tr.rank-fire::before,
-      tbody tr.rank-earth::before,
-      tbody tr.rank-air::before,
-      tbody tr.rank-water::before{
-        animation: none !important;
-      }
-    }
-
-    /* Portrait layout: keep wide table + scroll, stack header */
     @media (max-width: 760px) and (orientation: portrait) {
       .topbar{
         display:flex;
@@ -396,20 +402,10 @@
         gap: 10px;
         text-align: center;
       }
-      .brand{
-        min-width: 0;
-        justify-content: center;
-      }
+      .brand{ min-width: 0; justify-content: center; }
       .brand img{ height: 42px; }
-      .season-name{
-        text-align: center;
-        justify-self: unset;
-        max-width: 92vw;
-      }
-      .center-title .title{
-        font-size: 18px;
-        letter-spacing: .08em;
-      }
+      .season-name{ text-align: center; justify-self: unset; max-width: 92vw; }
+      .center-title .title{ font-size: 18px; letter-spacing: .08em; }
     }
 
     /* Modal */
@@ -481,16 +477,13 @@
 
 <body>
   <div class="wrap">
-
     <div class="topbar">
       <div class="brand">
         <img src="./assets/logo.png" alt="River Poker Club">
       </div>
-
       <div class="center-title">
         <div class="title">RIVER RATING</div>
       </div>
-
       <div class="season-name" id="seasonName">—</div>
     </div>
 
@@ -512,7 +505,6 @@
     <div class="panel">
       <div class="panel-head">
         <div class="panel-title">Рейтинг игроков</div>
-        <!-- Надпись убрана по твоей просьбе -->
       </div>
 
       <div class="wide-wrap" id="leaderboardWideWrap">
@@ -564,7 +556,6 @@
   function norm(x) { return String(x ?? "").trim(); }
   function normUp(x) { return norm(x).toUpperCase(); }
 
-  // ===== Dates: support "DD.MM" as text =====
   function parseDdMm(s){
     const t = norm(s);
     const m = t.match(/^(\d{1,2})\.(\d{1,2})$/);
@@ -578,7 +569,7 @@
   function dateKeyFromCell(v){
     const dm = parseDdMm(v);
     if (!dm) return null;
-    return `${pad2(dm.mm)}-${pad2(dm.dd)}`; // sort by month then day
+    return `${pad2(dm.mm)}-${pad2(dm.dd)}`;
   }
   function dateLabelFromCell(v){
     const dm = parseDdMm(v);
@@ -709,7 +700,7 @@
       const label = dateLabelFromCell(m.date);
       if (!map.has(key)) map.set(key, { key, label });
     }
-    return [...map.values()].sort((a,b) => (a.key < b.key ? 1 : -1)); // newest right-to-left
+    return [...map.values()].sort((a,b) => (a.key < b.key ? 1 : -1));
   }
 
   function buildPointsMatrix(matchesFiltered) {
@@ -723,10 +714,25 @@
       const mp = matrix.get(pid);
 
       const p = Number(String(m.points ?? "").replace(",", "."));
-      const add = Number.isFinite(p) ? p : 0; // "—" -> 0
+      const add = Number.isFinite(p) ? p : 0;
       mp.set(dateKey, (mp.get(dateKey) || 0) + add);
     }
     return matrix;
+  }
+
+  function updateElementBackdrop_() {
+    // compute row height in px and set CSS vars so each texture is exactly 3 rows tall
+    const tbody = document.querySelector("#leaderboardWide tbody");
+    const firstRow = document.querySelector("#leaderboardWide tbody tr");
+    if (!tbody || !firstRow) return;
+
+    const h = Math.max(1, Math.round(firstRow.getBoundingClientRect().height));
+    // set vars: row height and Y offsets for each 3-row block
+    tbody.style.setProperty("--rowH", h + "px");
+    tbody.style.setProperty("--fireY",  (0 * h) + "px");     // rows 1-3
+    tbody.style.setProperty("--earthY", (3 * h) + "px");     // rows 4-6
+    tbody.style.setProperty("--airY",   (6 * h) + "px");     // rows 7-9
+    tbody.style.setProperty("--waterY", (9 * h) + "px");     // rows 10-12
   }
 
   async function renderAll() {
@@ -742,7 +748,6 @@
       loadMatchesOnce()
     ]);
 
-    // --- LOAD + SORT rows BY points (Season / Total) ---
     const rowsRaw = await lbRes.json();
     const toNum = (v) => {
       const s = String(v ?? "").trim().replace(/\s+/g, "").replace(",", ".");
@@ -774,14 +779,8 @@
       const pid = String(r.player_id);
       const num = idx + 1;
 
-      // ✅ FIXED ELEMENT RANGES:
-      // 1-3 fire, 4-6 earth, 7-9 air, 10-12 water, 13+ none
-      let rankClass = "";
-      if (num <= 3) rankClass = "rank-fire";
-      else if (num <= 6) rankClass = "rank-earth";
-      else if (num <= 9) rankClass = "rank-air";
-      else if (num <= 12) rankClass = "rank-water";
-
+      // mark top 12 as "elem-row" to let tbody background show through
+      const elemRow = (num <= 12) ? "elem-row" : "";
       const zebraClass = (num % 2 === 0) ? "zebra-dark" : "";
 
       const mp = matrix.get(pid);
@@ -796,7 +795,7 @@
         (num === 3) ? "place-badge place-3" :
         "place-badge";
 
-      return `<tr class="${rankClass} ${zebraClass}" data-player="${pid}">
+      return `<tr class="${elemRow} ${zebraClass}" data-player="${pid}">
         <td><span class="${placeBadgeClass}">${num}</span></td>
         <td>${r.name ?? ""}</td>
         <td>${r.season_score ?? ""}</td>
@@ -809,6 +808,11 @@
 
     [...document.querySelectorAll("tr[data-player]")].forEach(tr => {
       tr.onclick = () => openProfile(tr.getAttribute("data-player"));
+    });
+
+    // after render: align element textures exactly to 3 rows
+    requestAnimationFrame(() => {
+      updateElementBackdrop_();
     });
 
     setStatus("");
@@ -858,6 +862,11 @@
       </div>
     `;
   }
+
+  // keep correct after resize (mobile rotate etc.)
+  window.addEventListener("resize", () => {
+    updateElementBackdrop_();
+  });
 
   (async () => {
     try {
