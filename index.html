@@ -22,8 +22,6 @@
 
       --gold: #d6b56a;
       --gold2: #f0de9a;
-      --silver: rgba(220, 226, 235, .95);
-      --bronze: rgba(205, 127, 50, .95);
 
       --shadow: 0 20px 60px rgba(0,0,0,.55);
       --shadow2: 0 10px 30px rgba(0,0,0,.45);
@@ -67,10 +65,10 @@
       margin: 22px auto 40px;
     }
 
-    /* Header */
+    /* Header (desktop/landscape) */
     .topbar{
       display: grid;
-      grid-template-columns: 1fr auto 1fr;
+      grid-template-columns: 1fr auto 1fr; /* left / center / right */
       align-items: center;
       gap: 14px;
       padding: 14px 16px;
@@ -238,10 +236,13 @@
       font-size: 13px;
       color: rgba(255,255,255,.88);
     }
-    /* ✅ removed hint text completely */
-    .panel-hint{ display:none; }
+    .panel-hint{
+      font-size: 12px;
+      color: var(--muted);
+      text-align: right;
+    }
 
-    /* Horizontal scroll always */
+    /* ✅ Horizontal scroll for wide table */
     .wide-wrap{
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
@@ -252,8 +253,10 @@
       min-width: max-content;
     }
 
-    table{ width: 100%; border-collapse: collapse; }
-
+    table{
+      width: 100%;
+      border-collapse: collapse;
+    }
     thead th{
       position: sticky;
       top: 0;
@@ -281,57 +284,22 @@
       transition: background .14s ease;
       cursor: pointer;
     }
-    tbody tr:hover{ background: rgba(255,255,255,.06); }
-
-    /* =========================
-       ✅ NEW: elemental stripes
-       1-3 fire, 4-6 earth, 7-10 air, 11-13 water
-       Others: zebra gray
-       ========================= */
-
-    /* Base zebra for non-element rows */
-    tbody tr.zebra-light{ background: rgba(255,255,255,.02); }
-    tbody tr.zebra-dark { background: rgba(0,0,0,.18); }
-
-    /* Fire (1-3): flowing ember gradient */
-    tbody tr.rank-fire{
-      background:
-        radial-gradient(1200px 80px at 18% 40%, rgba(255, 184, 77, .18), transparent 55%),
-        radial-gradient(900px 80px at 55% 55%, rgba(255, 92, 0, .14), transparent 58%),
-        radial-gradient(900px 80px at 82% 45%, rgba(255, 238, 170, .10), transparent 55%),
-        linear-gradient(90deg, rgba(255, 90, 0, .18), rgba(255, 195, 77, .12), rgba(120, 20, 0, .14));
+    tbody tr:hover{
+      background: rgba(255,255,255,.06);
     }
 
-    /* Earth (4-6): sand/soil gradient */
-    tbody tr.rank-earth{
-      background:
-        radial-gradient(900px 80px at 20% 50%, rgba(214,181,106,.16), transparent 55%),
-        radial-gradient(900px 80px at 60% 55%, rgba(140, 92, 35, .14), transparent 55%),
-        linear-gradient(90deg, rgba(90, 55, 18, .16), rgba(214,181,106,.10), rgba(30, 18, 8, .16));
+    /* Rank colors */
+    tbody tr.rank-gold{
+      background: linear-gradient(to right, rgba(214,181,106,.22), rgba(214,181,106,.06));
     }
-
-    /* Air (7-10): cool wind gradient */
-    tbody tr.rank-air{
-      background:
-        radial-gradient(900px 80px at 22% 45%, rgba(220, 240, 255, .12), transparent 55%),
-        radial-gradient(900px 80px at 62% 55%, rgba(160, 205, 255, .10), transparent 55%),
-        linear-gradient(90deg, rgba(40, 70, 110, .16), rgba(160, 205, 255, .08), rgba(10, 12, 18, .18));
+    tbody tr.rank-silver{
+      background: linear-gradient(to right, rgba(220, 226, 235, .18), rgba(220, 226, 235, .05));
     }
-
-    /* Water (11-13): deep water gradient */
-    tbody tr.rank-water{
-      background:
-        radial-gradient(900px 80px at 18% 55%, rgba(90, 200, 255, .12), transparent 55%),
-        radial-gradient(900px 80px at 62% 45%, rgba(0, 120, 255, .10), transparent 55%),
-        linear-gradient(90deg, rgba(0, 55, 120, .16), rgba(90, 200, 255, .08), rgba(8, 12, 20, .18));
+    tbody tr.rank-bronze{
+      background: linear-gradient(to right, rgba(205, 127, 50, .14), rgba(205, 127, 50, .04));
     }
-
-    /* Keep hover readable on element rows */
-    tbody tr.rank-fire:hover,
-    tbody tr.rank-earth:hover,
-    tbody tr.rank-air:hover,
-    tbody tr.rank-water:hover{
-      filter: brightness(1.06);
+    tbody tr.zebra-dark{
+      filter: brightness(0.92);
     }
 
     .place-badge{
@@ -345,31 +313,15 @@
       border: 1px solid rgba(255,255,255,.18);
       background: rgba(0,0,0,.28);
       color: rgba(255,255,255,.92);
-      font-weight: 800;
+      font-weight: 700;
       margin: 0 auto;
     }
 
-    /* ✅ Badge colors for 1/2/3 */
-    .place-badge.place-1{
-      border-color: rgba(240,222,154,.55);
-      background: rgba(214,181,106,.18);
-      color: var(--gold2);
-      text-shadow: 0 10px 22px rgba(214,181,106,.35);
-    }
-    .place-badge.place-2{
-      border-color: rgba(255,255,255,.30);
-      background: rgba(220,226,235,.14);
-      color: var(--silver);
-      text-shadow: 0 10px 22px rgba(220,226,235,.25);
-    }
-    .place-badge.place-3{
-      border-color: rgba(205,127,50,.35);
-      background: rgba(205,127,50,.14);
-      color: var(--bronze);
-      text-shadow: 0 10px 22px rgba(205,127,50,.25);
-    }
+    /* Layout switch */
+    #leaderboardWideWrap { display: block; }
+    #leaderboardCompact { display: none; }
 
-    /* Portrait header stacks */
+    /* ✅ Portrait: season centered + compact table without dates */
     @media (max-width: 760px) and (orientation: portrait) {
       .topbar{
         display: flex;
@@ -378,10 +330,25 @@
         gap: 10px;
         text-align: center;
       }
-      .brand{ min-width: 0; justify-content: center; }
+      .brand{
+        min-width: 0;
+        justify-content: center;
+      }
       .brand img{ height: 42px; }
-      .season-name{ text-align: center; justify-self: unset; max-width: 92vw; }
-      .center-title .title{ font-size: 18px; letter-spacing: .08em; }
+
+      .season-name{
+        text-align: center;
+        justify-self: unset;
+        max-width: 92vw;
+      }
+
+      .center-title .title{
+        font-size: 18px;
+        letter-spacing: .08em;
+      }
+
+      #leaderboardWideWrap { display: none; }
+      #leaderboardCompact { display: table; }
     }
 
     /* Modal */
@@ -447,19 +414,23 @@
     .kv p{ margin: 7px 0; color: rgba(255,255,255,.86); }
     .kv b{ color: rgba(240,222,154,.92); font-weight: 700; }
     .mini th, .mini td{ text-align:center; }
+
     .hint{ color: var(--muted2); font-size: 12px; margin-top: 10px; }
   </style>
 </head>
 
 <body>
   <div class="wrap">
+
     <div class="topbar">
       <div class="brand">
         <img src="./assets/logo.png" alt="River Poker Club">
       </div>
+
       <div class="center-title">
         <div class="title">RIVER RATING</div>
       </div>
+
       <div class="season-name" id="seasonName">—</div>
     </div>
 
@@ -487,6 +458,8 @@
       <div class="wide-wrap" id="leaderboardWideWrap">
         <table id="leaderboardWide"></table>
       </div>
+
+      <table id="leaderboardCompact"></table>
     </div>
   </div>
 
@@ -504,7 +477,12 @@
   </div>
 
 <script>
+  const SHEET_ID = "1Pj2H4dT3f0W7rmWQPPgj1_FHbCPSIDsRmO56I-VmZls";
   const PROFILE_API_BASE = "https://script.google.com/macros/s/AKfycbwKd6_brG1Pgy3U3AUX_cNCUoznk2nYzIOYKo790MDs48ktJwlKvdQ_P8TNXqvPJsGkTQ/exec";
+
+  const LEADERBOARD_URL = `https://opensheet.elk.sh/${SHEET_ID}/Leaderboard`;
+  const SEASONS_URL     = `https://opensheet.elk.sh/${SHEET_ID}/Seasons`;
+  const MATCHES_URL     = `https://opensheet.elk.sh/${SHEET_ID}/Matches`;
 
   const statusEl       = document.getElementById("status");
   const seasonSelect   = document.getElementById("seasonSelect");
@@ -513,6 +491,7 @@
   const seasonNameEl   = document.getElementById("seasonName");
 
   const tableWideEl    = document.getElementById("leaderboardWide");
+  const tableCompactEl = document.getElementById("leaderboardCompact");
 
   const modalEl   = document.getElementById("modal");
   const profileEl = document.getElementById("profile");
@@ -522,12 +501,13 @@
   modalEl.onclick = (e) => { if (e.target === modalEl) modalEl.style.display = "none"; };
 
   let seasonsCache = [];
-  const dashCache = new Map(); // seasonId -> {leaderboard, matches}
+  let matchesCache = null;
 
   function setStatus(t) { statusEl.textContent = t; }
   function norm(x) { return String(x ?? "").trim(); }
   function normUp(x) { return norm(x).toUpperCase(); }
 
+  // ===== Dates: support "DD.MM" as text =====
   function parseDdMm(s){
     const t = norm(s);
     const m = t.match(/^(\d{1,2})\.(\d{1,2})$/);
@@ -541,7 +521,7 @@
   function dateKeyFromCell(v){
     const dm = parseDdMm(v);
     if (!dm) return null;
-    return `${pad2(dm.mm)}-${pad2(dm.dd)}`;
+    return `${pad2(dm.mm)}-${pad2(dm.dd)}`; // sort by month then day
   }
   function dateLabelFromCell(v){
     const dm = parseDdMm(v);
@@ -549,26 +529,19 @@
     return `${pad2(dm.dd)}.${pad2(dm.mm)}`;
   }
 
-  function toNum(v){
-    const s = String(v ?? "").trim().replace(/\s+/g, "").replace(",", ".");
-    const n = Number(s);
-    return Number.isFinite(n) ? n : 0;
-  }
-
   async function getCurrentSeasonFromApi() {
-    const res = await fetch(PROFILE_API_BASE, { cache: "no-store" });
+    const res = await fetch(PROFILE_API_BASE);
     const data = await res.json();
     return normUp(data.current_season_id || "");
   }
   async function setSeason(seasonId) {
-    await fetch(`${PROFILE_API_BASE}?season_id=${encodeURIComponent(seasonId)}`, { cache: "no-store" });
+    await fetch(`${PROFILE_API_BASE}?season_id=${encodeURIComponent(seasonId)}`);
   }
 
   async function loadSeasons() {
     setStatus("Загрузка сезонов…");
-    const res = await fetch(`${PROFILE_API_BASE}?mode=meta`, { cache: "no-store" });
-    const data = await res.json();
-    seasonsCache = Array.isArray(data.seasons) ? data.seasons : [];
+    const res = await fetch(SEASONS_URL);
+    seasonsCache = await res.json();
 
     seasonSelect.innerHTML =
       `<option value="TOTAL">Total</option>` +
@@ -579,7 +552,7 @@
       setStatus("Переключаю сезон…");
       await setSeason(seasonId);
       updateSeasonName();
-      await renderLeaderboard();
+      await renderAll();
       setStatus("");
     };
 
@@ -592,7 +565,7 @@
         setStatus("Переключаю сезон…");
         await setSeason(last);
         updateSeasonName();
-        await renderLeaderboard();
+        await renderAll();
         setStatus("");
         return;
       }
@@ -603,7 +576,7 @@
         setStatus("Переключаю сезон…");
         await setSeason(prev);
         updateSeasonName();
-        await renderLeaderboard();
+        await renderAll();
         setStatus("");
       }
     };
@@ -617,7 +590,7 @@
         setStatus("Переключаю сезон…");
         await setSeason(first);
         updateSeasonName();
-        await renderLeaderboard();
+        await renderAll();
         setStatus("");
         return;
       }
@@ -628,7 +601,7 @@
         setStatus("Переключаю сезон…");
         await setSeason(next);
         updateSeasonName();
-        await renderLeaderboard();
+        await renderAll();
         setStatus("");
       }
     };
@@ -644,28 +617,20 @@
     seasonNameEl.textContent = s ? s.season_name : "—";
   }
 
-  async function loadDashboard(seasonId){
-    const sid = normUp(seasonId);
-    if (dashCache.has(sid)) return dashCache.get(sid);
+  async function loadMatchesOnce() {
+    if (matchesCache) return matchesCache;
+    setStatus("Загрузка матчей…");
+    const res = await fetch(MATCHES_URL);
+    matchesCache = await res.json();
+    return matchesCache;
+  }
 
-    setStatus("Загрузка данных…");
-    const url = `${PROFILE_API_BASE}?mode=dashboard&season_id=${encodeURIComponent(sid)}`;
-    const res = await fetch(url, { cache: "no-store" });
-    const data = await res.json();
-
-    const out = {
-      leaderboard: Array.isArray(data.leaderboard) ? data.leaderboard : [],
-      matches: Array.isArray(data.matches) ? data.matches : []
-    };
-    dashCache.set(sid, out);
-    return out;
+  function getField(row, keys) {
+    for (const k of keys) if (row[k] !== undefined) return row[k];
+    return undefined;
   }
 
   function normalizeMatches(rows) {
-    const getField = (r, keys) => {
-      for (const k of keys) if (r && r[k] !== undefined) return r[k];
-      return undefined;
-    };
     return rows.map(r => ({
       date: getField(r, ["date", "Date", "A"]),
       season: getField(r, ["season", "season_id", "Season", "B"]),
@@ -687,116 +652,78 @@
       const label = dateLabelFromCell(m.date);
       if (!map.has(key)) map.set(key, { key, label });
     }
-    return [...map.values()].sort((a,b) => (a.key < b.key ? 1 : -1));
+    return [...map.values()].sort((a,b) => (a.key < b.key ? 1 : -1)); // newest right-to-left
   }
 
-  function buildPointsAndSums(matchesAll, seasonId){
-    const filtered = filterMatchesByMode(matchesAll, seasonId);
-    const dateCols = buildDateColumns(filtered);
-
+  function buildPointsMatrix(matchesFiltered) {
     const matrix = new Map();
-    const seasonSum = new Map();
-    const totalSum  = new Map();
-
-    for (const m of matchesAll) {
-      const pid = String(m.player_id);
-      const add = toNum(m.points);
-      totalSum.set(pid, (totalSum.get(pid) || 0) + add);
-    }
-
-    for (const m of filtered) {
+    for (const m of matchesFiltered) {
       const dateKey = dateKeyFromCell(m.date);
       if (!dateKey) continue;
 
       const pid = String(m.player_id);
-      const add = toNum(m.points);
-
-      seasonSum.set(pid, (seasonSum.get(pid) || 0) + add);
-
       if (!matrix.has(pid)) matrix.set(pid, new Map());
       const mp = matrix.get(pid);
+
+      const p = Number(m.points);
+      const add = Number.isFinite(p) ? p : 0; // "—" -> 0
       mp.set(dateKey, (mp.get(dateKey) || 0) + add);
     }
-
-    if (seasonId === "TOTAL") {
-      for (const [pid, v] of totalSum.entries()) seasonSum.set(pid, v);
-    }
-
-    return { dateCols, matrix, seasonSum, totalSum };
+    return matrix;
   }
 
-  function pick(r, keys){
-    for (const k of keys) if (r && r[k] !== undefined) return r[k];
-    return undefined;
-  }
-
-  function rankRowClass(place){
-    // 1-3 fire, 4-6 earth, 7-10 air, 11-13 water, rest zebra (handled separately)
-    if (place >= 1 && place <= 3) return "rank-fire";
-    if (place >= 4 && place <= 6) return "rank-earth";
-    if (place >= 7 && place <= 10) return "rank-air";
-    if (place >= 11 && place <= 13) return "rank-water";
-    return ""; // zebra fallback
-  }
-
-  function badgeClass(place){
-    if (place === 1) return "place-1";
-    if (place === 2) return "place-2";
-    if (place === 3) return "place-3";
-    return "";
+  async function renderAll() {
+    await renderLeaderboard();
   }
 
   async function renderLeaderboard() {
+    setStatus("Загрузка рейтинга…");
     const seasonId = normUp(seasonSelect.value);
-    const dash = await loadDashboard(seasonId);
 
-    let allMatchesForTotal = null;
-    const leaderboardRows = dash.leaderboard.map(r => ({
-      player_id: String(pick(r, ["player_id","playerId","A"]) ?? "").trim(),
-      name: pick(r, ["name","B"]) ?? ""
-    })).filter(x => x.player_id);
+    const [lbRes, rawMatches] = await Promise.all([
+      fetch(LEADERBOARD_URL),
+      loadMatchesOnce()
+    ]);
 
-    const matchesCur = normalizeMatches(dash.matches);
+    // --- LOAD + SORT rows BY points (Season / Total) ---
+    const rowsRaw = await lbRes.json();
+    const toNum = (v) => {
+      const s = String(v ?? "").trim().replace(/\s+/g, "").replace(",", ".");
+      const n = Number(s);
+      return Number.isFinite(n) ? n : 0;
+    };
+    const rows = [...rowsRaw].sort((a, b) => {
+      const keyA = (seasonId === "TOTAL") ? toNum(a.all_seasons_score) : toNum(a.season_score);
+      const keyB = (seasonId === "TOTAL") ? toNum(b.all_seasons_score) : toNum(b.season_score);
+      if (keyB !== keyA) return keyB - keyA;
 
-    if (seasonId === "TOTAL") {
-      allMatchesForTotal = matchesCur;
-    } else {
-      if (!dashCache.has("TOTAL")) {
-        const dTotal = await loadDashboard("TOTAL");
-        dashCache.set("TOTAL", { leaderboard: dTotal.leaderboard, matches: dTotal.matches });
-      }
-      allMatchesForTotal = normalizeMatches(dashCache.get("TOTAL").matches);
-    }
-
-    const { dateCols, matrix, seasonSum, totalSum } = buildPointsAndSums(allMatchesForTotal, seasonId);
-
-    const rows = [...leaderboardRows].sort((a, b) => {
-      const aSeason = seasonSum.get(a.player_id) || 0;
-      const bSeason = seasonSum.get(b.player_id) || 0;
-      if (bSeason !== aSeason) return bSeason - aSeason;
-
-      const aTot = totalSum.get(a.player_id) || 0;
-      const bTot = totalSum.get(b.player_id) || 0;
-      if (bTot !== aTot) return bTot - aTot;
-
-      return String(a.name).localeCompare(String(b.name), "ru", { sensitivity: "base" });
+      const nameA = String(a.name ?? "").trim();
+      const nameB = String(b.name ?? "").trim();
+      return nameA.localeCompare(nameB, "ru", { sensitivity: "base" });
     });
 
+    const matches = normalizeMatches(rawMatches);
+    const matchesFiltered = filterMatchesByMode(matches, seasonId);
+
+    const dateCols = buildDateColumns(matchesFiltered);
+    const matrix   = buildPointsMatrix(matchesFiltered);
+
+    // WIDE (desktop/landscape): dates + horizontal scroll
     const headWide = `<thead><tr>
       <th>№</th><th>Игрок</th><th>Очки сезона</th><th>Total</th>
       ${dateCols.map(d => `<th>${d.label}</th>`).join("")}
     </tr></thead>`;
 
     const bodyWide = `<tbody>` + rows.map((r, idx) => {
-      const pid = r.player_id;
-      const place = idx + 1;
+      const pid = String(r.player_id);
+      const num = idx + 1;
 
-      const elemClass = rankRowClass(place);
+      const rankClass =
+        (num <= 5) ? "rank-gold" :
+        (num <= 10) ? "rank-silver" :
+        "rank-bronze";
 
-      // ✅ zebra only for "non-element" rows
-      const zebraClass = (!elemClass)
-        ? (place % 2 === 0 ? "zebra-dark" : "zebra-light")
-        : "";
+      const zebraClass = (num % 2 === 0) ? "zebra-dark" : "";
 
       const mp = matrix.get(pid);
       const cells = dateCols.map(d => {
@@ -804,19 +731,41 @@
         return `<td>${v ? v : "—"}</td>`;
       }).join("");
 
-      const seasonPts = seasonSum.get(pid) || 0;
-      const totalPts  = totalSum.get(pid) || 0;
-
-      return `<tr class="${elemClass} ${zebraClass}" data-player="${pid}">
-        <td><span class="place-badge ${badgeClass(place)}">${place}</span></td>
+      return `<tr class="${rankClass} ${zebraClass}" data-player="${pid}">
+        <td><span class="place-badge">${num}</span></td>
         <td>${r.name ?? ""}</td>
-        <td>${seasonPts}</td>
-        <td>${totalPts}</td>
+        <td>${r.season_score ?? ""}</td>
+        <td>${r.all_seasons_score ?? ""}</td>
         ${cells}
       </tr>`;
     }).join("") + `</tbody>`;
 
     tableWideEl.innerHTML = headWide + bodyWide;
+
+    // COMPACT (portrait phone): NO dates
+    const headCompact = `<thead><tr>
+      <th>№</th><th>Игрок</th><th>Сезон</th><th>Total</th>
+    </tr></thead>`;
+
+    const bodyCompact = `<tbody>` + rows.map((r, idx) => {
+      const num = idx + 1;
+
+      const rankClass =
+        (num <= 5) ? "rank-gold" :
+        (num <= 10) ? "rank-silver" :
+        "rank-bronze";
+
+      const zebraClass = (num % 2 === 0) ? "zebra-dark" : "";
+
+      return `<tr class="${rankClass} ${zebraClass}" data-player="${String(r.player_id)}">
+        <td><span class="place-badge">${num}</span></td>
+        <td>${r.name ?? ""}</td>
+        <td>${r.season_score ?? ""}</td>
+        <td>${r.all_seasons_score ?? ""}</td>
+      </tr>`;
+    }).join("") + `</tbody>`;
+
+    tableCompactEl.innerHTML = headCompact + bodyCompact;
 
     [...document.querySelectorAll("tr[data-player]")].forEach(tr => {
       tr.onclick = () => openProfile(tr.getAttribute("data-player"));
@@ -833,23 +782,13 @@
     return h;
   }
 
-  function sortLastGamesStable(list){
-    const arr = [...(list || [])];
-    arr.sort((a,b) => {
-      const ak = dateKeyFromCell(a.date) || "";
-      const bk = dateKeyFromCell(b.date) || "";
-      return ak < bk ? 1 : ak > bk ? -1 : 0;
-    });
-    return arr;
-  }
-
   async function openProfile(playerId) {
     modalEl.style.display = "block";
     profileEl.textContent = "Загрузка профиля…";
 
     const seasonId = normUp(seasonSelect.value);
     const url = `${PROFILE_API_BASE}?player_id=${encodeURIComponent(playerId)}&season_id=${encodeURIComponent(seasonId)}`;
-    const res = await fetch(url, { cache: "no-store" });
+    const res = await fetch(url);
     const data = await res.json();
 
     const summaryHtml = (data.profile || []).map(row =>
@@ -859,8 +798,7 @@
     const bySeasonRows = (data.by_season || []).map(r => [r.season, r.points]);
     const bySeasonHtml = renderSmallTable(["Сезон", "Очки"], bySeasonRows);
 
-    const lastSorted = sortLastGamesStable(data.last_games || []);
-    const lastRows = lastSorted.map(r => [r.date, r.season, r.points]);
+    const lastRows = (data.last_games || []).map(r => [r.date, r.season, r.points]);
     const lastHtml = renderSmallTable(["Дата", "Сезон", "Очки"], lastRows);
 
     profileEl.innerHTML = `
@@ -896,7 +834,7 @@
       await setSeason(normUp(seasonSelect.value));
       updateSeasonName();
 
-      await renderLeaderboard();
+      await renderAll();
       setStatus("");
     } catch (err) {
       setStatus("Ошибка загрузки. Проверь доступ к таблице и Web App.");
