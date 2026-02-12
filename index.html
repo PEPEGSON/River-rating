@@ -250,7 +250,7 @@
       touch-action: pan-x pan-y;
     }
     #leaderboardWide{
-      min-width: max-content; /* forces scroll when many date columns */
+      min-width: max-content;
     }
 
     table{
@@ -507,22 +507,26 @@
   function norm(x) { return String(x ?? "").trim(); }
   function normUp(x) { return norm(x).toUpperCase(); }
 
-  function parseDate(v) {
-    const s = norm(v);
-    const d = new Date(s);
-    if (!isNaN(d.getTime())) return d;
-    return null;
+  // ===== Dates: support "DD.MM" as text =====
+  function parseDdMm(s){
+    const t = norm(s);
+    const m = t.match(/^(\d{1,2})\.(\d{1,2})$/);
+    if (!m) return null;
+    const dd = Number(m[1]);
+    const mm = Number(m[2]);
+    if (dd < 1 || dd > 31 || mm < 1 || mm > 12) return null;
+    return { dd, mm };
   }
-  function ddmm(d) {
-    const dd = String(d.getDate()).padStart(2, "0");
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    return `${dd}.${mm}`;
+  function pad2(n){ return String(n).padStart(2,"0"); }
+  function dateKeyFromCell(v){
+    const dm = parseDdMm(v);
+    if (!dm) return null;
+    return `${pad2(dm.mm)}-${pad2(dm.dd)}`; // sort by month then day
   }
-  function ymd(d) {
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    const dd = String(d.getDate()).padStart(2, "0");
-    return `${yyyy}-${mm}-${dd}`;
+  function dateLabelFromCell(v){
+    const dm = parseDdMm(v);
+    if (!dm) return norm(v);
+    return `${pad2(dm.dd)}.${pad2(dm.mm)}`;
   }
 
   async function getCurrentSeasonFromApi() {
@@ -631,7 +635,7 @@
       date: getField(r, ["date", "Date", "A"]),
       season: getField(r, ["season", "season_id", "Season", "B"]),
       player_id: getField(r, ["player_id", "playerId", "C"]),
-      points: Number(getField(r, ["points", "score", "D"])) || 0
+      points: getField(r, ["points", "score", "D"])
     })).filter(x => x.player_id);
   }
 
@@ -643,28 +647,27 @@
   function buildDateColumns(matchesFiltered) {
     const map = new Map();
     for (const m of matchesFiltered) {
-      const d = parseDate(m.date);
-      if (!d) continue;
-      const key = ymd(d);
-      const ts = d.getTime();
-      const label = ddmm(d);
-      if (!map.has(key) || ts > map.get(key).ts) map.set(key, { ts, label });
+      const key = dateKeyFromCell(m.date);
+      if (!key) continue;
+      const label = dateLabelFromCell(m.date);
+      if (!map.has(key)) map.set(key, { key, label });
     }
-    return [...map.entries()]
-      .sort((a, b) => b[1].ts - a[1].ts)
-      .map(([key, v]) => ({ key, label: v.label, ts: v.ts }));
+    return [...map.values()].sort((a,b) => (a.key < b.key ? 1 : -1)); // newest right-to-left
   }
 
   function buildPointsMatrix(matchesFiltered) {
     const matrix = new Map();
     for (const m of matchesFiltered) {
-      const d = parseDate(m.date);
-      if (!d) continue;
-      const dateKey = ymd(d);
+      const dateKey = dateKeyFromCell(m.date);
+      if (!dateKey) continue;
+
       const pid = String(m.player_id);
       if (!matrix.has(pid)) matrix.set(pid, new Map());
       const mp = matrix.get(pid);
-      mp.set(dateKey, (mp.get(dateKey) || 0) + (Number(m.points) || 0));
+
+      const p = Number(m.points);
+      const add = Number.isFinite(p) ? p : 0; // "—" -> 0
+      mp.set(dateKey, (mp.get(dateKey) || 0) + add);
     }
     return matrix;
   }
