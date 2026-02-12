@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Poker Rating</title>
+
+  <style>
+    body { font-family: Arial, sans-serif; padding: 16px; }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin: 10px 0 6px;
+    }
+    .left-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .right-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+    button, select { padding: 6px 10px; }
+    label { font-weight: 600; }
+    #status { color:#666; font-size: 12px; margin-left: 8px; }
+
+    table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+    th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
+    tr:hover { background: #f6f6f6; cursor: pointer; }
+
+    .wide-wrap { overflow-x: auto; }
+    .wide-table th, .wide-table td { white-space: nowrap; }
+
+    .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); }
+    .card  { background:#fff; width:min(820px, 94vw); margin:6vh auto; padding:16px; border-radius: 10px; }
+    .close { float:right; border:0; background:#eee; padding:6px 10px; cursor:pointer; border-radius: 8px; }
+    .hint  { color:#666; font-size: 12px; margin-top: 8px; }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 10px;
+    }
+    @media (max-width: 720px) {
+      .profile-grid { grid-template-columns: 1fr; }
+    }
+    .box { border: 1px solid #eee; border-radius: 10px; padding: 12px; }
+    .box h4 { margin: 0 0 8px; }
+    .kv p { margin: 6px 0; }
+    .mini table { margin-top: 6px; }
+    .mini th, .mini td { padding: 6px; }
+
+    /* responsive: wide vs compact */
+    #leaderboardWideWrap { display: block; }
+    #leaderboardCompact { display: none; }
+
+    @media (max-width: 720px) and (orientation: portrait) {
+      #leaderboardWideWrap { display: none; }
+      #leaderboardCompact { display: table; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>Рейтинг</h2>
+
+  <div class="toolbar">
+    <div class="left-controls">
+      <button id="prevSeasonBtn" type="button">← Предыдущий сезон</button>
+      <button id="nextSeasonBtn" type="button">Следующий сезон →</button>
+      <span id="status">Загрузка…</span>
+    </div>
+
+    <div class="right-controls">
+      <label for="seasonSelect">Сезон:</label>
+      <select id="seasonSelect"></select>
+    </div>
+  </div>
+
+  <div class="wide-wrap" id="leaderboardWideWrap">
+    <table class="wide-table" id="leaderboardWide"></table>
+  </div>
+
+  <table id="leaderboardCompact"></table>
+
+  <div class="modal" id="modal">
+    <div class="card">
+      <button class="close" id="closeBtn">✕</button>
+      <div id="profile">Загрузка профиля…</div>
+      <div class="hint">Клик вне окна — закрыть</div>
+    </div>
+  </div>
+
+<script>
+  // Твои значения
+  const SHEET_ID = "1Pj2H4dT3f0W7rmWQPPgj1_FHbCPSIDsRmO56I-VmZls";
+  const PROFILE_API_BASE = "https://script.google.com/macros/s/AKfycbwKd6_brG1Pgy3U3AUX_cNCUoznk2nYzIOYKo790MDs48ktJwlKvdQ_P8TNXqvPJsGkTQ/exec";
+
+  // opensheet endpoints
+  const LEADERBOARD_URL = `https://opensheet.elk.sh/${SHEET_ID}/Leaderboard`;
+  const SEASONS_URL     = `https://opensheet.elk.sh/${SHEET_ID}/Seasons`;
+  const MATCHES_URL     = `https://opensheet.elk.sh/${SHEET_ID}/Matches`;
+
+  // DOM
+  const statusEl       = document.getElementById("status");
+  const seasonSelect   = document.getElementById("seasonSelect");
+  const prevBtn        = document.getElementById("prevSeasonBtn");
+  const nextBtn        = document.getElementById("nextSeasonBtn");
+
+  const tableWideEl    = document.getElementById("leaderboardWide");
+  const tableCompactEl = document.getElementById("leaderboardCompact");
+
+  const modalEl   = document.getElementById("modal");
+  const profileEl = document.getElementById("profile");
+  const closeBtn  = document.getElementById("closeBtn");
+
+  closeBtn.onclick = () => modalEl.style.display = "none";
+  modalEl.onclick = (e) => { if (e.target === modalEl) modalEl.style.display = "none"; };
+
+  // cache
+  let seasonsCache = [];
+  let matchesCache = null;
+
+  function setStatus(t) { statusEl.textContent = t; }
+  function norm(x) { return String(x ?? "").trim(); }
+  function normUp(x) { return norm(x).toUpperCase(); }
+
+  // ---- date helpers ----
+  function parseDate(v) {
+    if (v instanceof Date) return v;
+    const s = norm(v);
+    const d = new Date(s);
+    if (!isNaN(d.getTime())) return d;
+    return null;
+  }
+
+  function ddmm(d) {
+    const dd = String(d.getDate()).padStart(2, "0");
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    return `${dd}.${mm}`;
+  }
+
+  // ключ даты делаем ISO, чтобы разные годы не конфликтовали
+  function ymd(d) {
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  // ---- API ----
+  async function getCurrentSeasonFromApi() {
+    const res = await fetch(PROFILE_API_BASE);
+    const data = await res.json();
+    return normUp(data.current_season_id || "");
+  }
+
+  async function setSeason(seasonId) {
+    await fetch(`${PROFILE_API_BASE}?season_id=${encodeURIComponent(seasonId)}`);
+  }
+
+  // ---- loads ----
+  async function loadSeasons() {
+    setStatus("Загрузка сезонов…");
+    const res = await fetch(SEASONS_URL);
+    seasonsCache = await res.json();
+
+    seasonSelect.innerHTML =
+      `<option value="TOTAL">Total</option>` +
+      seasonsCache.map(s => `<option value="${normUp(s.season_id)}">${s.season_name}</option>`).join("");
+
+    seasonSelect.onchange = async () => {
+      const seasonId = normUp(seasonSelect.value);
+      setStatus("Переключаю сезон…");
+      await setSeason(seasonId);
+      await renderAll();
+      setStatus("");
+    };
+
+    prevBtn.onclick = async () => {
+      const current = normUp(seasonSelect.value);
+
+      if (current === "TOTAL") {
+        if (!seasonsCache.length) return;
+        const last = normUp(seasonsCache[seasonsCache.length - 1].season_id);
+        seasonSelect.value = last;
+        setStatus("Переключаю сезон…");
+        await setSeason(last);
+        await renderAll();
+        setStatus("");
+        return;
+      }
+
+      const idx = seasonsCache.findIndex(s => normUp(s.season_id) === current);
+      if (idx > 0) {
+        const prev = normUp(seasonsCache[idx - 1].season_id);
+        seasonSelect.value = prev;
+        setStatus("Переключаю сезон…");
+        await setSeason(prev);
+        await renderAll();
+        setStatus("");
+      }
+    };
+
+    nextBtn.onclick = async () => {
+      const current = normUp(seasonSelect.value);
+
+      if (current === "TOTAL") {
+        if (!seasonsCache.length) return;
+        const first = normUp(seasonsCache[0].season_id);
+        seasonSelect.value = first;
+        setStatus("Переключаю сезон…");
+        await setSeason(first);
+        await renderAll();
+        setStatus("");
+        return;
+      }
+
+      const idx = seasonsCache.findIndex(s => normUp(s.season_id) === current);
+      if (idx >= 0 && idx < seasonsCache.length - 1) {
+        const next = normUp(seasonsCache[idx + 1].season_id);
+        seasonSelect.value = next;
+        setStatus("Переключаю сезон…");
+        await setSeason(next);
+        await renderAll();
+        setStatus("");
+      }
+    };
+  }
+
+  async function loadMatchesOnce() {
+    if (matchesCache) return matchesCache;
+    setStatus("Загрузка матчей…");
+    const res = await fetch(MATCHES_URL);
+    matchesCache = await res.json();
+    return matchesCache;
+  }
+
+  function getField(row, keys) {
+    for (const k of keys) if (row[k] !== undefined) return row[k];
+    return undefined;
+  }
+
+  // В Matches ожидаем: date, season, player_id, points
+  function normalizeMatches(rows) {
+    return rows.map(r => ({
+      date: getField(r, ["date", "Date", "A"]),
+      season: getField(r, ["season", "season_id", "Season", "B"]),
+      player_id: getField(r, ["player_id", "playerId", "C"]),
+      points: Number(getField(r, ["points", "score", "D"])) || 0
+    })).filter(x => x.player_id);
+  }
+
+  function filterMatchesByMode(matches, seasonId) {
+    if (seasonId === "TOTAL") return matches;
+    return matches.filter(m => normUp(m.season) === seasonId);
+  }
+
+  // ---- КОЛОНКИ ДАТ: только если дата реально есть в данных ----
+  // + "справа налево": новые даты слева, старые справа
+  function buildDateColumns(matchesFiltered) {
+    // key (YYYY-MM-DD) -> { ts, label(dd.mm) }
+    const map = new Map();
+
+    for (const m of matchesFiltered) {
+      const d = parseDate(m.date);
+      if (!d) continue;
+
+      const key = ymd(d);
+      const ts = d.getTime();
+      const label = ddmm(d);
+
+      // если вдруг несколько строк на одну дату — берём самый свежий ts (на всякий)
+      if (!map.has(key) || ts > map.get(key).ts) {
+        map.set(key, { ts, label });
+      }
+    }
+
+    // сортируем по ts убыванию: новые слева -> это и есть "справа налево"
+    return [...map.entries()]
+      .sort((a, b) => b[1].ts - a[1].ts)
+      .map(([key, v]) => ({ key, label: v.label, ts: v.ts }));
+  }
+
+  // matrix[player_id][dateKey] = sum(points)
+  function buildPointsMatrix(matchesFiltered) {
+    const matrix = new Map();
+    for (const m of matchesFiltered) {
+      const d = parseDate(m.date);
+      if (!d) continue;
+
+      const dateKey = ymd(d);
+      const pid = String(m.player_id);
+
+      if (!matrix.has(pid)) matrix.set(pid, new Map());
+      const mp = matrix.get(pid);
+      mp.set(dateKey, (mp.get(dateKey) || 0) + (Number(m.points) || 0));
+    }
+    return matrix;
+  }
+
+  // last3 for compact table (по выбранному сезону или total)
+  function buildLast3(matchesFiltered) {
+    const byPlayer = new Map();
+    for (const m of matchesFiltered) {
+      const d = parseDate(m.date);
+      if (!d) continue;
+      const pid = String(m.player_id);
+      if (!byPlayer.has(pid)) byPlayer.set(pid, []);
+      byPlayer.get(pid).push({ ts: d.getTime(), label: ddmm(d), points: Number(m.points) || 0 });
+    }
+    const out = new Map();
+    for (const [pid, arr] of byPlayer.entries()) {
+      arr.sort((a, b) => b.ts - a.ts);
+      out.set(pid, arr.slice(0, 3).map(x => ({ date: x.label, points: x.points })));
+    }
+    return out;
+  }
+
+  async function renderAll() {
+    await renderLeaderboard();
+  }
+
+  async function renderLeaderboard() {
+    setStatus("Загрузка рейтинга…");
+    const seasonId = normUp(seasonSelect.value);
+
+    const [lbRes, rawMatches] = await Promise.all([
+      fetch(LEADERBOARD_URL),
+      loadMatchesOnce()
+    ]);
+
+    const rows = await lbRes.json();
+    const matches = normalizeMatches(rawMatches);
+    const matchesFiltered = filterMatchesByMode(matches, seasonId);
+
+    // Даты: только те, что реально есть в данных
+    const dateCols = buildDateColumns(matchesFiltered);
+
+    const matrix = buildPointsMatrix(matchesFiltered);
+    const last3 = buildLast3(matchesFiltered);
+
+    // сортировка по месту (1 сверху)
+    rows.sort((a, b) => {
+      const pa = Number(a.place);
+      const pb = Number(b.place);
+      if (pa !== pb) return pa - pb;
+      const sa = Number(a.season_score);
+      const sb = Number(b.season_score);
+      return sb - sa;
+    });
+
+    // WIDE
+    const headWide = `<tr>
+      <th>Место</th>
+      <th>Игрок</th>
+      <th>Очки сезона</th>
+      <th>Total</th>
+      ${dateCols.map(d => `<th>${d.label}</th>`).join("")}
+    </tr>`;
+
+    const bodyWide = rows.map(r => {
+      const pid = String(r.player_id);
+      const mp = matrix.get(pid);
+
+      // если игрок не играл в эту дату -> "—"
+      const cells = dateCols.map(d => {
+        const v = mp ? (mp.get(d.key) || 0) : 0;
+        return `<td>${v ? v : "—"}</td>`;
+      }).join("");
+
+      return `<tr data-player="${pid}">
+        <td>${r.place ?? ""}</td>
+        <td>${r.name ?? ""}</td>
+        <td>${r.season_score ?? ""}</td>
+        <td>${r.all_seasons_score ?? ""}</td>
+        ${cells}
+      </tr>`;
+    }).join("");
+
+    tableWideEl.innerHTML = headWide + bodyWide;
+
+    // COMPACT (вертикальный телефон)
+    const headCompact = `<tr>
+      <th>Место</th><th>Игрок</th><th>Сезон</th><th>Total</th>
+      <th>Игра 1</th><th>Игра 2</th><th>Игра 3</th>
+    </tr>`;
+
+    const bodyCompact = rows.map(r => {
+      const pid = String(r.player_id);
+      const g = last3.get(pid) || [];
+      const c1 = g[0] ? `${g[0].date}: ${g[0].points}` : "—";
+      const c2 = g[1] ? `${g[1].date}: ${g[1].points}` : "—";
+      const c3 = g[2] ? `${g[2].date}: ${g[2].points}` : "—";
+
+      return `<tr data-player="${pid}">
+        <td>${r.place ?? ""}</td>
+        <td>${r.name ?? ""}</td>
+        <td>${r.season_score ?? ""}</td>
+        <td>${r.all_seasons_score ?? ""}</td>
+        <td>${c1}</td><td>${c2}</td><td>${c3}</td>
+      </tr>`;
+    }).join("");
+
+    tableCompactEl.innerHTML = headCompact + bodyCompact;
+
+    // клики по строкам
+    [...document.querySelectorAll("tr[data-player]")].forEach(tr => {
+      tr.onclick = () => openProfile(tr.getAttribute("data-player"));
+    });
+
+    setStatus("");
+  }
+
+  // ---- modal/profile (оставляем как было) ----
+  function renderSmallTable(headers, rows) {
+    if (!rows || !rows.length) return `<div class="hint">Нет данных</div>`;
+    let h = `<table style="width:100%"><tr>${headers.map(x => `<th>${x}</th>`).join("")}</tr>`;
+    for (const r of rows) h += `<tr>${r.map(v => `<td>${v ?? ""}</td>`).join("")}</tr>`;
+    h += `</table>`;
+    return h;
+  }
+
+  async function openProfile(playerId) {
+    modalEl.style.display = "block";
+    profileEl.textContent = "Загрузка профиля…";
+
+    const seasonId = normUp(seasonSelect.value);
+    const url = `${PROFILE_API_BASE}?player_id=${encodeURIComponent(playerId)}&season_id=${encodeURIComponent(seasonId)}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    const summaryHtml = (data.profile || []).map(row =>
+      `<p><b>${row.label}</b>: ${row.value ?? ""}</p>`
+    ).join("");
+
+    const bySeasonRows = (data.by_season || []).map(r => [r.season, r.points]);
+    const bySeasonHtml = renderSmallTable(["Сезон", "Очки"], bySeasonRows);
+
+    const lastRows = (data.last_games || []).map(r => [r.date, r.season, r.points]);
+    const lastHtml = renderSmallTable(["Дата", "Сезон", "Очки"], lastRows);
+
+    profileEl.innerHTML = `
+      <h3>Статистика игрока</h3>
+      <div class="profile-grid">
+        <div class="box">
+          <h4>Сводка</h4>
+          <div class="kv">${summaryHtml || '<div class="hint">Нет данных</div>'}</div>
+        </div>
+        <div class="box mini">
+          <h4>Очки по сезонам</h4>
+          ${bySeasonHtml}
+        </div>
+        <div class="box mini" style="grid-column: 1 / -1;">
+          <h4>Последние игры</h4>
+          ${lastHtml}
+        </div>
+      </div>
+    `;
+  }
+
+  // ---- start ----
+  (async () => {
+    try {
+      await loadSeasons();
+
+      const currentSeason = await getCurrentSeasonFromApi();
+      const exists = seasonsCache.some(s => normUp(s.season_id) === currentSeason);
+
+      if (currentSeason && exists) seasonSelect.value = currentSeason;
+      else if (seasonsCache.length) seasonSelect.value = normUp(seasonsCache[seasonsCache.length - 1].season_id);
+      else seasonSelect.value = "TOTAL";
+
+      setStatus("Переключаю сезон…");
+      await setSeason(normUp(seasonSelect.value));
+
+      await renderAll();
+    } catch (err) {
+      setStatus("Ошибка загрузки. Проверь доступ к таблице и Web App.");
+      console.error(err);
+    }
+  })();
+</script>
+
+</body>
+</html>
