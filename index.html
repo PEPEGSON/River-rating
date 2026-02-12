@@ -65,10 +65,10 @@
       margin: 22px auto 40px;
     }
 
-    /* Header (desktop/landscape) */
+    /* Header */
     .topbar{
       display: grid;
-      grid-template-columns: 1fr auto 1fr; /* left / center / right */
+      grid-template-columns: 1fr auto 1fr;
       align-items: center;
       gap: 14px;
       padding: 14px 16px;
@@ -236,22 +236,15 @@
       font-size: 13px;
       color: rgba(255,255,255,.88);
     }
-    .panel-hint{
-      font-size: 12px;
-      color: var(--muted);
-      text-align: right;
-    }
 
-    /* ✅ Horizontal scroll for wide table */
+    /* ✅ Horizontal scroll for wide table (ALL modes) */
     .wide-wrap{
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
       overscroll-behavior-x: contain;
       touch-action: pan-x pan-y;
     }
-    #leaderboardWide{
-      min-width: max-content;
-    }
+    #leaderboardWide{ min-width: max-content; }
 
     table{
       width: 100%;
@@ -260,7 +253,7 @@
     thead th{
       position: sticky;
       top: 0;
-      z-index: 1;
+      z-index: 5;
       background: rgba(10, 11, 14, .60);
       backdrop-filter: blur(10px);
       color: rgba(240,222,154,.90);
@@ -283,21 +276,15 @@
     tbody tr{
       transition: background .14s ease;
       cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
     }
     tbody tr:hover{
       background: rgba(255,255,255,.06);
     }
 
-    /* Rank colors */
-    tbody tr.rank-gold{
-      background: linear-gradient(to right, rgba(214,181,106,.22), rgba(214,181,106,.06));
-    }
-    tbody tr.rank-silver{
-      background: linear-gradient(to right, rgba(220, 226, 235, .18), rgba(220, 226, 235, .05));
-    }
-    tbody tr.rank-bronze{
-      background: linear-gradient(to right, rgba(205, 127, 50, .14), rgba(205, 127, 50, .04));
-    }
+    /* default zebra for non-element rows */
     tbody tr.zebra-dark{
       filter: brightness(0.92);
     }
@@ -313,18 +300,97 @@
       border: 1px solid rgba(255,255,255,.18);
       background: rgba(0,0,0,.28);
       color: rgba(255,255,255,.92);
-      font-weight: 700;
+      font-weight: 800;
       margin: 0 auto;
     }
 
-    /* Layout switch */
-    #leaderboardWideWrap { display: block; }
-    #leaderboardCompact { display: none; }
+    /* Medal badges only for #1-#3 */
+    .place-badge.place-1{
+      color: rgba(255, 226, 120, .98);
+      border-color: rgba(255, 226, 120, .55);
+      box-shadow: 0 0 14px rgba(255, 210, 90, .18);
+    }
+    .place-badge.place-2{
+      color: rgba(220, 226, 235, .98);
+      border-color: rgba(220, 226, 235, .55);
+      box-shadow: 0 0 14px rgba(220, 226, 235, .12);
+    }
+    .place-badge.place-3{
+      color: rgba(205, 127, 50, .98);
+      border-color: rgba(205, 127, 50, .55);
+      box-shadow: 0 0 14px rgba(205, 127, 50, .12);
+    }
 
-    /* ✅ Portrait: season centered + compact table without dates */
+    /* =========================
+       ELEMENT ROWS WITH IMAGES (background only, subtle)
+       1-3 fire, 4-6 earth, 7-9 air, 10-12 water
+       ========================= */
+
+    tbody tr.rank-fire::before,
+    tbody tr.rank-earth::before,
+    tbody tr.rank-air::before,
+    tbody tr.rank-water::before{
+      content:"";
+      position:absolute;
+      inset: -10px;
+      z-index: 0;
+      pointer-events:none;
+
+      background-repeat: repeat;
+      background-size: 520px auto;
+      background-position: 0% 50%;
+      opacity: .26;                 /* очень мягко */
+      filter: saturate(1.05) contrast(1.05);
+      mix-blend-mode: screen;
+      will-change: background-position;
+      animation: texMove 18s linear infinite;
+    }
+
+    /* тёмная “читабельная” вуаль поверх текстуры */
+    tbody tr.rank-fire::after,
+    tbody tr.rank-earth::after,
+    tbody tr.rank-air::after,
+    tbody tr.rank-water::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:0;
+      pointer-events:none;
+      background: linear-gradient(90deg, rgba(0,0,0,.18), rgba(0,0,0,.06), rgba(0,0,0,.18));
+    }
+
+    /* контент поверх слоёв */
+    tbody tr.rank-fire > td,
+    tbody tr.rank-earth > td,
+    tbody tr.rank-air > td,
+    tbody tr.rank-water > td{
+      position: relative;
+      z-index: 1;
+    }
+
+    tbody tr.rank-fire::before{  background-image: url("./assets/fire.png"); }
+    tbody tr.rank-earth::before{ background-image: url("./assets/earth.png"); }
+    tbody tr.rank-air::before{   background-image: url("./assets/air.png"); }
+    tbody tr.rank-water::before{ background-image: url("./assets/water.png"); }
+
+    @keyframes texMove{
+      0%   { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      tbody tr.rank-fire::before,
+      tbody tr.rank-earth::before,
+      tbody tr.rank-air::before,
+      tbody tr.rank-water::before{
+        animation: none !important;
+      }
+    }
+
+    /* Portrait layout: keep wide table + scroll, stack header */
     @media (max-width: 760px) and (orientation: portrait) {
       .topbar{
-        display: flex;
+        display:flex;
         flex-direction: column;
         align-items: center;
         gap: 10px;
@@ -335,20 +401,15 @@
         justify-content: center;
       }
       .brand img{ height: 42px; }
-
       .season-name{
         text-align: center;
         justify-self: unset;
         max-width: 92vw;
       }
-
       .center-title .title{
         font-size: 18px;
         letter-spacing: .08em;
       }
-
-      #leaderboardWideWrap { display: none; }
-      #leaderboardCompact { display: table; }
     }
 
     /* Modal */
@@ -414,7 +475,6 @@
     .kv p{ margin: 7px 0; color: rgba(255,255,255,.86); }
     .kv b{ color: rgba(240,222,154,.92); font-weight: 700; }
     .mini th, .mini td{ text-align:center; }
-
     .hint{ color: var(--muted2); font-size: 12px; margin-top: 10px; }
   </style>
 </head>
@@ -452,14 +512,12 @@
     <div class="panel">
       <div class="panel-head">
         <div class="panel-title">Рейтинг игроков</div>
-        <div class="panel-hint">Нажми на игрока, чтобы открыть профиль</div>
+        <!-- Надпись убрана по твоей просьбе -->
       </div>
 
       <div class="wide-wrap" id="leaderboardWideWrap">
         <table id="leaderboardWide"></table>
       </div>
-
-      <table id="leaderboardCompact"></table>
     </div>
   </div>
 
@@ -491,7 +549,6 @@
   const seasonNameEl   = document.getElementById("seasonName");
 
   const tableWideEl    = document.getElementById("leaderboardWide");
-  const tableCompactEl = document.getElementById("leaderboardCompact");
 
   const modalEl   = document.getElementById("modal");
   const profileEl = document.getElementById("profile");
@@ -665,7 +722,7 @@
       if (!matrix.has(pid)) matrix.set(pid, new Map());
       const mp = matrix.get(pid);
 
-      const p = Number(m.points);
+      const p = Number(String(m.points ?? "").replace(",", "."));
       const add = Number.isFinite(p) ? p : 0; // "—" -> 0
       mp.set(dateKey, (mp.get(dateKey) || 0) + add);
     }
@@ -708,7 +765,6 @@
     const dateCols = buildDateColumns(matchesFiltered);
     const matrix   = buildPointsMatrix(matchesFiltered);
 
-    // WIDE (desktop/landscape): dates + horizontal scroll
     const headWide = `<thead><tr>
       <th>№</th><th>Игрок</th><th>Очки сезона</th><th>Total</th>
       ${dateCols.map(d => `<th>${d.label}</th>`).join("")}
@@ -718,10 +774,13 @@
       const pid = String(r.player_id);
       const num = idx + 1;
 
-      const rankClass =
-        (num <= 5) ? "rank-gold" :
-        (num <= 10) ? "rank-silver" :
-        "rank-bronze";
+      // ✅ FIXED ELEMENT RANGES:
+      // 1-3 fire, 4-6 earth, 7-9 air, 10-12 water, 13+ none
+      let rankClass = "";
+      if (num <= 3) rankClass = "rank-fire";
+      else if (num <= 6) rankClass = "rank-earth";
+      else if (num <= 9) rankClass = "rank-air";
+      else if (num <= 12) rankClass = "rank-water";
 
       const zebraClass = (num % 2 === 0) ? "zebra-dark" : "";
 
@@ -731,8 +790,14 @@
         return `<td>${v ? v : "—"}</td>`;
       }).join("");
 
+      const placeBadgeClass =
+        (num === 1) ? "place-badge place-1" :
+        (num === 2) ? "place-badge place-2" :
+        (num === 3) ? "place-badge place-3" :
+        "place-badge";
+
       return `<tr class="${rankClass} ${zebraClass}" data-player="${pid}">
-        <td><span class="place-badge">${num}</span></td>
+        <td><span class="${placeBadgeClass}">${num}</span></td>
         <td>${r.name ?? ""}</td>
         <td>${r.season_score ?? ""}</td>
         <td>${r.all_seasons_score ?? ""}</td>
@@ -741,31 +806,6 @@
     }).join("") + `</tbody>`;
 
     tableWideEl.innerHTML = headWide + bodyWide;
-
-    // COMPACT (portrait phone): NO dates
-    const headCompact = `<thead><tr>
-      <th>№</th><th>Игрок</th><th>Сезон</th><th>Total</th>
-    </tr></thead>`;
-
-    const bodyCompact = `<tbody>` + rows.map((r, idx) => {
-      const num = idx + 1;
-
-      const rankClass =
-        (num <= 5) ? "rank-gold" :
-        (num <= 10) ? "rank-silver" :
-        "rank-bronze";
-
-      const zebraClass = (num % 2 === 0) ? "zebra-dark" : "";
-
-      return `<tr class="${rankClass} ${zebraClass}" data-player="${String(r.player_id)}">
-        <td><span class="place-badge">${num}</span></td>
-        <td>${r.name ?? ""}</td>
-        <td>${r.season_score ?? ""}</td>
-        <td>${r.all_seasons_score ?? ""}</td>
-      </tr>`;
-    }).join("") + `</tbody>`;
-
-    tableCompactEl.innerHTML = headCompact + bodyCompact;
 
     [...document.querySelectorAll("tr[data-player]")].forEach(tr => {
       tr.onclick = () => openProfile(tr.getAttribute("data-player"));
