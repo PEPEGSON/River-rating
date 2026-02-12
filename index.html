@@ -1,175 +1,205 @@
-/* =========================
-   ELEMENT TEXTURE UPGRADE (SAFE)
-   ========================= */
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>River Rating</title>
 
-/* чтобы анимации были плавные */
-tbody tr.rank-fire,
-tbody tr.rank-water,
-tbody tr.rank-air,
-tbody tr.rank-earth{
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#0b0c0f;
+  --panel:rgba(18,20,26,.75);
+  --stroke:rgba(255,255,255,.10);
+  --text:rgba(255,255,255,.92);
+  --gold:#d6b56a;
 }
 
-/* общий слой "текстуры" поверх градиента */
-tbody tr.rank-fire::before,
-tbody tr.rank-water::before,
-tbody tr.rank-air::before,
-tbody tr.rank-earth::before{
-  content:"";
-  position:absolute;
-  inset:-40px;
-  z-index:0;
-  opacity:.85;
-  pointer-events:none;
-  mix-blend-mode: screen; /* даёт эффект материала */
-  filter: saturate(1.15) contrast(1.12);
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Inter, sans-serif;
+  background:#0b0c0f;
+  color:var(--text);
+  overflow-x:hidden;
 }
 
-/* второй слой — “свет/глубина” */
-tbody tr.rank-fire::after,
-tbody tr.rank-water::after,
-tbody tr.rank-air::after,
-tbody tr.rank-earth::after{
+body::before{
   content:"";
-  position:absolute;
+  position:fixed;
   inset:0;
-  z-index:0;
-  pointer-events:none;
+  background:url("./assets/bg.png") center/cover no-repeat;
+  z-index:-2;
+}
+
+.wrap{
+  width:min(1300px,95vw);
+  margin:30px auto;
+}
+
+.panel{
+  background:var(--panel);
+  border-radius:18px;
+  border:1px solid var(--stroke);
+  overflow:hidden;
+}
+
+.wide-wrap{
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+
+table{
+  border-collapse:collapse;
+  min-width:max-content;
+  width:100%;
+}
+
+thead th{
+  padding:12px;
+  font-size:12px;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+  background:rgba(0,0,0,.5);
+}
+
+tbody td{
+  padding:12px;
+  text-align:center;
+}
+
+tbody tr{
+  transition:.2s;
+  position:relative;
+  overflow:hidden;
+}
+
+tbody tr:nth-child(even){
+  background:rgba(255,255,255,.03);
+}
+
+/* ===== ELEMENT TEXTURE LITE ===== */
+
+tbody tr.rank-fire::before,
+tbody tr.rank-earth::before,
+tbody tr.rank-air::before,
+tbody tr.rank-water::before{
+  content:"";
+  position:absolute;
+  inset:-30px;
   opacity:.55;
-  mix-blend-mode: soft-light;
+  filter:blur(12px);
+  animation:drift 8s ease-in-out infinite;
+  z-index:0;
 }
 
-/* контент строки поверх слоёв */
-tbody tr.rank-fire > td,
-tbody tr.rank-water > td,
-tbody tr.rank-air > td,
-tbody tr.rank-earth > td{
-  position: relative;
-  z-index: 1;
+tbody tr > td{
+  position:relative;
+  z-index:1;
 }
 
-/* optional: лёгкое свечение текста на элементных строках (можно убрать) */
-tbody tr.rank-fire td,
-tbody tr.rank-water td,
-tbody tr.rank-air td,
-tbody tr.rank-earth td{
-  text-shadow: 0 0 18px rgba(0,0,0,.55);
-}
-
-/* ===== FIRE ===== */
-@keyframes fireFlow {
-  0%   { transform: translateX(-6%) translateY(0%) scale(1.02); filter: blur(10px) saturate(1.25); }
-  50%  { transform: translateX(4%) translateY(-2%) scale(1.06); filter: blur(8px) saturate(1.35); }
-  100% { transform: translateX(-6%) translateY(0%) scale(1.02); filter: blur(10px) saturate(1.25); }
-}
-@keyframes sparks {
-  0% { transform: translateX(0) translateY(0); opacity:.35; }
-  100% { transform: translateX(80px) translateY(-40px); opacity:.15; }
-}
+/* FIRE */
 tbody tr.rank-fire::before{
   background:
-    radial-gradient(60px 40px at 20% 70%, rgba(255,190,80,.55), transparent 60%),
-    radial-gradient(90px 60px at 35% 55%, rgba(255,80,0,.45), transparent 62%),
-    radial-gradient(120px 80px at 55% 65%, rgba(255,230,160,.35), transparent 64%),
-    radial-gradient(140px 90px at 75% 55%, rgba(255,60,0,.35), transparent 62%),
-    radial-gradient(200px 140px at 50% 105%, rgba(255,140,0,.35), transparent 60%),
-    conic-gradient(from 180deg at 50% 60%, rgba(255,140,0,.22), rgba(255,220,140,.20), rgba(255,50,0,.20), rgba(255,140,0,.22));
-  animation: fireFlow 2.8s ease-in-out infinite;
-}
-tbody tr.rank-fire::after{
-  background:
-    radial-gradient(900px 120px at 30% 50%, rgba(255,170,70,.22), transparent 60%),
-    radial-gradient(900px 120px at 70% 40%, rgba(255,60,0,.18), transparent 62%),
-    radial-gradient(900px 120px at 55% 70%, rgba(255,230,170,.12), transparent 65%),
-    repeating-radial-gradient(circle at 10% 80%, rgba(255,220,140,.08) 0 2px, transparent 2px 10px);
-  animation: sparks 2.2s linear infinite;
+  radial-gradient(circle at 30% 60%, rgba(255,140,0,.4), transparent 70%),
+  radial-gradient(circle at 70% 40%, rgba(255,60,0,.4), transparent 70%);
 }
 
-/* ===== WATER ===== */
-@keyframes waterWave {
-  0% { transform: translateX(0) translateY(0); filter: blur(10px) saturate(1.18); }
-  50% { transform: translateX(-6%) translateY(1%); filter: blur(8px) saturate(1.28); }
-  100% { transform: translateX(0) translateY(0); filter: blur(10px) saturate(1.18); }
-}
-@keyframes waterShine {
-  0% { transform: translateX(-20%); opacity:.35; }
-  100% { transform: translateX(120%); opacity:.10; }
-}
-tbody tr.rank-water::before{
-  background:
-    radial-gradient(140px 80px at 20% 55%, rgba(90,200,255,.35), transparent 65%),
-    radial-gradient(180px 110px at 45% 60%, rgba(0,130,255,.28), transparent 68%),
-    radial-gradient(240px 150px at 75% 55%, rgba(80,240,255,.22), transparent 70%),
-    repeating-linear-gradient(135deg, rgba(160,240,255,.10) 0 6px, transparent 6px 16px);
-  animation: waterWave 3.8s ease-in-out infinite;
-}
-tbody tr.rank-water::after{
-  background:
-    linear-gradient(90deg, transparent 0%, rgba(220,250,255,.28) 40%, transparent 60%),
-    radial-gradient(900px 120px at 50% 60%, rgba(0,120,255,.18), transparent 62%);
-  animation: waterShine 2.8s linear infinite;
-}
-
-/* ===== AIR ===== */
-@keyframes airDrift {
-  0% { transform: translateX(-6%) translateY(0%); filter: blur(10px) saturate(1.08); opacity:.55; }
-  50% { transform: translateX(6%) translateY(-1%); filter: blur(8px) saturate(1.15); opacity:.65; }
-  100% { transform: translateX(-6%) translateY(0%); filter: blur(10px) saturate(1.08); opacity:.55; }
-}
-@keyframes airLines {
-  0% { background-position: 0 0; opacity:.22; }
-  100% { background-position: 220px 0; opacity:.18; }
-}
-tbody tr.rank-air::before{
-  background:
-    radial-gradient(220px 120px at 25% 55%, rgba(220,245,255,.20), transparent 70%),
-    radial-gradient(260px 140px at 60% 45%, rgba(160,220,255,.18), transparent 72%),
-    radial-gradient(260px 140px at 85% 60%, rgba(120,190,255,.14), transparent 74%),
-    conic-gradient(from 90deg at 50% 50%, rgba(220,245,255,.12), rgba(0,0,0,0), rgba(160,220,255,.10), rgba(0,0,0,0));
-  animation: airDrift 4.2s ease-in-out infinite;
-}
-tbody tr.rank-air::after{
-  background:
-    repeating-linear-gradient(90deg, rgba(220,245,255,.10) 0 2px, transparent 2px 18px);
-  animation: airLines 1.8s linear infinite;
-}
-
-/* ===== EARTH ===== */
-@keyframes earthShift {
-  0% { transform: translateX(0) translateY(0); filter: blur(9px) saturate(1.05) contrast(1.12); }
-  50% { transform: translateX(-3%) translateY(1%); filter: blur(7px) saturate(1.10) contrast(1.18); }
-  100% { transform: translateX(0) translateY(0); filter: blur(9px) saturate(1.05) contrast(1.12); }
-}
-@keyframes dust {
-  0% { background-position: 0 0; opacity:.20; }
-  100% { background-position: 140px 80px; opacity:.14; }
-}
+/* EARTH */
 tbody tr.rank-earth::before{
   background:
-    radial-gradient(160px 100px at 25% 55%, rgba(214,181,106,.22), transparent 70%),
-    radial-gradient(220px 140px at 55% 60%, rgba(140,92,35,.20), transparent 72%),
-    radial-gradient(260px 160px at 80% 55%, rgba(90,55,18,.18), transparent 74%),
-    repeating-radial-gradient(circle at 20% 60%, rgba(240,222,154,.08) 0 1px, transparent 1px 7px);
-  animation: earthShift 5.2s ease-in-out infinite;
-}
-tbody tr.rank-earth::after{
-  background:
-    repeating-linear-gradient(135deg, rgba(240,222,154,.06) 0 3px, transparent 3px 14px);
-  animation: dust 3.5s linear infinite;
+  radial-gradient(circle at 40% 50%, rgba(160,110,40,.35), transparent 70%),
+  radial-gradient(circle at 70% 60%, rgba(100,60,20,.35), transparent 70%);
 }
 
-/* Respect reduced motion */
-@media (prefers-reduced-motion: reduce){
-  tbody tr.rank-fire::before,
-  tbody tr.rank-fire::after,
-  tbody tr.rank-water::before,
-  tbody tr.rank-water::after,
-  tbody tr.rank-air::before,
-  tbody tr.rank-air::after,
-  tbody tr.rank-earth::before,
-  tbody tr.rank-earth::after{
-    animation: none !important;
-  }
+/* AIR */
+tbody tr.rank-air::before{
+  background:
+  radial-gradient(circle at 50% 50%, rgba(200,230,255,.3), transparent 70%),
+  radial-gradient(circle at 80% 30%, rgba(150,200,255,.25), transparent 70%);
 }
+
+/* WATER */
+tbody tr.rank-water::before{
+  background:
+  radial-gradient(circle at 30% 50%, rgba(0,150,255,.35), transparent 70%),
+  radial-gradient(circle at 70% 40%, rgba(0,90,200,.3), transparent 70%);
+}
+
+@keyframes drift{
+  0%{transform:translateX(-1%)}
+  50%{transform:translateX(1%)}
+  100%{transform:translateX(-1%)}
+}
+
+/* MEDAL NUMBERS */
+.place-gold{color:#ffd700;font-weight:700}
+.place-silver{color:#c0c0c0;font-weight:700}
+.place-bronze{color:#cd7f32;font-weight:700}
+
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<div class="panel">
+<div class="wide-wrap">
+<table id="leaderboard"></table>
+</div>
+</div>
+</div>
+
+<script>
+const SHEET_ID="1Pj2H4dT3f0W7rmWQPPgj1_FHbCPSIDsRmO56I-VmZls";
+const LEADERBOARD_URL=`https://opensheet.elk.sh/${SHEET_ID}/Leaderboard`;
+
+function toNum(v){
+  const n=Number(String(v||"").replace(",","."));
+  return isFinite(n)?n:0;
+}
+
+async function render(){
+  const res=await fetch(LEADERBOARD_URL);
+  const rowsRaw=await res.json();
+
+  const rows=[...rowsRaw].sort((a,b)=>toNum(b.season_score)-toNum(a.season_score));
+
+  let head=`<thead><tr>
+  <th>№</th><th>Игрок</th><th>Очки сезона</th><th>Total</th>
+  </tr></thead>`;
+
+  let body="<tbody>";
+  rows.forEach((r,i)=>{
+    const n=i+1;
+    let cls="";
+    if(n<=3)cls="rank-fire";
+    else if(n<=6)cls="rank-earth";
+    else if(n<=10)cls="rank-air";
+    else if(n<=13)cls="rank-water";
+
+    let medal="";
+    if(n===1)medal="place-gold";
+    if(n===2)medal="place-silver";
+    if(n===3)medal="place-bronze";
+
+    body+=`
+    <tr class="${cls}">
+      <td class="${medal}">${n}</td>
+      <td>${r.name||""}</td>
+      <td>${r.season_score||0}</td>
+      <td>${r.all_seasons_score||0}</td>
+    </tr>`;
+  });
+  body+="</tbody>";
+
+  document.getElementById("leaderboard").innerHTML=head+body;
+}
+
+render();
+</script>
+
+</body>
+</html>
