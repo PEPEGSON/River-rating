@@ -1,0 +1,861 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>River Rating</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg: #0b0c0f;
+      --panel: rgba(18, 20, 26, .62);
+      --panel-2: rgba(18, 20, 26, .78);
+      --stroke: rgba(255, 255, 255, .10);
+      --stroke-2: rgba(255, 255, 255, .14);
+      --text: rgba(255,255,255,.90);
+      --muted: rgba(255,255,255,.62);
+      --muted2: rgba(255,255,255,.42);
+
+      --gold: #d6b56a;
+      --gold2: #f0de9a;
+      --goldDark: rgba(214, 181, 106, .25);
+      --shadow: 0 20px 60px rgba(0,0,0,.55);
+      --shadow2: 0 10px 30px rgba(0,0,0,.45);
+
+      --radius: 18px;
+      --radius2: 14px;
+      --pad: 16px;
+      --pad2: 12px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg);
+      overflow-x: hidden;
+    }
+
+    /* Background image + overlays */
+    body::before{
+      content:"";
+      position: fixed;
+      inset: 0;
+      background: url("assets/bg.png") center/cover no-repeat;
+      filter: saturate(1.05) contrast(1.05);
+      transform: scale(1.03);
+      z-index: -3;
+    }
+    body::after{
+      content:"";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(900px 520px at 50% 25%, rgba(214,181,106,.22), transparent 62%),
+        radial-gradient(900px 520px at 20% 90%, rgba(0,0,0,.55), transparent 60%),
+        linear-gradient(to bottom, rgba(0,0,0,.70), rgba(0,0,0,.82));
+      z-index: -2;
+    }
+
+    .wrap{
+      width: min(1200px, 94vw);
+      margin: 22px auto 40px;
+    }
+
+    /* Header */
+    .topbar{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px 16px;
+      border-radius: var(--radius);
+      background: linear-gradient(to bottom, rgba(18,20,26,.62), rgba(18,20,26,.40));
+      border: 1px solid var(--stroke);
+      box-shadow: var(--shadow2);
+      backdrop-filter: blur(10px);
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      min-width: 240px;
+    }
+    .brand img{
+      height: 44px;
+      width: auto;
+      display:block;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.55));
+    }
+    .brand-text{
+      display:flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+    .brand-title{
+      font-family: Cinzel, serif;
+      font-weight: 700;
+      letter-spacing: .06em;
+      font-size: 16px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.92);
+    }
+    .brand-sub{
+      margin-top: 4px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .season-name{
+      font-family: Cinzel, serif;
+      font-weight: 600;
+      letter-spacing: .02em;
+      font-size: 14px;
+      color: rgba(240,222,154,.92);
+      text-align: right;
+      max-width: 520px;
+    }
+
+    /* Controls panel */
+    .controls{
+      margin-top: 14px;
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      background: var(--panel);
+      border: 1px solid var(--stroke);
+      box-shadow: var(--shadow2);
+      backdrop-filter: blur(10px);
+
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .left-controls{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .right-controls{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .label{
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: .02em;
+    }
+
+    .status{
+      font-size: 12px;
+      color: var(--muted2);
+      margin-left: 8px;
+    }
+
+    /* Premium buttons */
+    .btn{
+      appearance: none;
+      border: 1px solid rgba(214,181,106,.42);
+      background: linear-gradient(to bottom, rgba(240,222,154,.18), rgba(214,181,106,.08));
+      color: rgba(255,255,255,.88);
+      padding: 9px 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform .12s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+      box-shadow: 0 8px 18px rgba(0,0,0,.35);
+      font-weight: 600;
+      letter-spacing: .01em;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      border-color: rgba(240,222,154,.65);
+      background: linear-gradient(to bottom, rgba(240,222,154,.24), rgba(214,181,106,.12));
+      box-shadow: 0 12px 26px rgba(0,0,0,.45);
+    }
+    .btn:active{
+      transform: translateY(0);
+      box-shadow: 0 7px 16px rgba(0,0,0,.35);
+    }
+
+    /* Select */
+    select{
+      appearance: none;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(10, 11, 14, .55);
+      color: rgba(255,255,255,.90);
+      padding: 9px 38px 9px 12px;
+      border-radius: 12px;
+      outline: none;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 24px rgba(0,0,0,.35);
+    }
+    .select-wrap{
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .select-wrap::after{
+      content:"▾";
+      position:absolute;
+      right: 12px;
+      pointer-events: none;
+      color: rgba(240,222,154,.90);
+      font-size: 14px;
+      transform: translateY(1px);
+    }
+
+    /* Table panel */
+    .panel{
+      margin-top: 14px;
+      border-radius: var(--radius);
+      background: var(--panel-2);
+      border: 1px solid var(--stroke);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      overflow: hidden;
+    }
+    .panel-head{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      background: linear-gradient(to right, rgba(214,181,106,.08), transparent 55%);
+    }
+    .panel-title{
+      font-family: Cinzel, serif;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      font-size: 13px;
+      color: rgba(255,255,255,.88);
+    }
+    .panel-hint{
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .wide-wrap { overflow-x: auto; }
+    table{ width: 100%; border-collapse: collapse; }
+    thead th{
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: rgba(10, 11, 14, .60);
+      backdrop-filter: blur(10px);
+      color: rgba(240,222,154,.90);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      padding: 12px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+      white-space: nowrap;
+    }
+    tbody td{
+      padding: 12px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      color: rgba(255,255,255,.86);
+      white-space: nowrap;
+    }
+    tbody tr{
+      transition: background .14s ease, transform .14s ease;
+      cursor: pointer;
+    }
+    tbody tr:hover{
+      background: rgba(255,255,255,.06);
+    }
+
+    /* Place highlighting */
+    tbody tr[data-place="1"]{
+      background: linear-gradient(to right, rgba(214,181,106,.18), rgba(214,181,106,.04));
+    }
+    tbody tr[data-place="2"]{
+      background: linear-gradient(to right, rgba(255,255,255,.10), rgba(255,255,255,.02));
+    }
+    tbody tr[data-place="3"]{
+      background: linear-gradient(to right, rgba(214,181,106,.10), rgba(214,181,106,.02));
+    }
+    tbody tr[data-place="1"]:hover,
+    tbody tr[data-place="2"]:hover,
+    tbody tr[data-place="3"]:hover{
+      background: rgba(214,181,106,.18);
+    }
+
+    .place-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width: 30px;
+      height: 26px;
+      padding: 0 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.25);
+      color: rgba(255,255,255,.92);
+      font-weight: 700;
+    }
+    tr[data-place="1"] .place-badge{
+      border-color: rgba(240,222,154,.65);
+      background: rgba(214,181,106,.22);
+      color: rgba(240,222,154,.95);
+      box-shadow: 0 10px 20px rgba(214,181,106,.10);
+    }
+    tr[data-place="2"] .place-badge{
+      border-color: rgba(255,255,255,.25);
+      background: rgba(255,255,255,.10);
+    }
+    tr[data-place="3"] .place-badge{
+      border-color: rgba(214,181,106,.35);
+      background: rgba(214,181,106,.12);
+    }
+
+    /* Compact table only in portrait */
+    #leaderboardWideWrap { display: block; }
+    #leaderboardCompact { display: none; }
+
+    @media (max-width: 760px) and (orientation: portrait) {
+      .brand img{ height: 40px; }
+      .season-name{ text-align: left; }
+      .controls{ gap: 10px; }
+      #leaderboardWideWrap { display: none; }
+      #leaderboardCompact { display: table; }
+    }
+
+    /* Modal */
+    .modal { display:none; position:fixed; inset:0; background: rgba(0,0,0,.70); backdrop-filter: blur(6px); }
+    .card  {
+      width: min(980px, 94vw);
+      margin: 6vh auto;
+      border-radius: 18px;
+      background: rgba(16, 18, 24, .86);
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: 0 30px 90px rgba(0,0,0,.72);
+      overflow: hidden;
+    }
+    .modal-head{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 14px 16px;
+      background: linear-gradient(to right, rgba(214,181,106,.14), rgba(0,0,0,.0));
+      border-bottom: 1px solid rgba(255,255,255,.10);
+    }
+    .modal-title{
+      font-family: Cinzel, serif;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      font-size: 14px;
+      color: rgba(240,222,154,.95);
+    }
+    .close{
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.30);
+      color: rgba(255,255,255,.86);
+      border-radius: 12px;
+      padding: 8px 10px;
+      cursor:pointer;
+      transition: transform .12s ease, background .18s ease, border-color .18s ease;
+    }
+    .close:hover{
+      transform: translateY(-1px);
+      background: rgba(214,181,106,.12);
+      border-color: rgba(214,181,106,.35);
+    }
+    .modal-body{
+      padding: 16px;
+    }
+
+    .profile-grid{
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 14px;
+    }
+    @media (max-width: 860px){
+      .profile-grid{ grid-template-columns: 1fr; }
+    }
+
+    .box{
+      background: rgba(0,0,0,.20);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 16px;
+      padding: 14px;
+    }
+    .box h4{
+      margin: 0 0 10px;
+      font-family: Cinzel, serif;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      font-size: 12px;
+      color: rgba(255,255,255,.88);
+    }
+    .kv p{ margin: 7px 0; color: rgba(255,255,255,.86); }
+    .kv b{ color: rgba(240,222,154,.92); font-weight: 700; }
+
+    .mini table{ margin-top: 8px; }
+    .mini th{
+      color: rgba(240,222,154,.88);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      padding: 10px 10px;
+      background: rgba(0,0,0,.25);
+    }
+    .mini td{
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      padding: 10px 10px;
+      color: rgba(255,255,255,.86);
+    }
+
+    .hint{ color: var(--muted2); font-size: 12px; margin-top: 10px; }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <div class="topbar">
+      <div class="brand">
+        <img src="assets/logo.png" alt="River Poker Club">
+        <div class="brand-text">
+          <div class="brand-title">River Rating</div>
+          <div class="brand-sub">Турнирные таблицы • Покерный клуб</div>
+        </div>
+      </div>
+
+      <div class="season-name" id="seasonName">—</div>
+    </div>
+
+    <div class="controls">
+      <div class="left-controls">
+        <button class="btn" id="prevSeasonBtn" type="button">← Предыдущий сезон</button>
+        <button class="btn" id="nextSeasonBtn" type="button">Следующий сезон →</button>
+        <span class="status" id="status">Загрузка…</span>
+      </div>
+
+      <div class="right-controls">
+        <span class="label">Сезон</span>
+        <div class="select-wrap">
+          <select id="seasonSelect"></select>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">Рейтинг игроков</div>
+        <div class="panel-hint">Нажми на игрока, чтобы открыть профиль</div>
+      </div>
+
+      <div class="wide-wrap" id="leaderboardWideWrap">
+        <table class="wide-table" id="leaderboardWide"></table>
+      </div>
+
+      <table id="leaderboardCompact"></table>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal" id="modal">
+    <div class="card">
+      <div class="modal-head">
+        <div class="modal-title">Статистика игрока</div>
+        <button class="close" id="closeBtn">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="profile">Загрузка профиля…</div>
+        <div class="hint">Клик вне окна — закрыть</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const SHEET_ID = "1Pj2H4dT3f0W7rmWQPPgj1_FHbCPSIDsRmO56I-VmZls";
+  const PROFILE_API_BASE = "https://script.google.com/macros/s/AKfycbwKd6_brG1Pgy3U3AUX_cNCUoznk2nYzIOYKo790MDs48ktJwlKvdQ_P8TNXqvPJsGkTQ/exec";
+
+  const LEADERBOARD_URL = `https://opensheet.elk.sh/${SHEET_ID}/Leaderboard`;
+  const SEASONS_URL     = `https://opensheet.elk.sh/${SHEET_ID}/Seasons`;
+  const MATCHES_URL     = `https://opensheet.elk.sh/${SHEET_ID}/Matches`;
+
+  const statusEl       = document.getElementById("status");
+  const seasonSelect   = document.getElementById("seasonSelect");
+  const prevBtn        = document.getElementById("prevSeasonBtn");
+  const nextBtn        = document.getElementById("nextSeasonBtn");
+  const seasonNameEl   = document.getElementById("seasonName");
+
+  const tableWideEl    = document.getElementById("leaderboardWide");
+  const tableCompactEl = document.getElementById("leaderboardCompact");
+
+  const modalEl   = document.getElementById("modal");
+  const profileEl = document.getElementById("profile");
+  const closeBtn  = document.getElementById("closeBtn");
+
+  closeBtn.onclick = () => modalEl.style.display = "none";
+  modalEl.onclick = (e) => { if (e.target === modalEl) modalEl.style.display = "none"; };
+
+  let seasonsCache = [];
+  let matchesCache = null;
+
+  function setStatus(t) { statusEl.textContent = t; }
+  function norm(x) { return String(x ?? "").trim(); }
+  function normUp(x) { return norm(x).toUpperCase(); }
+
+  function parseDate(v) {
+    if (v instanceof Date) return v;
+    const s = norm(v);
+    const d = new Date(s);
+    if (!isNaN(d.getTime())) return d;
+    return null;
+  }
+  function ddmm(d) {
+    const dd = String(d.getDate()).padStart(2, "0");
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    return `${dd}.${mm}`;
+  }
+  function ymd(d) {
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  async function getCurrentSeasonFromApi() {
+    const res = await fetch(PROFILE_API_BASE);
+    const data = await res.json();
+    return normUp(data.current_season_id || "");
+  }
+  async function setSeason(seasonId) {
+    await fetch(`${PROFILE_API_BASE}?season_id=${encodeURIComponent(seasonId)}`);
+  }
+
+  async function loadSeasons() {
+    setStatus("Загрузка сезонов…");
+    const res = await fetch(SEASONS_URL);
+    seasonsCache = await res.json();
+
+    seasonSelect.innerHTML =
+      `<option value="TOTAL">Total</option>` +
+      seasonsCache.map(s => `<option value="${normUp(s.season_id)}">${s.season_name}</option>`).join("");
+
+    seasonSelect.onchange = async () => {
+      const seasonId = normUp(seasonSelect.value);
+      setStatus("Переключаю сезон…");
+      await setSeason(seasonId);
+      updateSeasonName();
+      await renderAll();
+      setStatus("");
+    };
+
+    prevBtn.onclick = async () => {
+      const current = normUp(seasonSelect.value);
+
+      if (current === "TOTAL") {
+        if (!seasonsCache.length) return;
+        const last = normUp(seasonsCache[seasonsCache.length - 1].season_id);
+        seasonSelect.value = last;
+        setStatus("Переключаю сезон…");
+        await setSeason(last);
+        updateSeasonName();
+        await renderAll();
+        setStatus("");
+        return;
+      }
+
+      const idx = seasonsCache.findIndex(s => normUp(s.season_id) === current);
+      if (idx > 0) {
+        const prev = normUp(seasonsCache[idx - 1].season_id);
+        seasonSelect.value = prev;
+        setStatus("Переключаю сезон…");
+        await setSeason(prev);
+        updateSeasonName();
+        await renderAll();
+        setStatus("");
+      }
+    };
+
+    nextBtn.onclick = async () => {
+      const current = normUp(seasonSelect.value);
+
+      if (current === "TOTAL") {
+        if (!seasonsCache.length) return;
+        const first = normUp(seasonsCache[0].season_id);
+        seasonSelect.value = first;
+        setStatus("Переключаю сезон…");
+        await setSeason(first);
+        updateSeasonName();
+        await renderAll();
+        setStatus("");
+        return;
+      }
+
+      const idx = seasonsCache.findIndex(s => normUp(s.season_id) === current);
+      if (idx >= 0 && idx < seasonsCache.length - 1) {
+        const next = normUp(seasonsCache[idx + 1].season_id);
+        seasonSelect.value = next;
+        setStatus("Переключаю сезон…");
+        await setSeason(next);
+        updateSeasonName();
+        await renderAll();
+        setStatus("");
+      }
+    };
+  }
+
+  function updateSeasonName(){
+    const id = normUp(seasonSelect.value);
+    if (id === "TOTAL") {
+      seasonNameEl.textContent = "Общий зачёт (Total)";
+      return;
+    }
+    const s = seasonsCache.find(x => normUp(x.season_id) === id);
+    seasonNameEl.textContent = s ? s.season_name : "—";
+  }
+
+  async function loadMatchesOnce() {
+    if (matchesCache) return matchesCache;
+    setStatus("Загрузка матчей…");
+    const res = await fetch(MATCHES_URL);
+    matchesCache = await res.json();
+    return matchesCache;
+  }
+
+  function getField(row, keys) {
+    for (const k of keys) if (row[k] !== undefined) return row[k];
+    return undefined;
+  }
+
+  function normalizeMatches(rows) {
+    return rows.map(r => ({
+      date: getField(r, ["date", "Date", "A"]),
+      season: getField(r, ["season", "season_id", "Season", "B"]),
+      player_id: getField(r, ["player_id", "playerId", "C"]),
+      points: Number(getField(r, ["points", "score", "D"])) || 0
+    })).filter(x => x.player_id);
+  }
+
+  function filterMatchesByMode(matches, seasonId) {
+    if (seasonId === "TOTAL") return matches;
+    return matches.filter(m => normUp(m.season) === seasonId);
+  }
+
+  function buildDateColumns(matchesFiltered) {
+    const map = new Map(); // ymd -> {ts,label}
+    for (const m of matchesFiltered) {
+      const d = parseDate(m.date);
+      if (!d) continue;
+      const key = ymd(d);
+      const ts = d.getTime();
+      const label = ddmm(d);
+      if (!map.has(key) || ts > map.get(key).ts) map.set(key, { ts, label });
+    }
+    return [...map.entries()]
+      .sort((a, b) => b[1].ts - a[1].ts)  // новые слева
+      .map(([key, v]) => ({ key, label: v.label, ts: v.ts }));
+  }
+
+  function buildPointsMatrix(matchesFiltered) {
+    const matrix = new Map(); // pid -> Map(ymd -> sum)
+    for (const m of matchesFiltered) {
+      const d = parseDate(m.date);
+      if (!d) continue;
+      const dateKey = ymd(d);
+      const pid = String(m.player_id);
+      if (!matrix.has(pid)) matrix.set(pid, new Map());
+      const mp = matrix.get(pid);
+      mp.set(dateKey, (mp.get(dateKey) || 0) + (Number(m.points) || 0));
+    }
+    return matrix;
+  }
+
+  function buildLast3GlobalDates(matchesFiltered) {
+    const cols = buildDateColumns(matchesFiltered);
+    return cols.slice(0, 3);
+  }
+
+  async function renderAll() {
+    await renderLeaderboard();
+  }
+
+  async function renderLeaderboard() {
+    setStatus("Загрузка рейтинга…");
+    const seasonId = normUp(seasonSelect.value);
+
+    const [lbRes, rawMatches] = await Promise.all([
+      fetch(LEADERBOARD_URL),
+      loadMatchesOnce()
+    ]);
+
+    const rows = await lbRes.json();
+    const matches = normalizeMatches(rawMatches);
+    const matchesFiltered = filterMatchesByMode(matches, seasonId);
+
+    const dateCols = buildDateColumns(matchesFiltered);           // wide
+    const matrix   = buildPointsMatrix(matchesFiltered);
+    const last3Dates = buildLast3GlobalDates(matchesFiltered);    // compact header
+
+    rows.sort((a, b) => {
+      const pa = Number(a.place);
+      const pb = Number(b.place);
+      if (pa !== pb) return pa - pb;
+      const sa = Number(a.season_score);
+      const sb = Number(b.season_score);
+      return sb - sa;
+    });
+
+    // WIDE
+    const headWide = `<thead><tr>
+      <th>Место</th><th>Игрок</th><th>Очки сезона</th><th>Total</th>
+      ${dateCols.map(d => `<th>${d.label}</th>`).join("")}
+    </tr></thead>`;
+
+    const bodyWide = `<tbody>` + rows.map(r => {
+      const pid = String(r.player_id);
+      const mp = matrix.get(pid);
+      const cells = dateCols.map(d => {
+        const v = mp ? (mp.get(d.key) || 0) : 0;
+        return `<td>${v ? v : "—"}</td>`;
+      }).join("");
+
+      const place = String(r.place ?? "");
+      return `<tr data-player="${pid}" data-place="${place}">
+        <td><span class="place-badge">${place}</span></td>
+        <td>${r.name ?? ""}</td>
+        <td>${r.season_score ?? ""}</td>
+        <td>${r.all_seasons_score ?? ""}</td>
+        ${cells}
+      </tr>`;
+    }).join("") + `</tbody>`;
+
+    tableWideEl.innerHTML = headWide + bodyWide;
+
+    // COMPACT (portrait)
+    const d1 = last3Dates[0]?.label || "—";
+    const d2 = last3Dates[1]?.label || "—";
+    const d3 = last3Dates[2]?.label || "—";
+
+    const k1 = last3Dates[0]?.key || null;
+    const k2 = last3Dates[1]?.key || null;
+    const k3 = last3Dates[2]?.key || null;
+
+    const headCompact = `<thead><tr>
+      <th>Место</th><th>Игрок</th><th>Сезон</th><th>Total</th>
+      <th>${d1}</th><th>${d2}</th><th>${d3}</th>
+    </tr></thead>`;
+
+    const bodyCompact = `<tbody>` + rows.map(r => {
+      const pid = String(r.player_id);
+      const mp = matrix.get(pid);
+
+      const v1 = (k1 && mp) ? (mp.get(k1) || 0) : 0;
+      const v2 = (k2 && mp) ? (mp.get(k2) || 0) : 0;
+      const v3 = (k3 && mp) ? (mp.get(k3) || 0) : 0;
+
+      const place = String(r.place ?? "");
+      return `<tr data-player="${pid}" data-place="${place}">
+        <td><span class="place-badge">${place}</span></td>
+        <td>${r.name ?? ""}</td>
+        <td>${r.season_score ?? ""}</td>
+        <td>${r.all_seasons_score ?? ""}</td>
+        <td>${v1 ? v1 : "—"}</td>
+        <td>${v2 ? v2 : "—"}</td>
+        <td>${v3 ? v3 : "—"}</td>
+      </tr>`;
+    }).join("") + `</tbody>`;
+
+    tableCompactEl.innerHTML = headCompact + bodyCompact;
+
+    [...document.querySelectorAll("tr[data-player]")].forEach(tr => {
+      tr.onclick = () => openProfile(tr.getAttribute("data-player"));
+    });
+
+    setStatus("");
+  }
+
+  function renderSmallTable(headers, rows) {
+    if (!rows || !rows.length) return `<div class="hint">Нет данных</div>`;
+    let h = `<table style="width:100%"><tr>${headers.map(x => `<th>${x}</th>`).join("")}</tr>`;
+    for (const r of rows) h += `<tr>${r.map(v => `<td>${v ?? ""}</td>`).join("")}</tr>`;
+    h += `</table>`;
+    return h;
+  }
+
+  async function openProfile(playerId) {
+    modalEl.style.display = "block";
+    profileEl.textContent = "Загрузка профиля…";
+
+    const seasonId = normUp(seasonSelect.value);
+    const url = `${PROFILE_API_BASE}?player_id=${encodeURIComponent(playerId)}&season_id=${encodeURIComponent(seasonId)}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    const summaryHtml = (data.profile || []).map(row =>
+      `<p><b>${row.label}</b>: ${row.value ?? ""}</p>`
+    ).join("");
+
+    const bySeasonRows = (data.by_season || []).map(r => [r.season, r.points]);
+    const bySeasonHtml = renderSmallTable(["Сезон", "Очки"], bySeasonRows);
+
+    const lastRows = (data.last_games || []).map(r => [r.date, r.season, r.points]);
+    const lastHtml = renderSmallTable(["Дата", "Сезон", "Очки"], lastRows);
+
+    profileEl.innerHTML = `
+      <div class="profile-grid">
+        <div class="box">
+          <h4>Сводка</h4>
+          <div class="kv">${summaryHtml || '<div class="hint">Нет данных</div>'}</div>
+        </div>
+        <div class="box mini">
+          <h4>Очки по сезонам</h4>
+          ${bySeasonHtml}
+        </div>
+        <div class="box mini" style="grid-column: 1 / -1;">
+          <h4>Последние игры</h4>
+          ${lastHtml}
+        </div>
+      </div>
+    `;
+  }
+
+  (async () => {
+    try {
+      await loadSeasons();
+
+      const currentSeason = await getCurrentSeasonFromApi();
+      const exists = seasonsCache.some(s => normUp(s.season_id) === currentSeason);
+
+      if (currentSeason && exists) seasonSelect.value = currentSeason;
+      else if (seasonsCache.length) seasonSelect.value = normUp(seasonsCache[seasonsCache.length - 1].season_id);
+      else seasonSelect.value = "TOTAL";
+
+      setStatus("Переключаю сезон…");
+      await setSeason(normUp(seasonSelect.value));
+      updateSeasonName();
+
+      await renderAll();
+      setStatus("");
+    } catch (err) {
+      setStatus("Ошибка загрузки. Проверь доступ к таблице и Web App.");
+      console.error(err);
+    }
+  })();
+</script>
+
+</body>
+</html>
