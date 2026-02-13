@@ -9,6 +9,29 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+  <!-- preload key assets (speeds up + no “loading in front of eyes”) -->
+  <link rel="preload" as="image" href="./assets/fire.png">
+  <link rel="preload" as="image" href="./assets/earth.png">
+  <link rel="preload" as="image" href="./assets/air.png">
+  <link rel="preload" as="image" href="./assets/water.png">
+  <link rel="preload" as="image" href="./assets/champion.png">
+  <link rel="preload" as="image" href="./assets/rank1.png">
+  <link rel="preload" as="image" href="./assets/rank2.png">
+  <link rel="preload" as="image" href="./assets/rank3.png">
+  <link rel="preload" as="image" href="./assets/rank4.png">
+  <link rel="preload" as="image" href="./assets/rank5.png">
+  <link rel="preload" as="image" href="./assets/rank6.png">
+  <link rel="preload" as="image" href="./assets/rank7.png">
+  <link rel="preload" as="image" href="./assets/t1.png">
+  <link rel="preload" as="image" href="./assets/t2.png">
+  <link rel="preload" as="image" href="./assets/t3.png">
+  <link rel="preload" as="image" href="./assets/t4.png">
+  <link rel="preload" as="image" href="./assets/t5.png">
+  <link rel="preload" as="image" href="./assets/t6.png">
+  <link rel="preload" as="image" href="./assets/t7.png">
+  <link rel="preload" as="image" href="./assets/t8.png">
+  <link rel="preload" as="image" href="./assets/t9.png">
+
   <style>
     :root{
       --bg: #0b0c0f;
@@ -19,15 +42,13 @@
       --muted: rgba(255,255,255,.62);
       --muted2: rgba(255,255,255,.42);
 
+      --gold: #d6b56a;
+      --gold2: #f0de9a;
+
       --shadow: 0 20px 60px rgba(0,0,0,.55);
       --shadow2: 0 10px 30px rgba(0,0,0,.45);
 
       --radius: 18px;
-
-      /* ✔ tuning */
-      --elem-opacity: .42;     /* общая видимость текстуры */
-      --elem-vignette: .30;    /* затемнение для читабельности */
-      --fade: 22px;            /* мягкая граница между блоками */
     }
 
     * { box-sizing: border-box; }
@@ -60,10 +81,7 @@
       z-index: -2;
     }
 
-    .wrap{
-      width: min(1200px, 94vw);
-      margin: 22px auto 40px;
-    }
+    .wrap{ width: min(1200px, 94vw); margin: 22px auto 40px; }
 
     .topbar{
       display: grid;
@@ -77,24 +95,9 @@
       box-shadow: var(--shadow2);
       backdrop-filter: blur(10px);
     }
-
-    .brand{
-      display:flex;
-      align-items:center;
-      justify-content:flex-start;
-      min-width: 240px;
-    }
-    .brand img{
-      height: 44px;
-      width: auto;
-      display:block;
-      filter: drop-shadow(0 10px 18px rgba(0,0,0,.55));
-    }
-
-    .center-title{
-      text-align: center;
-      line-height: 1;
-    }
+    .brand{ display:flex; align-items:center; justify-content:flex-start; min-width: 240px; }
+    .brand img{ height: 44px; width: auto; display:block; filter: drop-shadow(0 10px 18px rgba(0,0,0,.55)); }
+    .center-title{ text-align: center; line-height: 1; }
     .center-title .title{
       font-family: Cinzel, serif;
       font-weight: 700;
@@ -105,7 +108,6 @@
       text-shadow: 0 18px 40px rgba(0,0,0,.6);
       white-space: nowrap;
     }
-
     .season-name{
       font-family: Cinzel, serif;
       font-weight: 600;
@@ -125,7 +127,6 @@
       border: 1px solid var(--stroke);
       box-shadow: var(--shadow2);
       backdrop-filter: blur(10px);
-
       display:flex;
       align-items:center;
       justify-content: space-between;
@@ -133,29 +134,14 @@
       flex-wrap: wrap;
     }
 
-    .left-controls{
+    .left-controls, .right-controls{
       display:flex;
       align-items:center;
       gap: 10px;
       flex-wrap: wrap;
     }
-    .right-controls{
-      display:flex;
-      align-items:center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .label{
-      font-size: 12px;
-      color: var(--muted);
-      letter-spacing: .02em;
-    }
-    .status{
-      font-size: 12px;
-      color: var(--muted2);
-      margin-left: 8px;
-    }
+    .label{ font-size: 12px; color: var(--muted); letter-spacing: .02em; }
+    .status{ font-size: 12px; color: var(--muted2); margin-left: 8px; }
 
     .btn{
       appearance: none;
@@ -190,12 +176,7 @@
       box-shadow: 0 10px 24px rgba(0,0,0,.35);
       max-width: 78vw;
     }
-    .select-wrap{
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-    }
+    .select-wrap{ position: relative; display: inline-flex; align-items: center; gap: 10px; }
     .select-wrap::after{
       content:"▾";
       position:absolute;
@@ -240,14 +221,11 @@
     }
     #leaderboardWide{ min-width: max-content; }
 
-    table{
-      width: 100%;
-      border-collapse: collapse;
-    }
+    table{ width: 100%; border-collapse: collapse; }
     thead th{
       position: sticky;
       top: 0;
-      z-index: 5;
+      z-index: 1;
       background: rgba(10, 11, 14, .60);
       backdrop-filter: blur(10px);
       color: rgba(240,222,154,.90);
@@ -273,97 +251,47 @@
       transition: background .14s ease;
       cursor: pointer;
       position: relative;
-      z-index: 2;
+      isolation: isolate;
     }
     tbody tr:hover{ background: rgba(255,255,255,.06); }
 
-    /* =========================
-       ✅ ELEMENT BLOCK BACKGROUNDS (ONE IMAGE PER 3 ROWS)
-       We paint ALL element textures on tbody once (4 layers),
-       aligned to groups of 3 rows using background-position/size.
-       Then top 12 rows stay transparent so no seams.
-       ========================= */
+    /* --- Element backgrounds: NO shift (background is on TR via ::before only) --- */
+    tbody tr.el-fire::before,
+    tbody tr.el-earth::before,
+    tbody tr.el-air::before,
+    tbody tr.el-water::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:1;
+      background-repeat: repeat-x;
+      background-size: cover;
+      background-position: center;
+      opacity: .92;
+      filter: saturate(1.05) contrast(1.05);
+      pointer-events:none;
+    }
+    tbody tr.el-fire::before  { background-image: url("./assets/fire.png"); }
+    tbody tr.el-earth::before { background-image: url("./assets/earth.png"); }
+    tbody tr.el-air::before   { background-image: url("./assets/air.png"); }
+    tbody tr.el-water::before { background-image: url("./assets/water.png"); }
 
-    /* default zebra for rows 13+ only */
+    /* soften borders between elemental blocks */
+    tbody tr.el-fire.end::after,
+    tbody tr.el-earth.end::after,
+    tbody tr.el-air.end::after,
+    tbody tr.el-water.end::after{
+      content:"";
+      position:absolute;
+      left:0; right:0; bottom:-1px; height:18px;
+      z-index:1;
+      background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(16,18,24,.60));
+      pointer-events:none;
+    }
+
+    /* zebra for others */
     tbody tr.zebra-dark{ filter: brightness(0.92); }
 
-    /* rows 1-12 should not add their own background, let tbody show through */
-    tbody tr.elem-row{
-      background: transparent !important;
-    }
-
-    /* tbody background layers */
-    #leaderboardWide tbody{
-      position: relative;
-      /* four textures stacked + vignette */
-      background-image:
-        linear-gradient(to right, rgba(0,0,0,var(--elem-vignette)), rgba(0,0,0,0), rgba(0,0,0,var(--elem-vignette))),
-        url("./assets/fire.png"),
-        url("./assets/earth.png"),
-        url("./assets/air.png"),
-        url("./assets/water.png");
-      background-repeat:
-        no-repeat,
-        no-repeat, no-repeat, no-repeat, no-repeat;
-      background-size:
-        100% 100%,
-        100% calc(var(--rowH) * 3),
-        100% calc(var(--rowH) * 3),
-        100% calc(var(--rowH) * 3),
-        100% calc(var(--rowH) * 3);
-      /* positions will be set by JS via CSS vars */
-      background-position:
-        0 0,
-        0 var(--fireY),
-        0 var(--earthY),
-        0 var(--airY),
-        0 var(--waterY);
-      opacity: 1;
-    }
-
-    /* subtle visibility control using overlay */
-    #leaderboardWide tbody::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      z-index:1;
-      pointer-events:none;
-
-      /* this layer makes textures soft + smooth transitions between blocks */
-      background:
-        linear-gradient(to bottom,
-          rgba(0,0,0,0) 0,
-          rgba(0,0,0,0) calc(var(--rowH) * 3 - var(--fade)),
-          rgba(0,0,0,.18) calc(var(--rowH) * 3),
-          rgba(0,0,0,0) calc(var(--rowH) * 3 + var(--fade)),
-
-          rgba(0,0,0,0) calc(var(--rowH) * 6 - var(--fade)),
-          rgba(0,0,0,.18) calc(var(--rowH) * 6),
-          rgba(0,0,0,0) calc(var(--rowH) * 6 + var(--fade)),
-
-          rgba(0,0,0,0) calc(var(--rowH) * 9 - var(--fade)),
-          rgba(0,0,0,.18) calc(var(--rowH) * 9),
-          rgba(0,0,0,0) calc(var(--rowH) * 9 + var(--fade))
-        );
-      /* small soften */
-      filter: blur(0.6px);
-      opacity: 1;
-    }
-
-    /* reduce texture intensity uniformly (works reliably) */
-    #leaderboardWide tbody::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      z-index:1;
-      pointer-events:none;
-      background: rgba(0,0,0,0);
-      mix-blend-mode: normal;
-      /* "dim" textures: */
-      box-shadow: inset 0 0 0 9999px rgba(0,0,0, calc(1 - var(--elem-opacity)));
-    }
-
-    /* Place badge */
     .place-badge{
       display:inline-flex;
       align-items:center;
@@ -375,28 +303,20 @@
       border: 1px solid rgba(255,255,255,.18);
       background: rgba(0,0,0,.28);
       color: rgba(255,255,255,.92);
-      font-weight: 800;
+      font-weight: 700;
       margin: 0 auto;
     }
-    .place-badge.place-1{
-      color: rgba(255, 226, 120, .98);
-      border-color: rgba(255, 226, 120, .55);
-      box-shadow: 0 0 14px rgba(255, 210, 90, .18);
-    }
-    .place-badge.place-2{
-      color: rgba(220, 226, 235, .98);
-      border-color: rgba(220, 226, 235, .55);
-      box-shadow: 0 0 14px rgba(220, 226, 235, .12);
-    }
-    .place-badge.place-3{
-      color: rgba(205, 127, 50, .98);
-      border-color: rgba(205, 127, 50, .55);
-      box-shadow: 0 0 14px rgba(205, 127, 50, .12);
-    }
+
+    .place-1{ border-color: rgba(214,181,106,.9); color: rgba(240,222,154,.95); }
+    .place-2{ border-color: rgba(220,226,235,.9); color: rgba(220,226,235,.95); }
+    .place-3{ border-color: rgba(205,127,50,.9); color: rgba(205,127,50,.95); }
+
+    #leaderboardWideWrap { display: block; }
+    #leaderboardCompact { display: none; }
 
     @media (max-width: 760px) and (orientation: portrait) {
       .topbar{
-        display:flex;
+        display: flex;
         flex-direction: column;
         align-items: center;
         gap: 10px;
@@ -404,20 +324,27 @@
       }
       .brand{ min-width: 0; justify-content: center; }
       .brand img{ height: 42px; }
-      .season-name{ text-align: center; justify-self: unset; max-width: 92vw; }
+      .season-name{ text-align: center; max-width: 92vw; }
       .center-title .title{ font-size: 18px; letter-spacing: .08em; }
+
+      /* IMPORTANT: keep wide table in portrait too (scrollable) */
+      #leaderboardWideWrap { display: block; }
+      #leaderboardCompact { display: none; }
     }
 
     /* Modal */
     .modal { display:none; position:fixed; inset:0; background: rgba(0,0,0,.70); backdrop-filter: blur(6px); }
     .card  {
-      width: min(980px, 94vw);
-      margin: 6vh auto;
+      width: min(560px, 92vw);
+      margin: 5vh auto;
       border-radius: 18px;
-      background: rgba(16, 18, 24, .86);
-      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(16, 18, 24, .88);
+      border: 1px solid rgba(214,181,106,.55);
       box-shadow: 0 30px 90px rgba(0,0,0,.72);
       overflow: hidden;
+      max-height: 90vh;
+      display:flex;
+      flex-direction: column;
     }
     .modal-head{
       display:flex;
@@ -427,6 +354,7 @@
       padding: 14px 16px;
       background: linear-gradient(to right, rgba(214,181,106,.14), rgba(0,0,0,.0));
       border-bottom: 1px solid rgba(255,255,255,.10);
+      flex: 0 0 auto;
     }
     .modal-title{
       font-family: Cinzel, serif;
@@ -437,53 +365,203 @@
       color: rgba(240,222,154,.95);
     }
     .close{
-      border: 1px solid rgba(255,255,255,.16);
+      border: 1px solid rgba(214,181,106,.7);
       background: rgba(0,0,0,.30);
       color: rgba(255,255,255,.86);
       border-radius: 12px;
       padding: 8px 10px;
       cursor:pointer;
     }
-    .modal-body{ padding: 16px; }
+    .modal-body{
+      padding: 16px;
+      overflow: auto; /* ✅ scroll inside modal on phone */
+      -webkit-overflow-scrolling: touch;
+      flex: 1 1 auto;
+      position: relative;
+    }
 
-    .profile-grid{
+    /* Champion background (blur + dark) */
+    .modal-body.champion::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: url("./assets/champion.png") center/cover no-repeat;
+      filter: blur(6px) brightness(.55);
+      opacity: .9;
+      z-index: 0;
+    }
+    .modal-body > *{ position: relative; z-index: 1; }
+
+    /* Player card layout */
+    .pc-top{
+      text-align:center;
+      padding: 18px 10px 8px;
+      border-bottom: 1px solid rgba(214,181,106,.35);
+    }
+    .rank-icon{
+      width: 86px;
+      height: 86px;
+      object-fit: contain;
+      display:block;
+      margin: 0 auto 10px;
+      filter: drop-shadow(0 14px 26px rgba(0,0,0,.6));
+    }
+    .rank-title{
+      font-family: Cinzel, serif;
+      letter-spacing: .12em;
+      font-weight: 700;
+      font-size: 14px;
+      color: rgba(240,222,154,.90);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .player-name{
+      font-family: Cinzel, serif;
+      font-weight: 700;
+      font-size: 40px;
+      letter-spacing: .02em;
+      color: rgba(255,255,255,.95);
+      text-shadow: 0 18px 45px rgba(0,0,0,.55);
+      margin-bottom: 10px;
+    }
+
+    .section-title{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      font-family: Cinzel, serif;
+      letter-spacing: .10em;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: rgba(240,222,154,.90);
+      margin: 16px 0 10px;
+      font-size: 14px;
+    }
+
+    .medals{
       display:grid;
-      grid-template-columns: 1.05fr .95fr;
-      gap: 14px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 10px;
     }
-    @media (max-width: 860px){
-      .profile-grid{ grid-template-columns: 1fr; }
+    .pill{
+      border: 1px solid rgba(214,181,106,.35);
+      border-radius: 14px;
+      background: rgba(0,0,0,.25);
+      padding: 10px 12px;
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+      box-shadow: 0 12px 26px rgba(0,0,0,.35) inset;
     }
-    .box{
-      background: rgba(0,0,0,.20);
-      border: 1px solid rgba(255,255,255,.10);
+    .pill .left{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      font-weight: 700;
+      color: rgba(255,255,255,.9);
+    }
+    .pill img{ width: 18px; height: 18px; object-fit: contain; }
+    .pill .num{ font-weight: 800; color: rgba(255,255,255,.92); }
+
+    /* Achievements */
+    .ach-wrap{
+      border: 1px solid rgba(214,181,106,.25);
       border-radius: 16px;
+      background: rgba(0,0,0,.20);
       padding: 14px;
     }
-    .box h4{
-      margin: 0 0 10px;
-      font-family: Cinzel, serif;
-      letter-spacing: .04em;
-      text-transform: uppercase;
+    .ach-grid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      justify-items: center;
+      align-items: center;
+    }
+    .ach-item{
+      width: 86px;
+      height: 86px;
+      border-radius: 16px;
+      border: 1px solid rgba(214,181,106,.25);
+      background: rgba(0,0,0,.22);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+    }
+    .ach-item img{ width: 72%; height: 72%; object-fit: contain; filter: drop-shadow(0 12px 18px rgba(0,0,0,.55)); }
+
+    /* t9 big: spans full 3 cols but edges align with 3 small items */
+    .ach-t9{
+      grid-column: 1 / span 3;
+      width: 100%;
+      max-width: calc(86px*3 + 12px*2); /* exactly 3 cells + 2 gaps */
+      height: 130px;
+      border-radius: 18px;
+      border: 1px solid rgba(214,181,106,.45);
+      background: rgba(0,0,0,.22);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow: 0 0 28px rgba(214,181,106,.18);
+    }
+    .ach-t9 img{ width: 92px; height: 92px; object-fit: contain; }
+
+    /* History */
+    .hist{
+      margin-top: 10px;
+      display:flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .hist-card{
+      border: 1px solid rgba(214,181,106,.25);
+      border-radius: 16px;
+      background: rgba(0,0,0,.20);
+      padding: 12px 14px;
+      display:grid;
+      grid-template-columns: 90px 1fr auto;
+      align-items:center;
+      gap: 10px;
+    }
+    .hist-date{
+      font-weight: 800;
+      font-size: 20px;
+      color: rgba(255,255,255,.94);
+    }
+    .hist-game{
+      color: rgba(240,222,154,.90);
+      font-weight: 700;
+      text-align:center;
+    }
+    .chips{
+      display:flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items:flex-end;
+    }
+    .chip{
+      border: 1px solid rgba(214,181,106,.25);
+      background: rgba(0,0,0,.22);
+      border-radius: 999px;
+      padding: 6px 10px;
       font-size: 12px;
       color: rgba(255,255,255,.88);
+      white-space: nowrap;
     }
-    .kv p{ margin: 7px 0; color: rgba(255,255,255,.86); }
-    .kv b{ color: rgba(240,222,154,.92); font-weight: 700; }
-    .mini th, .mini td{ text-align:center; }
-    .hint{ color: var(--muted2); font-size: 12px; margin-top: 10px; }
+
+    .hint{ color: rgba(255,255,255,.45); font-size: 12px; margin-top: 12px; text-align:center; }
   </style>
 </head>
 
 <body>
   <div class="wrap">
+
     <div class="topbar">
-      <div class="brand">
-        <img src="./assets/logo.png" alt="River Poker Club">
-      </div>
-      <div class="center-title">
-        <div class="title">RIVER RATING</div>
-      </div>
+      <div class="brand"><img src="./assets/logo.png" alt="River Poker Club"></div>
+      <div class="center-title"><div class="title">RIVER RATING</div></div>
       <div class="season-name" id="seasonName">—</div>
     </div>
 
@@ -510,6 +588,8 @@
       <div class="wide-wrap" id="leaderboardWideWrap">
         <table id="leaderboardWide"></table>
       </div>
+
+      <table id="leaderboardCompact"></table>
     </div>
   </div>
 
@@ -519,7 +599,7 @@
         <div class="modal-title">Статистика игрока</div>
         <button class="close" id="closeBtn">✕</button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body" id="modalBody">
         <div id="profile">Загрузка профиля…</div>
         <div class="hint">Клик вне окна — закрыть</div>
       </div>
@@ -527,12 +607,7 @@
   </div>
 
 <script>
-  const SHEET_ID = "1Pj2H4dT3f0W7rmWQPPgj1_FHbCPSIDsRmO56I-VmZls";
   const PROFILE_API_BASE = "https://script.google.com/macros/s/AKfycbwKd6_brG1Pgy3U3AUX_cNCUoznk2nYzIOYKo790MDs48ktJwlKvdQ_P8TNXqvPJsGkTQ/exec";
-
-  const LEADERBOARD_URL = `https://opensheet.elk.sh/${SHEET_ID}/Leaderboard`;
-  const SEASONS_URL     = `https://opensheet.elk.sh/${SHEET_ID}/Seasons`;
-  const MATCHES_URL     = `https://opensheet.elk.sh/${SHEET_ID}/Matches`;
 
   const statusEl       = document.getElementById("status");
   const seasonSelect   = document.getElementById("seasonSelect");
@@ -543,260 +618,143 @@
   const tableWideEl    = document.getElementById("leaderboardWide");
 
   const modalEl   = document.getElementById("modal");
+  const modalBody = document.getElementById("modalBody");
   const profileEl = document.getElementById("profile");
   const closeBtn  = document.getElementById("closeBtn");
 
   closeBtn.onclick = () => modalEl.style.display = "none";
   modalEl.onclick = (e) => { if (e.target === modalEl) modalEl.style.display = "none"; };
 
-  let seasonsCache = [];
-  let matchesCache = null;
-
   function setStatus(t) { statusEl.textContent = t; }
   function norm(x) { return String(x ?? "").trim(); }
   function normUp(x) { return norm(x).toUpperCase(); }
 
-  function parseDdMm(s){
-    const t = norm(s);
-    const m = t.match(/^(\d{1,2})\.(\d{1,2})$/);
-    if (!m) return null;
-    const dd = Number(m[1]);
-    const mm = Number(m[2]);
-    if (dd < 1 || dd > 31 || mm < 1 || mm > 12) return null;
-    return { dd, mm };
-  }
+  let seasonsCache = [];
+  let dashboardCache = null;
+
   function pad2(n){ return String(n).padStart(2,"0"); }
-  function dateKeyFromCell(v){
-    const dm = parseDdMm(v);
-    if (!dm) return null;
-    return `${pad2(dm.mm)}-${pad2(dm.dd)}`;
-  }
-  function dateLabelFromCell(v){
-    const dm = parseDdMm(v);
-    if (!dm) return norm(v);
-    return `${pad2(dm.dd)}.${pad2(dm.mm)}`;
+  function normalizeDdMmAny(v){
+    const s0 = norm(v);
+    if (!s0) return null;
+    const s = s0.replace(",", ".");
+    const m = s.match(/^(\d{1,2})\.(\d{1,2})$/);
+    if (m) return `${pad2(Number(m[1]))}.${pad2(Number(m[2]))}`;
+    return null;
   }
 
-  async function getCurrentSeasonFromApi() {
-    const res = await fetch(PROFILE_API_BASE);
-    const data = await res.json();
-    return normUp(data.current_season_id || "");
+  async function apiMeta(){
+    const res = await fetch(`${PROFILE_API_BASE}?mode=meta`);
+    return await res.json();
   }
-  async function setSeason(seasonId) {
+  async function apiDashboard(seasonId){
+    const res = await fetch(`${PROFILE_API_BASE}?mode=dashboard&season_id=${encodeURIComponent(seasonId)}`);
+    return await res.json();
+  }
+  async function apiSetSeason(seasonId){
+    // keep old behavior (writes season to Leaderboard!G2)
     await fetch(`${PROFILE_API_BASE}?season_id=${encodeURIComponent(seasonId)}`);
-  }
-
-  async function loadSeasons() {
-    setStatus("Загрузка сезонов…");
-    const res = await fetch(SEASONS_URL);
-    seasonsCache = await res.json();
-
-    seasonSelect.innerHTML =
-      `<option value="TOTAL">Total</option>` +
-      seasonsCache.map(s => `<option value="${normUp(s.season_id)}">${s.season_name}</option>`).join("");
-
-    seasonSelect.onchange = async () => {
-      const seasonId = normUp(seasonSelect.value);
-      setStatus("Переключаю сезон…");
-      await setSeason(seasonId);
-      updateSeasonName();
-      await renderAll();
-      setStatus("");
-    };
-
-    prevBtn.onclick = async () => {
-      const current = normUp(seasonSelect.value);
-      if (current === "TOTAL") {
-        if (!seasonsCache.length) return;
-        const last = normUp(seasonsCache[seasonsCache.length - 1].season_id);
-        seasonSelect.value = last;
-        setStatus("Переключаю сезон…");
-        await setSeason(last);
-        updateSeasonName();
-        await renderAll();
-        setStatus("");
-        return;
-      }
-      const idx = seasonsCache.findIndex(s => normUp(s.season_id) === current);
-      if (idx > 0) {
-        const prev = normUp(seasonsCache[idx - 1].season_id);
-        seasonSelect.value = prev;
-        setStatus("Переключаю сезон…");
-        await setSeason(prev);
-        updateSeasonName();
-        await renderAll();
-        setStatus("");
-      }
-    };
-
-    nextBtn.onclick = async () => {
-      const current = normUp(seasonSelect.value);
-      if (current === "TOTAL") {
-        if (!seasonsCache.length) return;
-        const first = normUp(seasonsCache[0].season_id);
-        seasonSelect.value = first;
-        setStatus("Переключаю сезон…");
-        await setSeason(first);
-        updateSeasonName();
-        await renderAll();
-        setStatus("");
-        return;
-      }
-      const idx = seasonsCache.findIndex(s => normUp(s.season_id) === current);
-      if (idx >= 0 && idx < seasonsCache.length - 1) {
-        const next = normUp(seasonsCache[idx + 1].season_id);
-        seasonSelect.value = next;
-        setStatus("Переключаю сезон…");
-        await setSeason(next);
-        updateSeasonName();
-        await renderAll();
-        setStatus("");
-      }
-    };
   }
 
   function updateSeasonName(){
     const id = normUp(seasonSelect.value);
-    if (id === "TOTAL") {
-      seasonNameEl.textContent = "Общий зачёт (Total)";
-      return;
-    }
+    if (id === "TOTAL") { seasonNameEl.textContent = "Общий зачёт (Total)"; return; }
     const s = seasonsCache.find(x => normUp(x.season_id) === id);
     seasonNameEl.textContent = s ? s.season_name : "—";
   }
 
-  async function loadMatchesOnce() {
-    if (matchesCache) return matchesCache;
-    setStatus("Загрузка матчей…");
-    const res = await fetch(MATCHES_URL);
-    matchesCache = await res.json();
-    return matchesCache;
+  function toNum(v){
+    const s = String(v ?? "").trim().replace(/\s+/g, "").replace(",", ".");
+    const n = Number(s);
+    return Number.isFinite(n) ? n : 0;
   }
 
-  function getField(row, keys) {
-    for (const k of keys) if (row[k] !== undefined) return row[k];
-    return undefined;
-  }
+  // Build daily columns strictly from season_table header row (NO SHIFT POSSIBLE)
+  function buildSeasonDailyFromTable(seasonTable){
+    // seasonTable is 2D array: first row headers
+    if (!seasonTable || !seasonTable.length) return { dateCols: [], rowMap: new Map() };
 
-  function normalizeMatches(rows) {
-    return rows.map(r => ({
-      date: getField(r, ["date", "Date", "A"]),
-      season: getField(r, ["season", "season_id", "Season", "B"]),
-      player_id: getField(r, ["player_id", "playerId", "C"]),
-      points: getField(r, ["points", "score", "D"])
-    })).filter(x => x.player_id);
-  }
+    const headers = seasonTable[0].map(x => norm(x));
+    // expected headers: season | name | player_id | 01.02 | 02.02 ...
+    const pidCol = headers.findIndex(h => normUp(h) === "PLAYER_ID");
+    if (pidCol < 0) return { dateCols: [], rowMap: new Map() };
 
-  function filterMatchesByMode(matches, seasonId) {
-    if (seasonId === "TOTAL") return matches;
-    return matches.filter(m => normUp(m.season) === seasonId);
-  }
-
-  function buildDateColumns(matchesFiltered) {
-    const map = new Map();
-    for (const m of matchesFiltered) {
-      const key = dateKeyFromCell(m.date);
-      if (!key) continue;
-      const label = dateLabelFromCell(m.date);
-      if (!map.has(key)) map.set(key, { key, label });
+    const dateCols = [];
+    for (let i = pidCol + 1; i < headers.length; i++){
+      const d = normalizeDdMmAny(headers[i]);
+      if (d) dateCols.push({ idx: i, label: d, key: d });
     }
-    return [...map.values()].sort((a,b) => (a.key < b.key ? 1 : -1));
-  }
 
-  function buildPointsMatrix(matchesFiltered) {
-    const matrix = new Map();
-    for (const m of matchesFiltered) {
-      const dateKey = dateKeyFromCell(m.date);
-      if (!dateKey) continue;
+    // newest -> oldest
+    dateCols.sort((a,b) => {
+      const ak = a.key.split("."); // dd mm
+      const bk = b.key.split(".");
+      const aKey = Number(ak[1])*100 + Number(ak[0]);
+      const bKey = Number(bk[1])*100 + Number(bk[0]);
+      return bKey - aKey;
+    });
 
-      const pid = String(m.player_id);
-      if (!matrix.has(pid)) matrix.set(pid, new Map());
-      const mp = matrix.get(pid);
-
-      const p = Number(String(m.points ?? "").replace(",", "."));
-      const add = Number.isFinite(p) ? p : 0;
-      mp.set(dateKey, (mp.get(dateKey) || 0) + add);
+    const rowMap = new Map(); // pid -> row array
+    for (let r = 1; r < seasonTable.length; r++){
+      const row = seasonTable[r];
+      const pid = String(row[pidCol] ?? "").trim();
+      if (!pid) continue;
+      rowMap.set(pid, row);
     }
-    return matrix;
+    return { dateCols, rowMap, pidCol };
   }
 
-  function updateElementBackdrop_() {
-    // compute row height in px and set CSS vars so each texture is exactly 3 rows tall
-    const tbody = document.querySelector("#leaderboardWide tbody");
-    const firstRow = document.querySelector("#leaderboardWide tbody tr");
-    if (!tbody || !firstRow) return;
-
-    const h = Math.max(1, Math.round(firstRow.getBoundingClientRect().height));
-    // set vars: row height and Y offsets for each 3-row block
-    tbody.style.setProperty("--rowH", h + "px");
-    tbody.style.setProperty("--fireY",  (0 * h) + "px");     // rows 1-3
-    tbody.style.setProperty("--earthY", (3 * h) + "px");     // rows 4-6
-    tbody.style.setProperty("--airY",   (6 * h) + "px");     // rows 7-9
-    tbody.style.setProperty("--waterY", (9 * h) + "px");     // rows 10-12
+  function classifyRow(num){
+    if (num >= 1 && num <= 3) return "el-fire";
+    if (num >= 4 && num <= 6) return "el-earth";
+    if (num >= 7 && num <= 9) return "el-air";
+    if (num >= 10 && num <= 12) return "el-water";
+    return "";
   }
 
-  async function renderAll() {
-    await renderLeaderboard();
-  }
-
-  async function renderLeaderboard() {
-    setStatus("Загрузка рейтинга…");
+  async function renderLeaderboard(){
+    setStatus("Загрузка…");
     const seasonId = normUp(seasonSelect.value);
 
-    const [lbRes, rawMatches] = await Promise.all([
-      fetch(LEADERBOARD_URL),
-      loadMatchesOnce()
-    ]);
+    dashboardCache = await apiDashboard(seasonId);
 
-    const rowsRaw = await lbRes.json();
-    const toNum = (v) => {
-      const s = String(v ?? "").trim().replace(/\s+/g, "").replace(",", ".");
-      const n = Number(s);
-      return Number.isFinite(n) ? n : 0;
-    };
+    const rowsRaw = dashboardCache.leaderboard || [];
     const rows = [...rowsRaw].sort((a, b) => {
       const keyA = (seasonId === "TOTAL") ? toNum(a.all_seasons_score) : toNum(a.season_score);
       const keyB = (seasonId === "TOTAL") ? toNum(b.all_seasons_score) : toNum(b.season_score);
       if (keyB !== keyA) return keyB - keyA;
-
-      const nameA = String(a.name ?? "").trim();
-      const nameB = String(b.name ?? "").trim();
-      return nameA.localeCompare(nameB, "ru", { sensitivity: "base" });
+      return String(a.name ?? "").localeCompare(String(b.name ?? ""), "ru", { sensitivity: "base" });
     });
 
-    const matches = normalizeMatches(rawMatches);
-    const matchesFiltered = filterMatchesByMode(matches, seasonId);
+    const { dateCols, rowMap, pidCol } = buildSeasonDailyFromTable(dashboardCache.season_table);
 
-    const dateCols = buildDateColumns(matchesFiltered);
-    const matrix   = buildPointsMatrix(matchesFiltered);
-
-    const headWide = `<thead><tr>
+    const head = `<thead><tr>
       <th>№</th><th>Игрок</th><th>Очки сезона</th><th>Total</th>
       ${dateCols.map(d => `<th>${d.label}</th>`).join("")}
     </tr></thead>`;
 
-    const bodyWide = `<tbody>` + rows.map((r, idx) => {
+    const body = `<tbody>` + rows.map((r, idx) => {
       const pid = String(r.player_id);
       const num = idx + 1;
 
-      // mark top 12 as "elem-row" to let tbody background show through
-      const elemRow = (num <= 12) ? "elem-row" : "";
-      const zebraClass = (num % 2 === 0) ? "zebra-dark" : "";
+      const elClass = classifyRow(num);
+      const endClass = (num === 3 || num === 6 || num === 9 || num === 12) ? "end" : "";
+      const zebraClass = (!elClass && (num % 2 === 0)) ? "zebra-dark" : "";
 
-      const mp = matrix.get(pid);
-      const cells = dateCols.map(d => {
-        const v = mp ? (mp.get(d.key) || 0) : 0;
-        return `<td>${v ? v : "—"}</td>`;
-      }).join("");
-
-      const placeBadgeClass =
+      const badgeClass =
         (num === 1) ? "place-badge place-1" :
         (num === 2) ? "place-badge place-2" :
         (num === 3) ? "place-badge place-3" :
         "place-badge";
 
-      return `<tr class="${elemRow} ${zebraClass}" data-player="${pid}">
-        <td><span class="${placeBadgeClass}">${num}</span></td>
+      // daily cells strictly from S01 row values, matching header indices (NO SHIFT)
+      const seasonRow = rowMap.get(pid);
+      const cells = dateCols.map(d => {
+        const v = seasonRow ? toNum(seasonRow[d.idx]) : 0;
+        return `<td>${v ? v : "—"}</td>`;
+      }).join("");
+
+      return `<tr class="${elClass} ${endClass} ${zebraClass}" data-player="${pid}">
+        <td><span class="${badgeClass}">${num}</span></td>
         <td>${r.name ?? ""}</td>
         <td>${r.season_score ?? ""}</td>
         <td>${r.all_seasons_score ?? ""}</td>
@@ -804,92 +762,177 @@
       </tr>`;
     }).join("") + `</tbody>`;
 
-    tableWideEl.innerHTML = headWide + bodyWide;
+    tableWideEl.innerHTML = head + body;
 
     [...document.querySelectorAll("tr[data-player]")].forEach(tr => {
       tr.onclick = () => openProfile(tr.getAttribute("data-player"));
     });
 
-    // after render: align element textures exactly to 3 rows
-    requestAnimationFrame(() => {
-      updateElementBackdrop_();
-    });
-
     setStatus("");
   }
 
-  function renderSmallTable(headers, rows) {
-    if (!rows || !rows.length) return `<div class="hint">Нет данных</div>`;
-    let h = `<table style="width:100%"><tr>${headers.map(x => `<th>${x}</th>`).join("")}</tr>`;
-    for (const r of rows) h += `<tr>${r.map(v => `<td>${v ?? ""}</td>`).join("")}</tr>`;
-    h += `</table>`;
-    return h;
+  function medalIcon(kind){
+    // use emoji-like icons with png if you want later
+    if (kind === 'top1') return "🥇";
+    if (kind === 'top2') return "🥈";
+    return "🥉";
   }
 
-  async function openProfile(playerId) {
+  function buildAchievementsHtml(list){
+    const items = (list || []).map(x => String(x).trim()).filter(Boolean);
+    if (!items.length) return `<div class="hint">Пока нет достижений</div>`;
+
+    const hasT9 = items.includes("t9");
+    const rest = items.filter(x => x !== "t9");
+
+    let html = `<div class="ach-wrap"><div class="ach-grid">`;
+
+    if (hasT9){
+      html += `<div class="ach-t9"><img src="./assets/t9.png" alt="t9"></div>`;
+    }
+
+    // If last row has 2 icons => place left+right (center empty)
+    // We do this by inserting a "spacer" in the middle of the last row.
+    const r = [...rest];
+    if (r.length % 3 === 2){
+      // insert a spacer as second of the last 2 -> so they become col1 and col3
+      // example: ... [A,B] -> [A, __spacer__, B]
+      r.splice(r.length - 1, 0, "__spacer__");
+    }
+
+    for (const t of r){
+      if (t === "__spacer__"){
+        html += `<div style="width:86px;height:86px;"></div>`;
+        continue;
+      }
+      html += `<div class="ach-item"><img src="./assets/${t}.png" alt="${t}"></div>`;
+    }
+
+    html += `</div></div>`;
+    return html;
+  }
+
+  async function openProfile(playerId){
     modalEl.style.display = "block";
     profileEl.textContent = "Загрузка профиля…";
+    modalBody.classList.remove("champion");
 
     const seasonId = normUp(seasonSelect.value);
     const url = `${PROFILE_API_BASE}?player_id=${encodeURIComponent(playerId)}&season_id=${encodeURIComponent(seasonId)}`;
     const res = await fetch(url);
     const data = await res.json();
 
-    const summaryHtml = (data.profile || []).map(row =>
-      `<p><b>${row.label}</b>: ${row.value ?? ""}</p>`
-    ).join("");
+    const medals = data.medals || { top1:0, top2:0, top3:0 };
+    const rank = data.rank || { level: 1, title: "Новичок" };
+    const ach = data.achievements || [];
+    const hasT9 = ach.includes("t9");
+    if (hasT9) modalBody.classList.add("champion");
 
-    const bySeasonRows = (data.by_season || []).map(r => [r.season, r.points]);
-    const bySeasonHtml = renderSmallTable(["Сезон", "Очки"], bySeasonRows);
+    const rankIcon = `./assets/rank${rank.level}.png`;
 
-    const lastRows = (data.last_games || []).map(r => [r.date, r.season, r.points]);
-    const lastHtml = renderSmallTable(["Дата", "Сезон", "Очки"], lastRows);
+    const hist = (data.last_games || []).map(g => {
+      return `
+        <div class="hist-card">
+          <div class="hist-date">${g.date || "—"}</div>
+          <div class="hist-game">${g.game_name || "—"}</div>
+          <div class="chips">
+            <div class="chip">место: ${g.place ?? "—"}</div>
+            <div class="chip">сэт-поинтов: ${g.points ?? "—"}</div>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    const medalsHtml = `
+      <div class="medals">
+        <div class="pill"><div class="left"><span>${medalIcon('top1')}</span><span>Top-1</span></div><div class="num">${medals.top1 ?? 0}</div></div>
+        <div class="pill"><div class="left"><span>${medalIcon('top2')}</span><span>Top-2</span></div><div class="num">${medals.top2 ?? 0}</div></div>
+        <div class="pill"><div class="left"><span>${medalIcon('top3')}</span><span>Top-3</span></div><div class="num">${medals.top3 ?? 0}</div></div>
+      </div>
+    `;
 
     profileEl.innerHTML = `
-      <div class="profile-grid">
-        <div class="box">
-          <h4>Сводка</h4>
-          <div class="kv">${summaryHtml || '<div class="hint">Нет данных</div>'}</div>
-        </div>
-        <div class="box mini">
-          <h4>Очки по сезонам</h4>
-          ${bySeasonHtml}
-        </div>
-        <div class="box mini" style="grid-column: 1 / -1;">
-          <h4>Последние игры</h4>
-          ${lastHtml}
-        </div>
+      <div class="pc-top">
+        <img class="rank-icon" src="${rankIcon}" alt="rank${rank.level}">
+        <div class="rank-title">${rank.title}</div>
+        <div class="player-name">${data.profile?.find(x => x.label?.toLowerCase().includes("имя"))?.value || ""}</div>
       </div>
+
+      <div class="section-title">📊 СТАТИСТИКА</div>
+      ${medalsHtml}
+
+      <div class="section-title">🏆 ДОСТИЖЕНИЯ</div>
+      ${buildAchievementsHtml(ach)}
+
+      <div class="section-title">🗂 ИСТОРИЯ ИГР</div>
+      <div style="text-align:center;color:rgba(240,222,154,.9);margin-bottom:8px;">Сезон «${seasonId}»</div>
+      <div class="hist">${hist || `<div class="hint">Нет игр</div>`}</div>
     `;
   }
 
-  // keep correct after resize (mobile rotate etc.)
-  window.addEventListener("resize", () => {
-    updateElementBackdrop_();
-  });
+  async function init(){
+    try{
+      setStatus("Загрузка…");
+      const meta = await apiMeta();
+      seasonsCache = meta.seasons || [];
 
-  (async () => {
-    try {
-      await loadSeasons();
+      seasonSelect.innerHTML =
+        `<option value="TOTAL">Total</option>` +
+        seasonsCache.map(s => `<option value="${normUp(s.season_id)}">${s.season_name}</option>`).join("");
 
-      const currentSeason = await getCurrentSeasonFromApi();
+      const currentSeason = normUp(meta.current_season_id || "");
       const exists = seasonsCache.some(s => normUp(s.season_id) === currentSeason);
-
       if (currentSeason && exists) seasonSelect.value = currentSeason;
       else if (seasonsCache.length) seasonSelect.value = normUp(seasonsCache[seasonsCache.length - 1].season_id);
       else seasonSelect.value = "TOTAL";
 
-      setStatus("Переключаю сезон…");
-      await setSeason(normUp(seasonSelect.value));
+      await apiSetSeason(normUp(seasonSelect.value));
       updateSeasonName();
+      await renderLeaderboard();
 
-      await renderAll();
+      seasonSelect.onchange = async () => {
+        setStatus("Переключаю сезон…");
+        await apiSetSeason(normUp(seasonSelect.value));
+        updateSeasonName();
+        await renderLeaderboard();
+      };
+
+      prevBtn.onclick = async () => {
+        const current = normUp(seasonSelect.value);
+        if (current === "TOTAL"){
+          if (!seasonsCache.length) return;
+          seasonSelect.value = normUp(seasonsCache[seasonsCache.length - 1].season_id);
+        } else {
+          const idx = seasonsCache.findIndex(s => normUp(s.season_id) === current);
+          if (idx > 0) seasonSelect.value = normUp(seasonsCache[idx - 1].season_id);
+        }
+        await apiSetSeason(normUp(seasonSelect.value));
+        updateSeasonName();
+        await renderLeaderboard();
+      };
+
+      nextBtn.onclick = async () => {
+        const current = normUp(seasonSelect.value);
+        if (current === "TOTAL"){
+          if (!seasonsCache.length) return;
+          seasonSelect.value = normUp(seasonsCache[0].season_id);
+        } else {
+          const idx = seasonsCache.findIndex(s => normUp(s.season_id) === current);
+          if (idx >= 0 && idx < seasonsCache.length - 1) seasonSelect.value = normUp(seasonsCache[idx + 1].season_id);
+        }
+        await apiSetSeason(normUp(seasonSelect.value));
+        updateSeasonName();
+        await renderLeaderboard();
+      };
+
       setStatus("");
-    } catch (err) {
-      setStatus("Ошибка загрузки. Проверь доступ к таблице и Web App.");
+    } catch(err){
       console.error(err);
+      setStatus("Ошибка загрузки. Проверь Web App и доступ к таблице.");
     }
-  })();
+  }
+
+  init();
 </script>
 
 </body>
