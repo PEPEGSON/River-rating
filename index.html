@@ -9,29 +9,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- preload key assets (speeds up + no “loading in front of eyes”) -->
-  <link rel="preload" as="image" href="./assets/fire.png">
-  <link rel="preload" as="image" href="./assets/earth.png">
-  <link rel="preload" as="image" href="./assets/air.png">
-  <link rel="preload" as="image" href="./assets/water.png">
-  <link rel="preload" as="image" href="./assets/champion.png">
-  <link rel="preload" as="image" href="./assets/rank1.png">
-  <link rel="preload" as="image" href="./assets/rank2.png">
-  <link rel="preload" as="image" href="./assets/rank3.png">
-  <link rel="preload" as="image" href="./assets/rank4.png">
-  <link rel="preload" as="image" href="./assets/rank5.png">
-  <link rel="preload" as="image" href="./assets/rank6.png">
-  <link rel="preload" as="image" href="./assets/rank7.png">
-  <link rel="preload" as="image" href="./assets/t1.png">
-  <link rel="preload" as="image" href="./assets/t2.png">
-  <link rel="preload" as="image" href="./assets/t3.png">
-  <link rel="preload" as="image" href="./assets/t4.png">
-  <link rel="preload" as="image" href="./assets/t5.png">
-  <link rel="preload" as="image" href="./assets/t6.png">
-  <link rel="preload" as="image" href="./assets/t7.png">
-  <link rel="preload" as="image" href="./assets/t8.png">
-  <link rel="preload" as="image" href="./assets/t9.png">
-
   <style>
     :root{
       --bg: #0b0c0f;
@@ -81,7 +58,10 @@
       z-index: -2;
     }
 
-    .wrap{ width: min(1200px, 94vw); margin: 22px auto 40px; }
+    .wrap{
+      width: min(1200px, 94vw);
+      margin: 22px auto 40px;
+    }
 
     .topbar{
       display: grid;
@@ -95,9 +75,24 @@
       box-shadow: var(--shadow2);
       backdrop-filter: blur(10px);
     }
-    .brand{ display:flex; align-items:center; justify-content:flex-start; min-width: 240px; }
-    .brand img{ height: 44px; width: auto; display:block; filter: drop-shadow(0 10px 18px rgba(0,0,0,.55)); }
-    .center-title{ text-align: center; line-height: 1; }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      justify-content:flex-start;
+      min-width: 240px;
+    }
+    .brand img{
+      height: 44px;
+      width: auto;
+      display:block;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.55));
+    }
+
+    .center-title{
+      text-align: center;
+      line-height: 1;
+    }
     .center-title .title{
       font-family: Cinzel, serif;
       font-weight: 700;
@@ -108,6 +103,7 @@
       text-shadow: 0 18px 40px rgba(0,0,0,.6);
       white-space: nowrap;
     }
+
     .season-name{
       font-family: Cinzel, serif;
       font-weight: 600;
@@ -127,6 +123,7 @@
       border: 1px solid var(--stroke);
       box-shadow: var(--shadow2);
       backdrop-filter: blur(10px);
+
       display:flex;
       align-items:center;
       justify-content: space-between;
@@ -140,8 +137,17 @@
       gap: 10px;
       flex-wrap: wrap;
     }
-    .label{ font-size: 12px; color: var(--muted); letter-spacing: .02em; }
-    .status{ font-size: 12px; color: var(--muted2); margin-left: 8px; }
+
+    .label{
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: .02em;
+    }
+    .status{
+      font-size: 12px;
+      color: var(--muted2);
+      margin-left: 8px;
+    }
 
     .btn{
       appearance: none;
@@ -176,7 +182,12 @@
       box-shadow: 0 10px 24px rgba(0,0,0,.35);
       max-width: 78vw;
     }
-    .select-wrap{ position: relative; display: inline-flex; align-items: center; gap: 10px; }
+    .select-wrap{
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
     .select-wrap::after{
       content:"▾";
       position:absolute;
@@ -213,6 +224,7 @@
       color: rgba(255,255,255,.88);
     }
 
+    /* ✅ Always horizontal scroll (even portrait) */
     .wide-wrap{
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
@@ -221,12 +233,15 @@
     }
     #leaderboardWide{ min-width: max-content; }
 
-    table{ width: 100%; border-collapse: collapse; }
+    table{
+      width: 100%;
+      border-collapse: collapse;
+    }
     thead th{
       position: sticky;
       top: 0;
-      z-index: 1;
-      background: rgba(10, 11, 14, .60);
+      z-index: 2;
+      background: rgba(10, 11, 14, .75);
       backdrop-filter: blur(10px);
       color: rgba(240,222,154,.90);
       font-size: 12px;
@@ -245,53 +260,42 @@
       white-space: nowrap;
       text-align: center;
       position: relative;
-      z-index: 2;
+      z-index: 1;
     }
     tbody tr{
       transition: background .14s ease;
       cursor: pointer;
       position: relative;
-      isolation: isolate;
     }
     tbody tr:hover{ background: rgba(255,255,255,.06); }
 
-    /* --- Element backgrounds: NO shift (background is on TR via ::before only) --- */
+    /* zebra for normal rows */
+    tbody tr.zebra-dark{ filter: brightness(0.92); }
+
+    /* ===== Element row backgrounds using your images ===== */
     tbody tr.el-fire::before,
     tbody tr.el-earth::before,
     tbody tr.el-air::before,
     tbody tr.el-water::before{
       content:"";
       position:absolute;
-      inset:0;
-      z-index:1;
-      background-repeat: repeat-x;
-      background-size: cover;
-      background-position: center;
-      opacity: .92;
-      filter: saturate(1.05) contrast(1.05);
-      pointer-events:none;
+      inset: 0;
+      z-index: 0;
+      opacity: .75;
+      filter: contrast(1.05) saturate(1.05);
+      background-repeat: no-repeat;
+      background-size: 100% 300%; /* stretch for 3 rows */
+      background-position: center var(--bgpos, 0%);
+      /* soft edges between rows */
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 18%, #000 82%, transparent 100%);
+              mask-image: linear-gradient(to bottom, transparent 0%, #000 18%, #000 82%, transparent 100%);
     }
     tbody tr.el-fire::before  { background-image: url("./assets/fire.png"); }
     tbody tr.el-earth::before { background-image: url("./assets/earth.png"); }
     tbody tr.el-air::before   { background-image: url("./assets/air.png"); }
     tbody tr.el-water::before { background-image: url("./assets/water.png"); }
 
-    /* soften borders between elemental blocks */
-    tbody tr.el-fire.end::after,
-    tbody tr.el-earth.end::after,
-    tbody tr.el-air.end::after,
-    tbody tr.el-water.end::after{
-      content:"";
-      position:absolute;
-      left:0; right:0; bottom:-1px; height:18px;
-      z-index:1;
-      background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(16,18,24,.60));
-      pointer-events:none;
-    }
-
-    /* zebra for others */
-    tbody tr.zebra-dark{ filter: brightness(0.92); }
-
+    /* place badge */
     .place-badge{
       display:inline-flex;
       align-items:center;
@@ -303,49 +307,37 @@
       border: 1px solid rgba(255,255,255,.18);
       background: rgba(0,0,0,.28);
       color: rgba(255,255,255,.92);
-      font-weight: 700;
+      font-weight: 800;
       margin: 0 auto;
     }
-
-    .place-1{ border-color: rgba(214,181,106,.9); color: rgba(240,222,154,.95); }
-    .place-2{ border-color: rgba(220,226,235,.9); color: rgba(220,226,235,.95); }
-    .place-3{ border-color: rgba(205,127,50,.9); color: rgba(205,127,50,.95); }
-
-    #leaderboardWideWrap { display: block; }
-    #leaderboardCompact { display: none; }
-
-    @media (max-width: 760px) and (orientation: portrait) {
-      .topbar{
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-        text-align: center;
-      }
-      .brand{ min-width: 0; justify-content: center; }
-      .brand img{ height: 42px; }
-      .season-name{ text-align: center; max-width: 92vw; }
-      .center-title .title{ font-size: 18px; letter-spacing: .08em; }
-
-      /* IMPORTANT: keep wide table in portrait too (scrollable) */
-      #leaderboardWideWrap { display: block; }
-      #leaderboardCompact { display: none; }
-    }
+    .place-badge.gold   { color: #f3e1a1; border-color: rgba(214,181,106,.65); }
+    .place-badge.silver { color: #d8dde6; border-color: rgba(220,226,235,.55); }
+    .place-badge.bronze { color: #e0b08c; border-color: rgba(205,127,50,.55); }
 
     /* Modal */
-    .modal { display:none; position:fixed; inset:0; background: rgba(0,0,0,.70); backdrop-filter: blur(6px); }
+    .modal { display:none; position:fixed; inset:0; background: rgba(0,0,0,.70); backdrop-filter: blur(6px); z-index: 50; }
     .card  {
-      width: min(560px, 92vw);
+      width: min(980px, 94vw);
       margin: 5vh auto;
       border-radius: 18px;
-      background: rgba(16, 18, 24, .88);
-      border: 1px solid rgba(214,181,106,.55);
+      background: rgba(16, 18, 24, .86);
+      border: 1px solid rgba(255,255,255,.12);
       box-shadow: 0 30px 90px rgba(0,0,0,.72);
       overflow: hidden;
-      max-height: 90vh;
-      display:flex;
-      flex-direction: column;
+      position: relative;
     }
+    /* champion background */
+    .card.champion::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: url("./assets/champion.png") center/cover no-repeat;
+      filter: blur(2px) brightness(.55) saturate(1.05);
+      opacity: .75;
+      z-index: 0;
+    }
+    .modal-head, .modal-body{ position: relative; z-index: 1; }
+
     .modal-head{
       display:flex;
       align-items:center;
@@ -354,7 +346,6 @@
       padding: 14px 16px;
       background: linear-gradient(to right, rgba(214,181,106,.14), rgba(0,0,0,.0));
       border-bottom: 1px solid rgba(255,255,255,.10);
-      flex: 0 0 auto;
     }
     .modal-title{
       font-family: Cinzel, serif;
@@ -365,194 +356,159 @@
       color: rgba(240,222,154,.95);
     }
     .close{
-      border: 1px solid rgba(214,181,106,.7);
+      border: 1px solid rgba(255,255,255,.16);
       background: rgba(0,0,0,.30);
       color: rgba(255,255,255,.86);
       border-radius: 12px;
       padding: 8px 10px;
       cursor:pointer;
     }
+
     .modal-body{
       padding: 16px;
-      overflow: auto; /* ✅ scroll inside modal on phone */
+      max-height: 78vh;           /* ✅ scroll on phone */
+      overflow: auto;             /* ✅ */
       -webkit-overflow-scrolling: touch;
-      flex: 1 1 auto;
-      position: relative;
     }
 
-    /* Champion background (blur + dark) */
-    .modal-body.champion::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      background: url("./assets/champion.png") center/cover no-repeat;
-      filter: blur(6px) brightness(.55);
-      opacity: .9;
-      z-index: 0;
-    }
-    .modal-body > *{ position: relative; z-index: 1; }
-
-    /* Player card layout */
-    .pc-top{
-      text-align:center;
-      padding: 18px 10px 8px;
-      border-bottom: 1px solid rgba(214,181,106,.35);
-    }
-    .rank-icon{
-      width: 86px;
-      height: 86px;
-      object-fit: contain;
-      display:block;
-      margin: 0 auto 10px;
-      filter: drop-shadow(0 14px 26px rgba(0,0,0,.6));
-    }
-    .rank-title{
-      font-family: Cinzel, serif;
-      letter-spacing: .12em;
-      font-weight: 700;
-      font-size: 14px;
-      color: rgba(240,222,154,.90);
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-    .player-name{
-      font-family: Cinzel, serif;
-      font-weight: 700;
-      font-size: 40px;
-      letter-spacing: .02em;
-      color: rgba(255,255,255,.95);
-      text-shadow: 0 18px 45px rgba(0,0,0,.55);
-      margin-bottom: 10px;
-    }
-
-    .section-title{
+    .profile-top{
       display:flex;
       align-items:center;
-      justify-content:center;
-      gap: 10px;
+      gap: 14px;
+      padding: 10px 0 14px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+    }
+    .rank-shield{
+      width: 86px; height: 86px;  /* ✅ bigger */
+      flex: 0 0 auto;
+      filter: drop-shadow(0 12px 24px rgba(0,0,0,.55));
+    }
+    .rank-block{
+      display:flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+    .rank-name{
       font-family: Cinzel, serif;
-      letter-spacing: .10em;
       font-weight: 700;
+      letter-spacing: .04em;
+      color: rgba(240,222,154,.95);
       text-transform: uppercase;
-      color: rgba(240,222,154,.90);
-      margin: 16px 0 10px;
-      font-size: 14px;
+      font-size: 13px;
+    }
+    .player-name{
+      font-size: 18px;
+      font-weight: 800;
+      color: rgba(255,255,255,.92);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 70vw;
     }
 
-    .medals{
-      display:grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-top: 10px;
+    .section{
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.20);
     }
-    .pill{
-      border: 1px solid rgba(214,181,106,.35);
-      border-radius: 14px;
-      background: rgba(0,0,0,.25);
-      padding: 10px 12px;
+    .section h4{
+      margin: 0 0 10px;
+      font-family: Cinzel, serif;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      font-size: 12px;
+      color: rgba(255,255,255,.88);
       display:flex;
       align-items:center;
       justify-content: space-between;
       gap: 10px;
-      box-shadow: 0 12px 26px rgba(0,0,0,.35) inset;
     }
-    .pill .left{
+
+    /* medals */
+    .medals{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .medal{
       display:flex;
       align-items:center;
-      gap: 10px;
-      font-weight: 700;
-      color: rgba(255,255,255,.9);
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.25);
+      min-width: 150px;
     }
-    .pill img{ width: 18px; height: 18px; object-fit: contain; }
-    .pill .num{ font-weight: 800; color: rgba(255,255,255,.92); }
+    .medal img{ width: 22px; height: 22px; }
+    .medal b{ font-size: 16px; }
 
-    /* Achievements */
-    .ach-wrap{
-      border: 1px solid rgba(214,181,106,.25);
-      border-radius: 16px;
-      background: rgba(0,0,0,.20);
-      padding: 14px;
-    }
+    /* achievements */
     .ach-grid{
       display:grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      justify-items: center;
-      align-items: center;
-    }
-    .ach-item{
-      width: 86px;
-      height: 86px;
-      border-radius: 16px;
-      border: 1px solid rgba(214,181,106,.25);
-      background: rgba(0,0,0,.22);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      overflow:hidden;
-    }
-    .ach-item img{ width: 72%; height: 72%; object-fit: contain; filter: drop-shadow(0 12px 18px rgba(0,0,0,.55)); }
-
-    /* t9 big: spans full 3 cols but edges align with 3 small items */
-    .ach-t9{
-      grid-column: 1 / span 3;
-      width: 100%;
-      max-width: calc(86px*3 + 12px*2); /* exactly 3 cells + 2 gaps */
-      height: 130px;
-      border-radius: 18px;
-      border: 1px solid rgba(214,181,106,.45);
-      background: rgba(0,0,0,.22);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      box-shadow: 0 0 28px rgba(214,181,106,.18);
-    }
-    .ach-t9 img{ width: 92px; height: 92px; object-fit: contain; }
-
-    /* History */
-    .hist{
-      margin-top: 10px;
-      display:flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .hist-card{
-      border: 1px solid rgba(214,181,106,.25);
-      border-radius: 16px;
-      background: rgba(0,0,0,.20);
-      padding: 12px 14px;
-      display:grid;
-      grid-template-columns: 90px 1fr auto;
-      align-items:center;
+      grid-template-columns: repeat(3, 1fr); /* ✅ max 3 per row */
       gap: 10px;
     }
-    .hist-date{
-      font-weight: 800;
-      font-size: 20px;
-      color: rgba(255,255,255,.94);
-    }
-    .hist-game{
-      color: rgba(240,222,154,.90);
-      font-weight: 700;
-      text-align:center;
-    }
-    .chips{
+    .ach-t9{
+      grid-column: 1 / -1;       /* ✅ full row */
       display:flex;
-      flex-direction: column;
-      gap: 8px;
-      align-items:flex-end;
+      align-items:center;
+      justify-content:center;
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(214,181,106,.55);
+      background: radial-gradient(380px 140px at 50% 40%, rgba(214,181,106,.28), rgba(0,0,0,.18));
     }
-    .chip{
-      border: 1px solid rgba(214,181,106,.25);
+    .ach-t9 img{
+      width: 86px; height: 86px; /* ✅ big trophy */
+      filter: drop-shadow(0 14px 30px rgba(0,0,0,.55));
+    }
+    .ach-item{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
       background: rgba(0,0,0,.22);
-      border-radius: 999px;
-      padding: 6px 10px;
-      font-size: 12px;
-      color: rgba(255,255,255,.88);
-      white-space: nowrap;
+    }
+    .ach-item img{
+      width: 54px; height: 54px;
+      filter: drop-shadow(0 12px 24px rgba(0,0,0,.55));
     }
 
-    .hint{ color: rgba(255,255,255,.45); font-size: 12px; margin-top: 12px; text-align:center; }
+    /* history table */
+    .mini table{ width: 100%; border-collapse: collapse; }
+    .mini th, .mini td{ text-align:center; padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,.08); }
+    .mini th{ color: rgba(240,222,154,.90); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+
+    /* responsive header */
+    @media (max-width: 760px) and (orientation: portrait) {
+      .topbar{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        text-align: center;
+      }
+      .brand{
+        min-width: 0;
+        justify-content: center;
+      }
+      .brand img{ height: 42px; }
+      .season-name{
+        text-align: center;
+        justify-self: unset;
+        max-width: 92vw;
+      }
+      .center-title .title{
+        font-size: 18px;
+        letter-spacing: .08em;
+      }
+    }
   </style>
 </head>
 
@@ -560,8 +516,14 @@
   <div class="wrap">
 
     <div class="topbar">
-      <div class="brand"><img src="./assets/logo.png" alt="River Poker Club"></div>
-      <div class="center-title"><div class="title">RIVER RATING</div></div>
+      <div class="brand">
+        <img src="./assets/logo.png" alt="River Poker Club">
+      </div>
+
+      <div class="center-title">
+        <div class="title">RIVER RATING</div>
+      </div>
+
       <div class="season-name" id="seasonName">—</div>
     </div>
 
@@ -588,20 +550,17 @@
       <div class="wide-wrap" id="leaderboardWideWrap">
         <table id="leaderboardWide"></table>
       </div>
-
-      <table id="leaderboardCompact"></table>
     </div>
   </div>
 
   <div class="modal" id="modal">
-    <div class="card">
+    <div class="card" id="modalCard">
       <div class="modal-head">
         <div class="modal-title">Статистика игрока</div>
         <button class="close" id="closeBtn">✕</button>
       </div>
-      <div class="modal-body" id="modalBody">
+      <div class="modal-body">
         <div id="profile">Загрузка профиля…</div>
-        <div class="hint">Клик вне окна — закрыть</div>
       </div>
     </div>
   </div>
@@ -609,123 +568,177 @@
 <script>
   const PROFILE_API_BASE = "https://script.google.com/macros/s/AKfycbwKd6_brG1Pgy3U3AUX_cNCUoznk2nYzIOYKo790MDs48ktJwlKvdQ_P8TNXqvPJsGkTQ/exec";
 
-  const statusEl       = document.getElementById("status");
-  const seasonSelect   = document.getElementById("seasonSelect");
-  const prevBtn        = document.getElementById("prevSeasonBtn");
-  const nextBtn        = document.getElementById("nextSeasonBtn");
-  const seasonNameEl   = document.getElementById("seasonName");
+  const statusEl     = document.getElementById("status");
+  const seasonSelect = document.getElementById("seasonSelect");
+  const prevBtn      = document.getElementById("prevSeasonBtn");
+  const nextBtn      = document.getElementById("nextSeasonBtn");
+  const seasonNameEl = document.getElementById("seasonName");
 
-  const tableWideEl    = document.getElementById("leaderboardWide");
+  const tableWideEl  = document.getElementById("leaderboardWide");
 
-  const modalEl   = document.getElementById("modal");
-  const modalBody = document.getElementById("modalBody");
-  const profileEl = document.getElementById("profile");
-  const closeBtn  = document.getElementById("closeBtn");
+  const modalEl      = document.getElementById("modal");
+  const modalCardEl  = document.getElementById("modalCard");
+  const profileEl    = document.getElementById("profile");
+  const closeBtn     = document.getElementById("closeBtn");
 
   closeBtn.onclick = () => modalEl.style.display = "none";
   modalEl.onclick = (e) => { if (e.target === modalEl) modalEl.style.display = "none"; };
 
-  function setStatus(t) { statusEl.textContent = t; }
-  function norm(x) { return String(x ?? "").trim(); }
-  function normUp(x) { return norm(x).toUpperCase(); }
-
-  let seasonsCache = [];
-  let dashboardCache = null;
+  function setStatus(t){ statusEl.textContent = t; }
+  function norm(x){ return String(x ?? "").trim(); }
+  function normUp(x){ return norm(x).toUpperCase(); }
 
   function pad2(n){ return String(n).padStart(2,"0"); }
-  function normalizeDdMmAny(v){
-    const s0 = norm(v);
-    if (!s0) return null;
-    const s = s0.replace(",", ".");
-    const m = s.match(/^(\d{1,2})\.(\d{1,2})$/);
-    if (m) return `${pad2(Number(m[1]))}.${pad2(Number(m[2]))}`;
-    return null;
+
+  function parseDdMm(s){
+    const t = norm(s);
+    const m = t.match(/^(\d{1,2})\.(\d{1,2})$/);
+    if (!m) return null;
+    const dd = Number(m[1]), mm = Number(m[2]);
+    if (dd < 1 || dd > 31 || mm < 1 || mm > 12) return null;
+    return { dd, mm };
   }
+
+  function ddmmKey(v){
+    const dm = parseDdMm(v);
+    if (!dm) return null;
+    return `${pad2(dm.mm)}-${pad2(dm.dd)}`;
+  }
+
+  function ddmmLabel(v){
+    const dm = parseDdMm(v);
+    if (!dm) return norm(v);
+    return `${pad2(dm.dd)}.${pad2(dm.mm)}`;
+  }
+
+  // Preload images to remove "loading before eyes"
+  function preloadImages(paths){
+    return Promise.all(paths.map(p => new Promise(res => {
+      const img = new Image();
+      img.onload = () => res(true);
+      img.onerror = () => res(false);
+      img.src = p;
+    })));
+  }
+
+  let seasonsCache = [];
+  let dashCache = new Map(); // season -> data
 
   async function apiMeta(){
     const res = await fetch(`${PROFILE_API_BASE}?mode=meta`);
     return await res.json();
   }
+
   async function apiDashboard(seasonId){
-    const res = await fetch(`${PROFILE_API_BASE}?mode=dashboard&season_id=${encodeURIComponent(seasonId)}`);
-    return await res.json();
+    const sid = normUp(seasonId || 'TOTAL');
+    if (dashCache.has(sid)) return dashCache.get(sid);
+
+    const res = await fetch(`${PROFILE_API_BASE}?mode=dashboard&season_id=${encodeURIComponent(sid)}`);
+    const data = await res.json();
+    dashCache.set(sid, data);
+    return data;
   }
-  async function apiSetSeason(seasonId){
-    // keep old behavior (writes season to Leaderboard!G2)
+
+  async function setSeasonOnServer(seasonId){
+    // keep your old behavior (writes Leaderboard!G2)
     await fetch(`${PROFILE_API_BASE}?season_id=${encodeURIComponent(seasonId)}`);
   }
 
   function updateSeasonName(){
     const id = normUp(seasonSelect.value);
-    if (id === "TOTAL") { seasonNameEl.textContent = "Общий зачёт (Total)"; return; }
+    if (id === "TOTAL") {
+      seasonNameEl.textContent = "Общий зачёт (Total)";
+      return;
+    }
     const s = seasonsCache.find(x => normUp(x.season_id) === id);
     seasonNameEl.textContent = s ? s.season_name : "—";
   }
 
+  function normalizeMatches(rows){
+    return (rows || []).map(r => ({
+      date: norm(r.date || r.Date || r.A),
+      season: normUp(r.season_id || r.season || r.Season || r.B),
+      player_id: norm(r.player_id || r.playerId || r.C),
+      points: Number(String(r.points ?? r.score ?? r.D ?? "0").trim().replace(/\s+/g,"").replace(",", ".")) || 0
+    })).filter(x => x.player_id);
+  }
+
+  function buildDateColumns(matches){
+    const map = new Map();
+    for (const m of matches){
+      const k = ddmmKey(m.date);
+      if (!k) continue;
+      if (!map.has(k)) map.set(k, { key: k, label: ddmmLabel(m.date) });
+    }
+    // newest right-to-left
+    return [...map.values()].sort((a,b) => (a.key < b.key ? 1 : -1));
+  }
+
+  function buildPointsMatrix(matches){
+    const matrix = new Map();
+    for (const m of matches){
+      const dk = ddmmKey(m.date);
+      if (!dk) continue;
+      const pid = m.player_id;
+      if (!matrix.has(pid)) matrix.set(pid, new Map());
+      const mp = matrix.get(pid);
+      mp.set(dk, (mp.get(dk) || 0) + (m.points || 0));
+    }
+    return matrix;
+  }
+
   function toNum(v){
-    const s = String(v ?? "").trim().replace(/\s+/g, "").replace(",", ".");
+    const s = String(v ?? "").trim().replace(/\s+/g,"").replace(",", ".");
     const n = Number(s);
     return Number.isFinite(n) ? n : 0;
   }
 
-  // Build daily columns strictly from season_table header row (NO SHIFT POSSIBLE)
-  function buildSeasonDailyFromTable(seasonTable){
-    // seasonTable is 2D array: first row headers
-    if (!seasonTable || !seasonTable.length) return { dateCols: [], rowMap: new Map() };
-
-    const headers = seasonTable[0].map(x => norm(x));
-    // expected headers: season | name | player_id | 01.02 | 02.02 ...
-    const pidCol = headers.findIndex(h => normUp(h) === "PLAYER_ID");
-    if (pidCol < 0) return { dateCols: [], rowMap: new Map() };
-
-    const dateCols = [];
-    for (let i = pidCol + 1; i < headers.length; i++){
-      const d = normalizeDdMmAny(headers[i]);
-      if (d) dateCols.push({ idx: i, label: d, key: d });
-    }
-
-    // newest -> oldest
-    dateCols.sort((a,b) => {
-      const ak = a.key.split("."); // dd mm
-      const bk = b.key.split(".");
-      const aKey = Number(ak[1])*100 + Number(ak[0]);
-      const bKey = Number(bk[1])*100 + Number(bk[0]);
-      return bKey - aKey;
+  function sortRows(rowsRaw, seasonId){
+    const sid = normUp(seasonId);
+    const rows = [...(rowsRaw || [])].sort((a,b) => {
+      const keyA = (sid === "TOTAL") ? toNum(a.all_seasons_score) : toNum(a.season_score);
+      const keyB = (sid === "TOTAL") ? toNum(b.all_seasons_score) : toNum(b.season_score);
+      if (keyB !== keyA) return keyB - keyA;
+      const na = String(a.name ?? "").trim();
+      const nb = String(b.name ?? "").trim();
+      return na.localeCompare(nb, "ru", { sensitivity: "base" });
     });
-
-    const rowMap = new Map(); // pid -> row array
-    for (let r = 1; r < seasonTable.length; r++){
-      const row = seasonTable[r];
-      const pid = String(row[pidCol] ?? "").trim();
-      if (!pid) continue;
-      rowMap.set(pid, row);
-    }
-    return { dateCols, rowMap, pidCol };
+    return rows;
   }
 
-  function classifyRow(num){
-    if (num >= 1 && num <= 3) return "el-fire";
-    if (num >= 4 && num <= 6) return "el-earth";
-    if (num >= 7 && num <= 9) return "el-air";
-    if (num >= 10 && num <= 12) return "el-water";
+  function elementClassForPlace(n){
+    // user requirement: air 7-9, water 10-12 (remembered)
+    if (n >= 1 && n <= 3) return "el-fire";
+    if (n >= 4 && n <= 6) return "el-earth";
+    if (n >= 7 && n <= 9) return "el-air";
+    if (n >= 10 && n <= 12) return "el-water";
+    return "";
+  }
+
+  function bgposForGroup(n){
+    // For 3-row stretched image: top/mid/bot
+    const idx = (n - 1) % 3; // 0,1,2
+    return (idx === 0) ? "0%" : (idx === 1) ? "50%" : "100%";
+  }
+
+  function placeBadgeClass(num){
+    if (num === 1) return "gold";
+    if (num === 2) return "silver";
+    if (num === 3) return "bronze";
     return "";
   }
 
   async function renderLeaderboard(){
-    setStatus("Загрузка…");
+    setStatus("Загрузка рейтинга…");
     const seasonId = normUp(seasonSelect.value);
 
-    dashboardCache = await apiDashboard(seasonId);
+    // Get dashboard once (cached)
+    const dash = await apiDashboard(seasonId);
 
-    const rowsRaw = dashboardCache.leaderboard || [];
-    const rows = [...rowsRaw].sort((a, b) => {
-      const keyA = (seasonId === "TOTAL") ? toNum(a.all_seasons_score) : toNum(a.season_score);
-      const keyB = (seasonId === "TOTAL") ? toNum(b.all_seasons_score) : toNum(b.season_score);
-      if (keyB !== keyA) return keyB - keyA;
-      return String(a.name ?? "").localeCompare(String(b.name ?? ""), "ru", { sensitivity: "base" });
-    });
-
-    const { dateCols, rowMap, pidCol } = buildSeasonDailyFromTable(dashboardCache.season_table);
+    const rows = sortRows(dash.leaderboard || [], seasonId);
+    const matches = normalizeMatches(dash.matches || []);
+    const dateCols = buildDateColumns(matches);
+    const matrix = buildPointsMatrix(matches);
 
     const head = `<thead><tr>
       <th>№</th><th>Игрок</th><th>Очки сезона</th><th>Total</th>
@@ -736,25 +749,21 @@
       const pid = String(r.player_id);
       const num = idx + 1;
 
-      const elClass = classifyRow(num);
-      const endClass = (num === 3 || num === 6 || num === 9 || num === 12) ? "end" : "";
-      const zebraClass = (!elClass && (num % 2 === 0)) ? "zebra-dark" : "";
+      const elClass = elementClassForPlace(num);
+      const zebra = (!elClass && num % 2 === 0) ? "zebra-dark" : "";
 
-      const badgeClass =
-        (num === 1) ? "place-badge place-1" :
-        (num === 2) ? "place-badge place-2" :
-        (num === 3) ? "place-badge place-3" :
-        "place-badge";
-
-      // daily cells strictly from S01 row values, matching header indices (NO SHIFT)
-      const seasonRow = rowMap.get(pid);
+      const mp = matrix.get(pid);
       const cells = dateCols.map(d => {
-        const v = seasonRow ? toNum(seasonRow[d.idx]) : 0;
+        const v = mp ? (mp.get(d.key) || 0) : 0;
         return `<td>${v ? v : "—"}</td>`;
       }).join("");
 
-      return `<tr class="${elClass} ${endClass} ${zebraClass}" data-player="${pid}">
-        <td><span class="${badgeClass}">${num}</span></td>
+      const badgeCls = placeBadgeClass(num);
+
+      const style = elClass ? `style="--bgpos:${bgposForGroup(num)}"` : "";
+
+      return `<tr class="${elClass} ${zebra}" ${style} data-player="${pid}">
+        <td><span class="place-badge ${badgeCls}">${num}</span></td>
         <td>${r.name ?? ""}</td>
         <td>${r.season_score ?? ""}</td>
         <td>${r.all_seasons_score ?? ""}</td>
@@ -771,168 +780,173 @@
     setStatus("");
   }
 
-  function medalIcon(kind){
-    // use emoji-like icons with png if you want later
-    if (kind === 'top1') return "🥇";
-    if (kind === 'top2') return "🥈";
-    return "🥉";
-  }
-
-  function buildAchievementsHtml(list){
-    const items = (list || []).map(x => String(x).trim()).filter(Boolean);
-    if (!items.length) return `<div class="hint">Пока нет достижений</div>`;
-
-    const hasT9 = items.includes("t9");
-    const rest = items.filter(x => x !== "t9");
-
-    let html = `<div class="ach-wrap"><div class="ach-grid">`;
-
-    if (hasT9){
-      html += `<div class="ach-t9"><img src="./assets/t9.png" alt="t9"></div>`;
-    }
-
-    // If last row has 2 icons => place left+right (center empty)
-    // We do this by inserting a "spacer" in the middle of the last row.
-    const r = [...rest];
-    if (r.length % 3 === 2){
-      // insert a spacer as second of the last 2 -> so they become col1 and col3
-      // example: ... [A,B] -> [A, __spacer__, B]
-      r.splice(r.length - 1, 0, "__spacer__");
-    }
-
-    for (const t of r){
-      if (t === "__spacer__"){
-        html += `<div style="width:86px;height:86px;"></div>`;
-        continue;
-      }
-      html += `<div class="ach-item"><img src="./assets/${t}.png" alt="${t}"></div>`;
-    }
-
-    html += `</div></div>`;
-    return html;
+  function smallTable(headers, rows){
+    if (!rows || !rows.length) return `<div style="color: rgba(255,255,255,.55); font-size:12px;">Нет данных</div>`;
+    let h = `<div class="mini"><table><tr>${headers.map(x => `<th>${x}</th>`).join("")}</tr>`;
+    for (const r of rows) h += `<tr>${r.map(v => `<td>${v ?? ""}</td>`).join("")}</tr>`;
+    h += `</table></div>`;
+    return h;
   }
 
   async function openProfile(playerId){
     modalEl.style.display = "block";
     profileEl.textContent = "Загрузка профиля…";
-    modalBody.classList.remove("champion");
+    modalCardEl.classList.remove("champion");
 
     const seasonId = normUp(seasonSelect.value);
     const url = `${PROFILE_API_BASE}?player_id=${encodeURIComponent(playerId)}&season_id=${encodeURIComponent(seasonId)}`;
     const res = await fetch(url);
     const data = await res.json();
 
-    const medals = data.medals || { top1:0, top2:0, top3:0 };
-    const rank = data.rank || { level: 1, title: "Новичок" };
+    const rankIcon = data.rank?.icon ? `./assets/${data.rank.icon}` : "";
+    const rankName = data.rank?.name ?? "—";
+    const playerName = data.name ?? playerId;
+
+    // champion background if has t9
     const ach = data.achievements || [];
-    const hasT9 = ach.includes("t9");
-    if (hasT9) modalBody.classList.add("champion");
+    if (ach.includes("t9")) modalCardEl.classList.add("champion");
 
-    const rankIcon = `./assets/rank${rank.level}.png`;
-
-    const hist = (data.last_games || []).map(g => {
-      return `
-        <div class="hist-card">
-          <div class="hist-date">${g.date || "—"}</div>
-          <div class="hist-game">${g.game_name || "—"}</div>
-          <div class="chips">
-            <div class="chip">место: ${g.place ?? "—"}</div>
-            <div class="chip">сэт-поинтов: ${g.points ?? "—"}</div>
-          </div>
-        </div>
-      `;
-    }).join("");
-
+    // medals
+    const medals = data.medals || { gold:0, silver:0, bronze:0 };
     const medalsHtml = `
       <div class="medals">
-        <div class="pill"><div class="left"><span>${medalIcon('top1')}</span><span>Top-1</span></div><div class="num">${medals.top1 ?? 0}</div></div>
-        <div class="pill"><div class="left"><span>${medalIcon('top2')}</span><span>Top-2</span></div><div class="num">${medals.top2 ?? 0}</div></div>
-        <div class="pill"><div class="left"><span>${medalIcon('top3')}</span><span>Top-3</span></div><div class="num">${medals.top3 ?? 0}</div></div>
+        <div class="medal"><img src="./assets/medal_gold.png" alt=""><span>Золото</span> <b>${medals.gold ?? 0}</b></div>
+        <div class="medal"><img src="./assets/medal_silver.png" alt=""><span>Серебро</span> <b>${medals.silver ?? 0}</b></div>
+        <div class="medal"><img src="./assets/medal_bronze.png" alt=""><span>Бронза</span> <b>${medals.bronze ?? 0}</b></div>
       </div>
     `;
 
+    // achievements grid: t9 big, others max 3 columns
+    let achHtml = `<div class="ach-grid">`;
+    if (ach.includes("t9")) {
+      achHtml += `<div class="ach-t9"><img src="./assets/t9.png" alt="t9"></div>`;
+    }
+    const others = ach.filter(x => x !== "t9");
+    for (const a of others) {
+      achHtml += `<div class="ach-item"><img src="./assets/${a}.png" alt="${a}"></div>`;
+    }
+    achHtml += `</div>`;
+
+    // history (last 5 games): date, game, place, points
+    const last = (data.last_games || []).map(r => [r.date, r.game, r.place, r.points]);
+    const lastHtml = smallTable(["Дата","Турнир","Место","Очки"], last);
+
+    // by season
+    const bySeason = (data.by_season || []).map(r => [r.season, r.points]);
+    const bySeasonHtml = smallTable(["Сезон","Очки"], bySeason);
+
     profileEl.innerHTML = `
-      <div class="pc-top">
-        <img class="rank-icon" src="${rankIcon}" alt="rank${rank.level}">
-        <div class="rank-title">${rank.title}</div>
-        <div class="player-name">${data.profile?.find(x => x.label?.toLowerCase().includes("имя"))?.value || ""}</div>
+      <div class="profile-top">
+        ${rankIcon ? `<img class="rank-shield" src="${rankIcon}" alt="rank">` : ``}
+        <div class="rank-block">
+          <div class="rank-name">${rankName}</div>
+          <div class="player-name">${playerName}</div>
+        </div>
       </div>
 
-      <div class="section-title">📊 СТАТИСТИКА</div>
-      ${medalsHtml}
+      <div class="section">
+        <h4>Статистика</h4>
+        ${medalsHtml}
+      </div>
 
-      <div class="section-title">🏆 ДОСТИЖЕНИЯ</div>
-      ${buildAchievementsHtml(ach)}
+      <div class="section">
+        <h4>Достижения</h4>
+        ${achHtml}
+      </div>
 
-      <div class="section-title">🗂 ИСТОРИЯ ИГР</div>
-      <div style="text-align:center;color:rgba(240,222,154,.9);margin-bottom:8px;">Сезон «${seasonId}»</div>
-      <div class="hist">${hist || `<div class="hint">Нет игр</div>`}</div>
+      <div class="section">
+        <h4>Очки по сезонам</h4>
+        ${bySeasonHtml}
+      </div>
+
+      <div class="section">
+        <h4>История игр (${seasonId === "TOTAL" ? "Total" : seasonId})</h4>
+        ${lastHtml}
+      </div>
     `;
   }
 
   async function init(){
-    try{
-      setStatus("Загрузка…");
-      const meta = await apiMeta();
-      seasonsCache = meta.seasons || [];
+    setStatus("Загрузка…");
 
-      seasonSelect.innerHTML =
-        `<option value="TOTAL">Total</option>` +
-        seasonsCache.map(s => `<option value="${normUp(s.season_id)}">${s.season_name}</option>`).join("");
+    // preload table + modal essential images
+    await preloadImages([
+      "./assets/fire.png","./assets/earth.png","./assets/air.png","./assets/water.png",
+      "./assets/champion.png",
+      "./assets/medal_gold.png","./assets/medal_silver.png","./assets/medal_bronze.png",
+      "./assets/rank1.png","./assets/rank2.png","./assets/rank3.png","./assets/rank4.png","./assets/rank5.png","./assets/rank6.png","./assets/rank7.png",
+      "./assets/t1.png","./assets/t2.png","./assets/t3.png","./assets/t4.png","./assets/t5.png","./assets/t6.png","./assets/t7.png","./assets/t8.png","./assets/t9.png",
+    ]);
 
-      const currentSeason = normUp(meta.current_season_id || "");
-      const exists = seasonsCache.some(s => normUp(s.season_id) === currentSeason);
-      if (currentSeason && exists) seasonSelect.value = currentSeason;
-      else if (seasonsCache.length) seasonSelect.value = normUp(seasonsCache[seasonsCache.length - 1].season_id);
-      else seasonSelect.value = "TOTAL";
+    const meta = await apiMeta();
+    seasonsCache = meta.seasons || [];
 
-      await apiSetSeason(normUp(seasonSelect.value));
+    seasonSelect.innerHTML =
+      `<option value="TOTAL">Total</option>` +
+      seasonsCache.map(s => `<option value="${normUp(s.season_id)}">${s.season_name}</option>`).join("");
+
+    const currentSeason = normUp(meta.current_season_id || "");
+    const exists = seasonsCache.some(s => normUp(s.season_id) === currentSeason);
+
+    if (currentSeason && exists) seasonSelect.value = currentSeason;
+    else if (seasonsCache.length) seasonSelect.value = normUp(seasonsCache[seasonsCache.length - 1].season_id);
+    else seasonSelect.value = "TOTAL";
+
+    seasonSelect.onchange = async () => {
+      const sid = normUp(seasonSelect.value);
+      setStatus("Переключаю сезон…");
+      await setSeasonOnServer(sid);
       updateSeasonName();
       await renderLeaderboard();
-
-      seasonSelect.onchange = async () => {
-        setStatus("Переключаю сезон…");
-        await apiSetSeason(normUp(seasonSelect.value));
-        updateSeasonName();
-        await renderLeaderboard();
-      };
-
-      prevBtn.onclick = async () => {
-        const current = normUp(seasonSelect.value);
-        if (current === "TOTAL"){
-          if (!seasonsCache.length) return;
-          seasonSelect.value = normUp(seasonsCache[seasonsCache.length - 1].season_id);
-        } else {
-          const idx = seasonsCache.findIndex(s => normUp(s.season_id) === current);
-          if (idx > 0) seasonSelect.value = normUp(seasonsCache[idx - 1].season_id);
-        }
-        await apiSetSeason(normUp(seasonSelect.value));
-        updateSeasonName();
-        await renderLeaderboard();
-      };
-
-      nextBtn.onclick = async () => {
-        const current = normUp(seasonSelect.value);
-        if (current === "TOTAL"){
-          if (!seasonsCache.length) return;
-          seasonSelect.value = normUp(seasonsCache[0].season_id);
-        } else {
-          const idx = seasonsCache.findIndex(s => normUp(s.season_id) === current);
-          if (idx >= 0 && idx < seasonsCache.length - 1) seasonSelect.value = normUp(seasonsCache[idx + 1].season_id);
-        }
-        await apiSetSeason(normUp(seasonSelect.value));
-        updateSeasonName();
-        await renderLeaderboard();
-      };
-
       setStatus("");
-    } catch(err){
-      console.error(err);
-      setStatus("Ошибка загрузки. Проверь Web App и доступ к таблице.");
-    }
+    };
+
+    prevBtn.onclick = async () => {
+      const current = normUp(seasonSelect.value);
+      if (current === "TOTAL") {
+        if (!seasonsCache.length) return;
+        const last = normUp(seasonsCache[seasonsCache.length - 1].season_id);
+        seasonSelect.value = last;
+      } else {
+        const idx = seasonsCache.findIndex(s => normUp(s.season_id) === current);
+        if (idx > 0) seasonSelect.value = normUp(seasonsCache[idx - 1].season_id);
+      }
+      const sid = normUp(seasonSelect.value);
+      setStatus("Переключаю сезон…");
+      await setSeasonOnServer(sid);
+      updateSeasonName();
+      await renderLeaderboard();
+      setStatus("");
+    };
+
+    nextBtn.onclick = async () => {
+      const current = normUp(seasonSelect.value);
+      if (current === "TOTAL") {
+        if (!seasonsCache.length) return;
+        seasonSelect.value = normUp(seasonsCache[0].season_id);
+      } else {
+        const idx = seasonsCache.findIndex(s => normUp(s.season_id) === current);
+        if (idx >= 0 && idx < seasonsCache.length - 1) seasonSelect.value = normUp(seasonsCache[idx + 1].season_id);
+      }
+      const sid = normUp(seasonSelect.value);
+      setStatus("Переключаю сезон…");
+      await setSeasonOnServer(sid);
+      updateSeasonName();
+      await renderLeaderboard();
+      setStatus("");
+    };
+
+    await setSeasonOnServer(normUp(seasonSelect.value));
+    updateSeasonName();
+
+    await renderLeaderboard();
+    setStatus("");
   }
 
-  init();
+  init().catch(err => {
+    console.error(err);
+    setStatus("Ошибка загрузки. Проверь доступ к Web App.");
+  });
 </script>
 
 </body>
