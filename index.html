@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>River Rating</title>
 
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -19,15 +20,13 @@
       --muted: rgba(255,255,255,.62);
       --muted2: rgba(255,255,255,.42);
 
+      --gold: #d6b56a;
+      --gold2: #f0de9a;
+
       --shadow: 0 20px 60px rgba(0,0,0,.55);
       --shadow2: 0 10px 30px rgba(0,0,0,.45);
 
       --radius: 18px;
-
-      /* ✔ tuning */
-      --elem-opacity: .42;     /* общая видимость текстуры */
-      --elem-vignette: .30;    /* затемнение для читабельности */
-      --fade: 22px;            /* мягкая граница между блоками */
     }
 
     * { box-sizing: border-box; }
@@ -40,6 +39,7 @@
       overflow-x: hidden;
     }
 
+    /* Background image + overlays */
     body::before{
       content:"";
       position: fixed;
@@ -65,6 +65,7 @@
       margin: 22px auto 40px;
     }
 
+    /* Header */
     .topbar{
       display: grid;
       grid-template-columns: 1fr auto 1fr;
@@ -117,6 +118,7 @@
       max-width: 520px;
     }
 
+    /* Controls panel */
     .controls{
       margin-top: 14px;
       padding: 12px 16px;
@@ -157,6 +159,7 @@
       margin-left: 8px;
     }
 
+    /* Buttons */
     .btn{
       appearance: none;
       border: 1px solid rgba(214,181,106,.42);
@@ -177,6 +180,7 @@
       box-shadow: 0 12px 26px rgba(0,0,0,.45);
     }
 
+    /* Select */
     select{
       appearance: none;
       border: 1px solid rgba(255,255,255,.14);
@@ -206,6 +210,7 @@
       transform: translateY(1px);
     }
 
+    /* Table panel */
     .panel{
       margin-top: 14px;
       border-radius: var(--radius);
@@ -232,13 +237,16 @@
       color: rgba(255,255,255,.88);
     }
 
+    /* ✅ Always horizontal scroll (even portrait) */
     .wide-wrap{
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
       overscroll-behavior-x: contain;
       touch-action: pan-x pan-y;
     }
-    #leaderboardWide{ min-width: max-content; }
+    #leaderboardWide{
+      min-width: max-content;
+    }
 
     table{
       width: 100%;
@@ -266,102 +274,19 @@
       color: rgba(255,255,255,.86);
       white-space: nowrap;
       text-align: center;
-      position: relative;
-      z-index: 2;
     }
     tbody tr{
       transition: background .14s ease;
       cursor: pointer;
       position: relative;
-      z-index: 2;
+      isolation: isolate;
     }
-    tbody tr:hover{ background: rgba(255,255,255,.06); }
+    tbody tr:hover{
+      background: rgba(255,255,255,.06);
+    }
 
-    /* =========================
-       ✅ ELEMENT BLOCK BACKGROUNDS (ONE IMAGE PER 3 ROWS)
-       We paint ALL element textures on tbody once (4 layers),
-       aligned to groups of 3 rows using background-position/size.
-       Then top 12 rows stay transparent so no seams.
-       ========================= */
-
-    /* default zebra for rows 13+ only */
+    /* Zebra for default rows */
     tbody tr.zebra-dark{ filter: brightness(0.92); }
-
-    /* rows 1-12 should not add their own background, let tbody show through */
-    tbody tr.elem-row{
-      background: transparent !important;
-    }
-
-    /* tbody background layers */
-    #leaderboardWide tbody{
-      position: relative;
-      /* four textures stacked + vignette */
-      background-image:
-        linear-gradient(to right, rgba(0,0,0,var(--elem-vignette)), rgba(0,0,0,0), rgba(0,0,0,var(--elem-vignette))),
-        url("./assets/fire.png"),
-        url("./assets/earth.png"),
-        url("./assets/air.png"),
-        url("./assets/water.png");
-      background-repeat:
-        no-repeat,
-        no-repeat, no-repeat, no-repeat, no-repeat;
-      background-size:
-        100% 100%,
-        100% calc(var(--rowH) * 3),
-        100% calc(var(--rowH) * 3),
-        100% calc(var(--rowH) * 3),
-        100% calc(var(--rowH) * 3);
-      /* positions will be set by JS via CSS vars */
-      background-position:
-        0 0,
-        0 var(--fireY),
-        0 var(--earthY),
-        0 var(--airY),
-        0 var(--waterY);
-      opacity: 1;
-    }
-
-    /* subtle visibility control using overlay */
-    #leaderboardWide tbody::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      z-index:1;
-      pointer-events:none;
-
-      /* this layer makes textures soft + smooth transitions between blocks */
-      background:
-        linear-gradient(to bottom,
-          rgba(0,0,0,0) 0,
-          rgba(0,0,0,0) calc(var(--rowH) * 3 - var(--fade)),
-          rgba(0,0,0,.18) calc(var(--rowH) * 3),
-          rgba(0,0,0,0) calc(var(--rowH) * 3 + var(--fade)),
-
-          rgba(0,0,0,0) calc(var(--rowH) * 6 - var(--fade)),
-          rgba(0,0,0,.18) calc(var(--rowH) * 6),
-          rgba(0,0,0,0) calc(var(--rowH) * 6 + var(--fade)),
-
-          rgba(0,0,0,0) calc(var(--rowH) * 9 - var(--fade)),
-          rgba(0,0,0,.18) calc(var(--rowH) * 9),
-          rgba(0,0,0,0) calc(var(--rowH) * 9 + var(--fade))
-        );
-      /* small soften */
-      filter: blur(0.6px);
-      opacity: 1;
-    }
-
-    /* reduce texture intensity uniformly (works reliably) */
-    #leaderboardWide tbody::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      z-index:1;
-      pointer-events:none;
-      background: rgba(0,0,0,0);
-      mix-blend-mode: normal;
-      /* "dim" textures: */
-      box-shadow: inset 0 0 0 9999px rgba(0,0,0, calc(1 - var(--elem-opacity)));
-    }
 
     /* Place badge */
     .place-badge{
@@ -377,113 +302,331 @@
       color: rgba(255,255,255,.92);
       font-weight: 800;
       margin: 0 auto;
+      box-shadow: 0 10px 24px rgba(0,0,0,.35);
     }
-    .place-badge.place-1{
-      color: rgba(255, 226, 120, .98);
-      border-color: rgba(255, 226, 120, .55);
-      box-shadow: 0 0 14px rgba(255, 210, 90, .18);
-    }
-    .place-badge.place-2{
-      color: rgba(220, 226, 235, .98);
-      border-color: rgba(220, 226, 235, .55);
-      box-shadow: 0 0 14px rgba(220, 226, 235, .12);
-    }
-    .place-badge.place-3{
-      color: rgba(205, 127, 50, .98);
-      border-color: rgba(205, 127, 50, .55);
-      box-shadow: 0 0 14px rgba(205, 127, 50, .12);
+    /* 1/2/3 place badge color */
+    tbody tr.p1 .place-badge{ border-color: rgba(214,181,106,.85); color: rgba(240,222,154,.98); }
+    tbody tr.p2 .place-badge{ border-color: rgba(220,226,235,.85); color: rgba(235,240,255,.95); }
+    tbody tr.p3 .place-badge{ border-color: rgba(205,127,50,.85); color: rgba(255,220,180,.95); }
+
+    /* ===== Element textures (no animation) =====
+       1-3 Fire, 4-6 Earth, 7-9 Air, 10-12 Water
+       (you said: Air 7-9, Water 10-12)
+    */
+    tbody tr.el-fire::before,
+    tbody tr.el-earth::before,
+    tbody tr.el-air::before,
+    tbody tr.el-water::before{
+      content:"";
+      position:absolute;
+      inset: 0;
+      z-index: -1;
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      opacity: .55;
+      filter: saturate(1.05) contrast(1.08);
     }
 
-    @media (max-width: 760px) and (orientation: portrait) {
+    tbody tr.el-fire::before{ background-image: url("./assets/fire.png"); }
+    tbody tr.el-earth::before{ background-image: url("./assets/earth.png"); }
+    tbody tr.el-air::before{ background-image: url("./assets/air.png"); }
+    tbody tr.el-water::before{ background-image: url("./assets/water.png"); }
+
+    /* soften borders between element blocks */
+    tbody tr.el-fire{ box-shadow: inset 0 -18px 22px rgba(0,0,0,.35); }
+    tbody tr.el-earth{ box-shadow: inset 0 -18px 22px rgba(0,0,0,.35), inset 0 18px 22px rgba(0,0,0,.35); }
+    tbody tr.el-air{ box-shadow: inset 0 -18px 22px rgba(0,0,0,.35), inset 0 18px 22px rgba(0,0,0,.35); }
+    tbody tr.el-water{ box-shadow: inset 0 18px 22px rgba(0,0,0,.35); }
+
+    /* Header responsive */
+    @media (max-width: 760px) {
       .topbar{
-        display:flex;
+        display: flex;
         flex-direction: column;
         align-items: center;
         gap: 10px;
         text-align: center;
       }
-      .brand{ min-width: 0; justify-content: center; }
+      .brand{
+        min-width: 0;
+        justify-content: center;
+      }
       .brand img{ height: 42px; }
-      .season-name{ text-align: center; justify-self: unset; max-width: 92vw; }
-      .center-title .title{ font-size: 18px; letter-spacing: .08em; }
+      .season-name{
+        text-align: center;
+        justify-self: unset;
+        max-width: 92vw;
+      }
+      .center-title .title{
+        font-size: 18px;
+        letter-spacing: .08em;
+      }
+      thead th, tbody td{ padding: 10px 10px; }
     }
 
-    /* Modal */
-    .modal { display:none; position:fixed; inset:0; background: rgba(0,0,0,.70); backdrop-filter: blur(6px); }
+    /* ===== Modal (profile) ===== */
+    .modal { display:none; position:fixed; inset:0; background: rgba(0,0,0,.70); backdrop-filter: blur(6px); z-index: 50; }
     .card  {
-      width: min(980px, 94vw);
+      width: min(520px, 92vw);
       margin: 6vh auto;
-      border-radius: 18px;
-      background: rgba(16, 18, 24, .86);
-      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(19, 23, 40, .92), rgba(20, 18, 26, .88));
+      border: 1px solid rgba(214,181,106,.55);
       box-shadow: 0 30px 90px rgba(0,0,0,.72);
       overflow: hidden;
     }
     .modal-head{
       display:flex;
       align-items:center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 14px 16px;
-      background: linear-gradient(to right, rgba(214,181,106,.14), rgba(0,0,0,.0));
-      border-bottom: 1px solid rgba(255,255,255,.10);
-    }
-    .modal-title{
-      font-family: Cinzel, serif;
-      font-weight: 700;
-      letter-spacing: .05em;
-      text-transform: uppercase;
-      font-size: 14px;
-      color: rgba(240,222,154,.95);
+      justify-content: flex-end;
+      padding: 10px 12px;
     }
     .close{
-      border: 1px solid rgba(255,255,255,.16);
-      background: rgba(0,0,0,.30);
-      color: rgba(255,255,255,.86);
-      border-radius: 12px;
-      padding: 8px 10px;
+      border: 1px solid rgba(214,181,106,.55);
+      background: rgba(0,0,0,.28);
+      color: rgba(240,222,154,.90);
+      border-radius: 14px;
+      width: 44px;
+      height: 44px;
       cursor:pointer;
+      font-size: 22px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
     }
-    .modal-body{ padding: 16px; }
 
-    .profile-grid{
-      display:grid;
-      grid-template-columns: 1.05fr .95fr;
-      gap: 14px;
+    .profile-top{
+      padding: 16px 18px 10px;
+      display:flex;
+      flex-direction: column;
+      align-items:center;
+      gap: 10px;
     }
-    @media (max-width: 860px){
-      .profile-grid{ grid-template-columns: 1fr; }
+    .rank-shield{
+      width: 86px;
+      height: 86px;
+      object-fit: contain;
+      filter: drop-shadow(0 18px 28px rgba(0,0,0,.55));
     }
-    .box{
-      background: rgba(0,0,0,.20);
-      border: 1px solid rgba(255,255,255,.10);
-      border-radius: 16px;
-      padding: 14px;
-    }
-    .box h4{
-      margin: 0 0 10px;
+    .rank-title{
       font-family: Cinzel, serif;
-      letter-spacing: .04em;
+      letter-spacing: .18em;
       text-transform: uppercase;
-      font-size: 12px;
-      color: rgba(255,255,255,.88);
+      font-weight: 700;
+      font-size: 14px;
+      color: rgba(240,222,154,.85);
     }
-    .kv p{ margin: 7px 0; color: rgba(255,255,255,.86); }
-    .kv b{ color: rgba(240,222,154,.92); font-weight: 700; }
-    .mini th, .mini td{ text-align:center; }
-    .hint{ color: var(--muted2); font-size: 12px; margin-top: 10px; }
+    .player-name{
+      font-family: Cinzel, serif;
+      font-weight: 700;
+      font-size: 34px;
+      color: rgba(255,255,255,.94);
+      text-shadow: 0 18px 40px rgba(0,0,0,.55);
+      margin-top: -6px;
+    }
+
+    .divider{
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(214,181,106,.55), transparent);
+      margin: 8px 0 0;
+    }
+
+    .profile-body{
+      padding: 14px 16px 18px;
+    }
+
+    .section-title{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      margin: 12px 0 10px;
+      font-family: Cinzel, serif;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: rgba(214,181,106,.90);
+      font-size: 14px;
+    }
+
+    .stat-grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .stat-box{
+      border: 1px solid rgba(214,181,106,.28);
+      background: rgba(0,0,0,.22);
+      border-radius: 12px;
+      padding: 10px 10px;
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 8px;
+      box-shadow: 0 12px 26px rgba(0,0,0,.35);
+    }
+    .stat-left{
+      display:flex;
+      align-items:center;
+      gap: 8px;
+      color: rgba(240,222,154,.88);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
+    .stat-medal{
+      width: 18px; height: 18px; object-fit: contain;
+      filter: drop-shadow(0 10px 16px rgba(0,0,0,.45));
+    }
+    .stat-num{
+      color: rgba(255,255,255,.92);
+      font-weight: 800;
+      font-size: 16px;
+      min-width: 22px;
+      text-align: right;
+    }
+
+    .progress-box{
+      border: 1px solid rgba(214,181,106,.22);
+      background: rgba(0,0,0,.18);
+      border-radius: 12px;
+      padding: 12px 12px;
+      display:flex;
+      justify-content: space-between;
+      align-items:center;
+      gap: 12px;
+      margin: 10px 0 12px;
+    }
+    .progress-label{
+      color: rgba(255,255,255,.70);
+      font-size: 12px;
+    }
+    .progress-val{
+      font-weight: 800;
+      font-size: 20px;
+      color: rgba(40, 220, 140, .92);
+      letter-spacing: .02em;
+    }
+
+    .ach-grid{
+      display:grid;
+      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(46px, 1fr));
+      align-items:center;
+      justify-items:center;
+      margin: 6px 0 14px;
+    }
+    .ach{
+      width: clamp(38px, 8vw, 58px);
+      height: clamp(38px, 8vw, 58px);
+      border-radius: 14px;
+      border: 1px solid rgba(214,181,106,.18);
+      background: rgba(0,0,0,.18);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow: 0 16px 36px rgba(0,0,0,.35);
+      overflow:hidden;
+    }
+    .ach img{
+      width: 78%;
+      height: 78%;
+      object-fit: contain;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.45));
+    }
+    .ach.t9{
+      border-color: rgba(240,222,154,.55);
+      box-shadow:
+        0 0 0 1px rgba(240,222,154,.20),
+        0 0 26px rgba(214,181,106,.38),
+        0 18px 42px rgba(0,0,0,.50);
+      background:
+        radial-gradient(220px 120px at 50% 40%, rgba(240,222,154,.18), transparent 65%),
+        rgba(0,0,0,.16);
+    }
+
+    .history-head{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .season-caption{
+      color: rgba(240,222,154,.78);
+      font-size: 12px;
+      margin: 0 0 10px;
+      text-align:center;
+    }
+
+    .history-list{
+      display:flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .game-row{
+      border: 1px solid rgba(214,181,106,.18);
+      background: rgba(0,0,0,.16);
+      border-radius: 14px;
+      padding: 12px 12px;
+      display:grid;
+      grid-template-columns: 70px 1fr 96px;
+      gap: 10px;
+      align-items:center;
+      box-shadow: 0 16px 36px rgba(0,0,0,.30);
+    }
+    .game-date{
+      color: rgba(255,255,255,.88);
+      font-weight: 800;
+    }
+    .game-mid{
+      text-align:center;
+      color: rgba(214,181,106,.92);
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: .02em;
+    }
+    .game-right{
+      justify-self:end;
+      display:flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items:flex-end;
+    }
+    .pill{
+      font-size: 12px;
+      color: rgba(255,255,255,.82);
+      border: 1px solid rgba(214,181,106,.20);
+      background: rgba(0,0,0,.18);
+      border-radius: 999px;
+      padding: 6px 10px;
+      white-space: nowrap;
+    }
+    .pill b{ color: rgba(240,222,154,.92); }
+
+    @media (max-width: 430px){
+      .player-name{ font-size: 28px; }
+      .game-row{ grid-template-columns: 64px 1fr; }
+      .game-right{ grid-column: 1 / -1; flex-direction: row; justify-content: space-between; width: 100%; }
+      .pill{ flex:1; text-align:center; }
+    }
   </style>
 </head>
 
 <body>
   <div class="wrap">
+
     <div class="topbar">
       <div class="brand">
         <img src="./assets/logo.png" alt="River Poker Club">
       </div>
+
       <div class="center-title">
         <div class="title">RIVER RATING</div>
       </div>
+
       <div class="season-name" id="seasonName">—</div>
     </div>
 
@@ -516,12 +659,11 @@
   <div class="modal" id="modal">
     <div class="card">
       <div class="modal-head">
-        <div class="modal-title">Статистика игрока</div>
         <button class="close" id="closeBtn">✕</button>
       </div>
-      <div class="modal-body">
-        <div id="profile">Загрузка профиля…</div>
-        <div class="hint">Клик вне окна — закрыть</div>
+
+      <div id="profileRoot">
+        <!-- render in JS -->
       </div>
     </div>
   </div>
@@ -533,6 +675,7 @@
   const LEADERBOARD_URL = `https://opensheet.elk.sh/${SHEET_ID}/Leaderboard`;
   const SEASONS_URL     = `https://opensheet.elk.sh/${SHEET_ID}/Seasons`;
   const MATCHES_URL     = `https://opensheet.elk.sh/${SHEET_ID}/Matches`;
+  const GAMES_URL       = `https://opensheet.elk.sh/${SHEET_ID}/Games`;
 
   const statusEl       = document.getElementById("status");
   const seasonSelect   = document.getElementById("seasonSelect");
@@ -542,20 +685,23 @@
 
   const tableWideEl    = document.getElementById("leaderboardWide");
 
-  const modalEl   = document.getElementById("modal");
-  const profileEl = document.getElementById("profile");
-  const closeBtn  = document.getElementById("closeBtn");
+  const modalEl     = document.getElementById("modal");
+  const profileRoot = document.getElementById("profileRoot");
+  const closeBtn    = document.getElementById("closeBtn");
 
   closeBtn.onclick = () => modalEl.style.display = "none";
   modalEl.onclick = (e) => { if (e.target === modalEl) modalEl.style.display = "none"; };
 
   let seasonsCache = [];
   let matchesCache = null;
+  let leaderboardCache = null;
+  let gamesCache = null;
 
   function setStatus(t) { statusEl.textContent = t; }
   function norm(x) { return String(x ?? "").trim(); }
   function normUp(x) { return norm(x).toUpperCase(); }
 
+  // ===== Dates: "DD.MM" as text =====
   function parseDdMm(s){
     const t = norm(s);
     const m = t.match(/^(\d{1,2})\.(\d{1,2})$/);
@@ -569,12 +715,18 @@
   function dateKeyFromCell(v){
     const dm = parseDdMm(v);
     if (!dm) return null;
-    return `${pad2(dm.mm)}-${pad2(dm.dd)}`;
+    return `${pad2(dm.mm)}-${pad2(dm.dd)}`; // mm-dd
   }
   function dateLabelFromCell(v){
     const dm = parseDdMm(v);
     if (!dm) return norm(v);
     return `${pad2(dm.dd)}.${pad2(dm.mm)}`;
+  }
+
+  function toNum(v){
+    const s = String(v ?? "").trim().replace(/\s+/g, "").replace(",", ".");
+    const n = Number(s);
+    return Number.isFinite(n) ? n : 0;
   }
 
   async function getCurrentSeasonFromApi() {
@@ -673,6 +825,20 @@
     return matchesCache;
   }
 
+  async function loadLeaderboardOnce() {
+    if (leaderboardCache) return leaderboardCache;
+    const res = await fetch(LEADERBOARD_URL);
+    leaderboardCache = await res.json();
+    return leaderboardCache;
+  }
+
+  async function loadGamesOnce() {
+    if (gamesCache) return gamesCache;
+    const res = await fetch(GAMES_URL);
+    gamesCache = await res.json();
+    return gamesCache;
+  }
+
   function getField(row, keys) {
     for (const k of keys) if (row[k] !== undefined) return row[k];
     return undefined;
@@ -687,7 +853,7 @@
     })).filter(x => x.player_id);
   }
 
-  function filterMatchesByMode(matches, seasonId) {
+  function filterMatchesBySeason(matches, seasonId) {
     if (seasonId === "TOTAL") return matches;
     return matches.filter(m => normUp(m.season) === seasonId);
   }
@@ -700,6 +866,7 @@
       const label = dateLabelFromCell(m.date);
       if (!map.has(key)) map.set(key, { key, label });
     }
+    // newest to the right-to-left header order
     return [...map.values()].sort((a,b) => (a.key < b.key ? 1 : -1));
   }
 
@@ -713,59 +880,129 @@
       if (!matrix.has(pid)) matrix.set(pid, new Map());
       const mp = matrix.get(pid);
 
-      const p = Number(String(m.points ?? "").replace(",", "."));
-      const add = Number.isFinite(p) ? p : 0;
+      const add = toNum(m.points); // "-" -> 0
       mp.set(dateKey, (mp.get(dateKey) || 0) + add);
     }
     return matrix;
   }
 
-  function updateElementBackdrop_() {
-    // compute row height in px and set CSS vars so each texture is exactly 3 rows tall
-    const tbody = document.querySelector("#leaderboardWide tbody");
-    const firstRow = document.querySelector("#leaderboardWide tbody tr");
-    if (!tbody || !firstRow) return;
+  function buildDailyRankIndex(matchesAll) {
+    // key: season|dateKey -> array sorted desc by points, then pid
+    const buckets = new Map();
+    for (const m of matchesAll) {
+      const dk = dateKeyFromCell(m.date);
+      if (!dk) continue;
+      const season = normUp(m.season);
+      const key = season + "|" + dk;
 
-    const h = Math.max(1, Math.round(firstRow.getBoundingClientRect().height));
-    // set vars: row height and Y offsets for each 3-row block
-    tbody.style.setProperty("--rowH", h + "px");
-    tbody.style.setProperty("--fireY",  (0 * h) + "px");     // rows 1-3
-    tbody.style.setProperty("--earthY", (3 * h) + "px");     // rows 4-6
-    tbody.style.setProperty("--airY",   (6 * h) + "px");     // rows 7-9
-    tbody.style.setProperty("--waterY", (9 * h) + "px");     // rows 10-12
+      const pts = toNum(m.points);
+      const pid = String(m.player_id);
+
+      if (!buckets.has(key)) buckets.set(key, new Map());
+      const mp = buckets.get(key);
+      mp.set(pid, (mp.get(pid) || 0) + pts);
+    }
+
+    const out = new Map();
+    for (const [key, mp] of buckets.entries()) {
+      const arr = [...mp.entries()]
+        .map(([pid, pts]) => ({ pid, pts }))
+        .sort((a,b) => (b.pts - a.pts) || a.pid.localeCompare(b.pid));
+      out.set(key, arr);
+    }
+    return out;
+  }
+
+  function medalsForPlayer(matchesAll, seasonId, playerId) {
+    // medals counted per-day per-season (selected season), based on daily ranking
+    // rule: if player participated (points may be 0) – ranking includes all players present in Matches for that day
+    const daily = buildDailyRankIndex(matchesAll);
+    let g=0, s=0, b=0;
+
+    const pid = String(playerId);
+    for (const [key, arr] of daily.entries()) {
+      const [season, dk] = key.split("|");
+      if (seasonId !== "TOTAL" && season !== seasonId) continue;
+
+      const idx = arr.findIndex(x => x.pid === pid);
+      if (idx === -1) continue;
+
+      if (idx === 0) g++;
+      else if (idx === 1) s++;
+      else if (idx === 2) b++;
+    }
+    return { gold:g, silver:s, bronze:b };
+  }
+
+  function rankFromGold(goldCount){
+    // every 10 gold -> +1 rank, start rank1
+    const r = Math.floor(goldCount / 10) + 1;
+    return Math.min(7, Math.max(1, r));
+  }
+
+  const RANK_NAMES = {
+    1: "Новичок",
+    2: "Любитель",
+    3: "Стратег",
+    4: "Профессионал",
+    5: "Мастер",
+    6: "Элита",
+    7: "Легенда",
+  };
+
+  function parseAchievementsCell(v){
+    const s = norm(v);
+    if (!s) return [];
+    return s.split(",").map(x => norm(x)).filter(Boolean);
+  }
+
+  function buildGamesMap(gamesRows){
+    // key = season|dateKey -> game_name
+    const map = new Map();
+    for (const r of gamesRows || []) {
+      const season = normUp(getField(r, ["season_id","season"]));
+      const date = getField(r, ["date"]);
+      const dk = dateKeyFromCell(date);
+      const name = norm(getField(r, ["game_name","name"]));
+      if (!season || !dk || !name) continue;
+      map.set(season + "|" + dk, name);
+    }
+    return map;
   }
 
   async function renderAll() {
     await renderLeaderboard();
   }
 
+  function rowClassByPlace(place){
+    if (place >=1 && place <=3) return "el-fire";
+    if (place >=4 && place <=6) return "el-earth";
+    if (place >=7 && place <=9) return "el-air";
+    if (place >=10 && place <=12) return "el-water";
+    return ""; // rest zebra only
+  }
+
   async function renderLeaderboard() {
     setStatus("Загрузка рейтинга…");
     const seasonId = normUp(seasonSelect.value);
 
-    const [lbRes, rawMatches] = await Promise.all([
-      fetch(LEADERBOARD_URL),
+    const [rowsRaw, rawMatches] = await Promise.all([
+      loadLeaderboardOnce(),
       loadMatchesOnce()
     ]);
 
-    const rowsRaw = await lbRes.json();
-    const toNum = (v) => {
-      const s = String(v ?? "").trim().replace(/\s+/g, "").replace(",", ".");
-      const n = Number(s);
-      return Number.isFinite(n) ? n : 0;
-    };
+    // sort by season_score or total, desc
     const rows = [...rowsRaw].sort((a, b) => {
       const keyA = (seasonId === "TOTAL") ? toNum(a.all_seasons_score) : toNum(a.season_score);
       const keyB = (seasonId === "TOTAL") ? toNum(b.all_seasons_score) : toNum(b.season_score);
       if (keyB !== keyA) return keyB - keyA;
-
       const nameA = String(a.name ?? "").trim();
       const nameB = String(b.name ?? "").trim();
       return nameA.localeCompare(nameB, "ru", { sensitivity: "base" });
     });
 
     const matches = normalizeMatches(rawMatches);
-    const matchesFiltered = filterMatchesByMode(matches, seasonId);
+    const matchesFiltered = filterMatchesBySeason(matches, seasonId);
 
     const dateCols = buildDateColumns(matchesFiltered);
     const matrix   = buildPointsMatrix(matchesFiltered);
@@ -779,9 +1016,10 @@
       const pid = String(r.player_id);
       const num = idx + 1;
 
-      // mark top 12 as "elem-row" to let tbody background show through
-      const elemRow = (num <= 12) ? "elem-row" : "";
       const zebraClass = (num % 2 === 0) ? "zebra-dark" : "";
+      const elementClass = rowClassByPlace(num);
+
+      const pClass = (num===1) ? "p1" : (num===2) ? "p2" : (num===3) ? "p3" : "";
 
       const mp = matrix.get(pid);
       const cells = dateCols.map(d => {
@@ -789,14 +1027,8 @@
         return `<td>${v ? v : "—"}</td>`;
       }).join("");
 
-      const placeBadgeClass =
-        (num === 1) ? "place-badge place-1" :
-        (num === 2) ? "place-badge place-2" :
-        (num === 3) ? "place-badge place-3" :
-        "place-badge";
-
-      return `<tr class="${elemRow} ${zebraClass}" data-player="${pid}">
-        <td><span class="${placeBadgeClass}">${num}</span></td>
+      return `<tr class="${elementClass} ${zebraClass} ${pClass}" data-player="${pid}">
+        <td><span class="place-badge">${num}</span></td>
         <td>${r.name ?? ""}</td>
         <td>${r.season_score ?? ""}</td>
         <td>${r.all_seasons_score ?? ""}</td>
@@ -810,63 +1042,187 @@
       tr.onclick = () => openProfile(tr.getAttribute("data-player"));
     });
 
-    // after render: align element textures exactly to 3 rows
-    requestAnimationFrame(() => {
-      updateElementBackdrop_();
-    });
-
     setStatus("");
-  }
-
-  function renderSmallTable(headers, rows) {
-    if (!rows || !rows.length) return `<div class="hint">Нет данных</div>`;
-    let h = `<table style="width:100%"><tr>${headers.map(x => `<th>${x}</th>`).join("")}</tr>`;
-    for (const r of rows) h += `<tr>${r.map(v => `<td>${v ?? ""}</td>`).join("")}</tr>`;
-    h += `</table>`;
-    return h;
   }
 
   async function openProfile(playerId) {
     modalEl.style.display = "block";
-    profileEl.textContent = "Загрузка профиля…";
+    profileRoot.innerHTML = `<div class="profile-top"><div style="color:rgba(255,255,255,.75)">Загрузка…</div></div>`;
 
     const seasonId = normUp(seasonSelect.value);
-    const url = `${PROFILE_API_BASE}?player_id=${encodeURIComponent(playerId)}&season_id=${encodeURIComponent(seasonId)}`;
-    const res = await fetch(url);
-    const data = await res.json();
 
-    const summaryHtml = (data.profile || []).map(row =>
-      `<p><b>${row.label}</b>: ${row.value ?? ""}</p>`
-    ).join("");
+    const [rowsRaw, rawMatches, gamesRows] = await Promise.all([
+      loadLeaderboardOnce(),
+      loadMatchesOnce(),
+      loadGamesOnce().catch(() => [])
+    ]);
 
-    const bySeasonRows = (data.by_season || []).map(r => [r.season, r.points]);
-    const bySeasonHtml = renderSmallTable(["Сезон", "Очки"], bySeasonRows);
+    const playerRow = (rowsRaw || []).find(r => String(r.player_id) === String(playerId)) || {};
+    const playerName = norm(playerRow.name) || String(playerId);
 
-    const lastRows = (data.last_games || []).map(r => [r.date, r.season, r.points]);
-    const lastHtml = renderSmallTable(["Дата", "Сезон", "Очки"], lastRows);
+    const matchesAll = normalizeMatches(rawMatches);
 
-    profileEl.innerHTML = `
-      <div class="profile-grid">
-        <div class="box">
-          <h4>Сводка</h4>
-          <div class="kv">${summaryHtml || '<div class="hint">Нет данных</div>'}</div>
+    // medals for selected season
+    const medalsSeason = medalsForPlayer(matchesAll, (seasonId === "TOTAL" ? "TOTAL" : seasonId), playerId);
+
+    // rank based on TOTAL gold medals (all seasons)
+    const medalsTotal = medalsForPlayer(matchesAll, "TOTAL", playerId);
+    const rankNum = rankFromGold(medalsTotal.gold);
+    const rankName = RANK_NAMES[rankNum] || "Новичок";
+    const rankImg = `./assets/rank${rankNum}.png`;
+
+    // achievements from Leaderboard.achievements (manual)
+    const ach = parseAchievementsCell(playerRow.achievements);
+    const achHtml = ach.length
+      ? `<div class="ach-grid">
+          ${ach.map(code => {
+            const cls = (code === "t9") ? "ach t9" : "ach";
+            return `<div class="${cls}"><img src="./assets/${code}.png" alt="${code}"></div>`;
+          }).join("")}
+        </div>`
+      : `<div style="text-align:center;color:rgba(255,255,255,.55);font-size:12px;margin:8px 0 14px;">Пока нет достижений</div>`;
+
+    // history last 5 games for selected season (or TOTAL)
+    const filtered = filterMatchesBySeason(matchesAll, seasonId);
+
+    // Build per-day totals for player + keep only days where player is present (in Matches)
+    const dkList = [];
+    for (const m of filtered) {
+      if (String(m.player_id) !== String(playerId)) continue;
+      const dk = dateKeyFromCell(m.date);
+      if (!dk) continue;
+      const season = normUp(m.season);
+      dkList.push({ season, dk, dateLabel: dateLabelFromCell(m.date) });
+    }
+    // unique by season|dk
+    const seen = new Set();
+    const uniq = [];
+    for (const x of dkList) {
+      const k = x.season + "|" + x.dk;
+      if (seen.has(k)) continue;
+      seen.add(k);
+      uniq.push(x);
+    }
+    // sort newest first by dk
+    uniq.sort((a,b) => (a.dk < b.dk ? 1 : -1));
+
+    const dailyIndex = buildDailyRankIndex(matchesAll);
+    const gamesMap = buildGamesMap(gamesRows);
+
+    const last5 = uniq.slice(0,5).map(x => {
+      const arr = dailyIndex.get(x.season + "|" + x.dk) || [];
+      const idx = arr.findIndex(z => z.pid === String(playerId));
+      const place = (idx >= 0) ? (idx + 1) : "—";
+      const pts = (idx >= 0) ? arr[idx].pts : 0;
+
+      const gameName = gamesMap.get(x.season + "|" + x.dk) || "—";
+      return { date: x.dateLabel, game: gameName, place, pts };
+    });
+
+    const seasonTitle = (seasonId === "TOTAL")
+      ? "Общий зачёт (Total)"
+      : (seasonsCache.find(s => normUp(s.season_id) === seasonId)?.season_name || seasonId);
+
+    const historyHtml = last5.length
+      ? `<div class="history-list">
+          ${last5.map(g => `
+            <div class="game-row">
+              <div class="game-date">${g.date}</div>
+              <div class="game-mid">${g.game}</div>
+              <div class="game-right">
+                <div class="pill">место: <b>${g.place}</b></div>
+                <div class="pill">сэт-поинтов: <b>${g.pts}</b></div>
+              </div>
+            </div>
+          `).join("")}
+        </div>`
+      : `<div style="text-align:center;color:rgba(255,255,255,.55);font-size:12px;margin:10px 0 4px;">Нет игр</div>`;
+
+    // Build profile
+    profileRoot.innerHTML = `
+      <div class="profile-top">
+        <img class="rank-shield" src="${rankImg}" alt="rank">
+        <div class="rank-title">${rankName}</div>
+        <div class="player-name">${playerName}</div>
+      </div>
+      <div class="divider"></div>
+
+      <div class="profile-body">
+        <div class="section-title">📊 СТАТИСТИКА</div>
+
+        <div class="stat-grid">
+          <div class="stat-box">
+            <div class="stat-left">
+              <span>🥇 Top-1</span>
+            </div>
+            <div class="stat-num">${medalsSeason.gold}</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-left">
+              <span>🥈 Top-2</span>
+            </div>
+            <div class="stat-num">${medalsSeason.silver}</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-left">
+              <span>🥉 Top-3</span>
+            </div>
+            <div class="stat-num">${medalsSeason.bronze}</div>
+          </div>
         </div>
-        <div class="box mini">
-          <h4>Очки по сезонам</h4>
-          ${bySeasonHtml}
+
+        <div class="progress-box">
+          <div class="progress-label">Попадание в призовую зону (ITM)</div>
+          <div class="progress-val">${calcITMPercent(matchesAll, seasonId, playerId).toFixed(1)}%</div>
         </div>
-        <div class="box mini" style="grid-column: 1 / -1;">
-          <h4>Последние игры</h4>
-          ${lastHtml}
-        </div>
+
+        <div class="divider"></div>
+
+        <div class="section-title">🏆 ДОСТИЖЕНИЯ</div>
+        ${achHtml}
+
+        <div class="divider"></div>
+
+        <div class="section-title">🗓 ИСТОРИЯ ИГР</div>
+        <div class="season-caption">Сезон «${escapeHtml(seasonTitle)}»</div>
+        ${historyHtml}
       </div>
     `;
   }
 
-  // keep correct after resize (mobile rotate etc.)
-  window.addEventListener("resize", () => {
-    updateElementBackdrop_();
-  });
+  function escapeHtml(s){
+    return String(s ?? "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  function calcITMPercent(matchesAll, seasonId, playerId){
+    // ITM = попадание в top 30% по месту за день (округляем вверх)
+    // считаем по выбранному сезону (или по TOTAL если TOTAL)
+    const daily = buildDailyRankIndex(matchesAll);
+
+    let played = 0;
+    let itm = 0;
+
+    for (const [key, arr] of daily.entries()) {
+      const [season, dk] = key.split("|");
+      if (seasonId !== "TOTAL" && season !== seasonId) continue;
+
+      const idx = arr.findIndex(x => x.pid === String(playerId));
+      if (idx === -1) continue;
+
+      played++;
+      const place = idx + 1;
+      const cutoff = Math.max(1, Math.ceil(arr.length * 0.30)); // top 30%
+      if (place <= cutoff) itm++;
+    }
+
+    if (!played) return 0;
+    return (itm / played) * 100;
+  }
 
   (async () => {
     try {
