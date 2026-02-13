@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- preload key assets (speeds up + no “loading in front of eyes”) -->
+  <!-- preload key assets -->
   <link rel="preload" as="image" href="./assets/fire.png">
   <link rel="preload" as="image" href="./assets/earth.png">
   <link rel="preload" as="image" href="./assets/air.png">
@@ -42,13 +42,15 @@
       --muted: rgba(255,255,255,.62);
       --muted2: rgba(255,255,255,.42);
 
-      --gold: #d6b56a;
-      --gold2: #f0de9a;
-
       --shadow: 0 20px 60px rgba(0,0,0,.55);
       --shadow2: 0 10px 30px rgba(0,0,0,.45);
 
       --radius: 18px;
+
+      /* element tuning */
+      --elem-opacity: .42;
+      --elem-vignette: .30;
+      --fade: 22px;
     }
 
     * { box-sizing: border-box; }
@@ -133,7 +135,6 @@
       gap: 14px;
       flex-wrap: wrap;
     }
-
     .left-controls, .right-controls{
       display:flex;
       align-items:center;
@@ -225,7 +226,7 @@
     thead th{
       position: sticky;
       top: 0;
-      z-index: 1;
+      z-index: 5;
       background: rgba(10, 11, 14, .60);
       backdrop-filter: blur(10px);
       color: rgba(240,222,154,.90);
@@ -251,46 +252,69 @@
       transition: background .14s ease;
       cursor: pointer;
       position: relative;
-      isolation: isolate;
+      z-index: 2;
     }
     tbody tr:hover{ background: rgba(255,255,255,.06); }
 
-    /* --- Element backgrounds: NO shift (background is on TR via ::before only) --- */
-    tbody tr.el-fire::before,
-    tbody tr.el-earth::before,
-    tbody tr.el-air::before,
-    tbody tr.el-water::before{
+    /* ====== element textures on tbody (perfect seams) ====== */
+    tbody tr.elem-row{ background: transparent !important; }
+    tbody tr.zebra-dark{ filter: brightness(0.92); }
+
+    #leaderboardWide tbody{
+      position: relative;
+      background-image:
+        linear-gradient(to right, rgba(0,0,0,var(--elem-vignette)), rgba(0,0,0,0), rgba(0,0,0,var(--elem-vignette))),
+        url("./assets/fire.png"),
+        url("./assets/earth.png"),
+        url("./assets/air.png"),
+        url("./assets/water.png");
+      background-repeat:
+        no-repeat,
+        no-repeat, no-repeat, no-repeat, no-repeat;
+      background-size:
+        100% 100%,
+        100% calc(var(--rowH) * 3),
+        100% calc(var(--rowH) * 3),
+        100% calc(var(--rowH) * 3),
+        100% calc(var(--rowH) * 3);
+      background-position:
+        0 0,
+        0 var(--fireY),
+        0 var(--earthY),
+        0 var(--airY),
+        0 var(--waterY);
+    }
+    #leaderboardWide tbody::before{
       content:"";
       position:absolute;
       inset:0;
       z-index:1;
-      background-repeat: repeat-x;
-      background-size: cover;
-      background-position: center;
-      opacity: .92;
-      filter: saturate(1.05) contrast(1.05);
       pointer-events:none;
-    }
-    tbody tr.el-fire::before  { background-image: url("./assets/fire.png"); }
-    tbody tr.el-earth::before { background-image: url("./assets/earth.png"); }
-    tbody tr.el-air::before   { background-image: url("./assets/air.png"); }
-    tbody tr.el-water::before { background-image: url("./assets/water.png"); }
+      background:
+        linear-gradient(to bottom,
+          rgba(0,0,0,0) 0,
+          rgba(0,0,0,0) calc(var(--rowH) * 3 - var(--fade)),
+          rgba(0,0,0,.18) calc(var(--rowH) * 3),
+          rgba(0,0,0,0) calc(var(--rowH) * 3 + var(--fade)),
 
-    /* soften borders between elemental blocks */
-    tbody tr.el-fire.end::after,
-    tbody tr.el-earth.end::after,
-    tbody tr.el-air.end::after,
-    tbody tr.el-water.end::after{
+          rgba(0,0,0,0) calc(var(--rowH) * 6 - var(--fade)),
+          rgba(0,0,0,.18) calc(var(--rowH) * 6),
+          rgba(0,0,0,0) calc(var(--rowH) * 6 + var(--fade)),
+
+          rgba(0,0,0,0) calc(var(--rowH) * 9 - var(--fade)),
+          rgba(0,0,0,.18) calc(var(--rowH) * 9),
+          rgba(0,0,0,0) calc(var(--rowH) * 9 + var(--fade))
+        );
+      filter: blur(0.6px);
+    }
+    #leaderboardWide tbody::after{
       content:"";
       position:absolute;
-      left:0; right:0; bottom:-1px; height:18px;
+      inset:0;
       z-index:1;
-      background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(16,18,24,.60));
       pointer-events:none;
+      box-shadow: inset 0 0 0 9999px rgba(0,0,0, calc(1 - var(--elem-opacity)));
     }
-
-    /* zebra for others */
-    tbody tr.zebra-dark{ filter: brightness(0.92); }
 
     .place-badge{
       display:inline-flex;
@@ -303,20 +327,28 @@
       border: 1px solid rgba(255,255,255,.18);
       background: rgba(0,0,0,.28);
       color: rgba(255,255,255,.92);
-      font-weight: 700;
+      font-weight: 800;
       margin: 0 auto;
     }
-
-    .place-1{ border-color: rgba(214,181,106,.9); color: rgba(240,222,154,.95); }
-    .place-2{ border-color: rgba(220,226,235,.9); color: rgba(220,226,235,.95); }
-    .place-3{ border-color: rgba(205,127,50,.9); color: rgba(205,127,50,.95); }
-
-    #leaderboardWideWrap { display: block; }
-    #leaderboardCompact { display: none; }
+    .place-badge.place-1{
+      color: rgba(255, 226, 120, .98);
+      border-color: rgba(255, 226, 120, .55);
+      box-shadow: 0 0 14px rgba(255, 210, 90, .18);
+    }
+    .place-badge.place-2{
+      color: rgba(220, 226, 235, .98);
+      border-color: rgba(220, 226, 235, .55);
+      box-shadow: 0 0 14px rgba(220, 226, 235, .12);
+    }
+    .place-badge.place-3{
+      color: rgba(205, 127, 50, .98);
+      border-color: rgba(205, 127, 50, .55);
+      box-shadow: 0 0 14px rgba(205, 127, 50, .12);
+    }
 
     @media (max-width: 760px) and (orientation: portrait) {
       .topbar{
-        display: flex;
+        display:flex;
         flex-direction: column;
         align-items: center;
         gap: 10px;
@@ -326,14 +358,10 @@
       .brand img{ height: 42px; }
       .season-name{ text-align: center; max-width: 92vw; }
       .center-title .title{ font-size: 18px; letter-spacing: .08em; }
-
-      /* IMPORTANT: keep wide table in portrait too (scrollable) */
-      #leaderboardWideWrap { display: block; }
-      #leaderboardCompact { display: none; }
     }
 
-    /* Modal */
-    .modal { display:none; position:fixed; inset:0; background: rgba(0,0,0,.70); backdrop-filter: blur(6px); }
+    /* ============ MODAL (from “идеальные окошки”) ============ */
+    .modal { display:none; position:fixed; inset:0; background: rgba(0,0,0,.70); backdrop-filter: blur(6px); z-index: 50; }
     .card  {
       width: min(560px, 92vw);
       margin: 5vh auto;
@@ -374,13 +402,12 @@
     }
     .modal-body{
       padding: 16px;
-      overflow: auto; /* ✅ scroll inside modal on phone */
+      overflow: auto;
       -webkit-overflow-scrolling: touch;
       flex: 1 1 auto;
       position: relative;
     }
 
-    /* Champion background (blur + dark) */
     .modal-body.champion::before{
       content:"";
       position:absolute;
@@ -392,15 +419,13 @@
     }
     .modal-body > *{ position: relative; z-index: 1; }
 
-    /* Player card layout */
     .pc-top{
       text-align:center;
       padding: 18px 10px 8px;
       border-bottom: 1px solid rgba(214,181,106,.35);
     }
     .rank-icon{
-      width: 86px;
-      height: 86px;
+      width: 86px; height: 86px;
       object-fit: contain;
       display:block;
       margin: 0 auto 10px;
@@ -463,10 +488,8 @@
       font-weight: 700;
       color: rgba(255,255,255,.9);
     }
-    .pill img{ width: 18px; height: 18px; object-fit: contain; }
     .pill .num{ font-weight: 800; color: rgba(255,255,255,.92); }
 
-    /* Achievements */
     .ach-wrap{
       border: 1px solid rgba(214,181,106,.25);
       border-radius: 16px;
@@ -481,8 +504,7 @@
       align-items: center;
     }
     .ach-item{
-      width: 86px;
-      height: 86px;
+      width: 86px; height: 86px;
       border-radius: 16px;
       border: 1px solid rgba(214,181,106,.25);
       background: rgba(0,0,0,.22);
@@ -493,11 +515,10 @@
     }
     .ach-item img{ width: 72%; height: 72%; object-fit: contain; filter: drop-shadow(0 12px 18px rgba(0,0,0,.55)); }
 
-    /* t9 big: spans full 3 cols but edges align with 3 small items */
     .ach-t9{
       grid-column: 1 / span 3;
       width: 100%;
-      max-width: calc(86px*3 + 12px*2); /* exactly 3 cells + 2 gaps */
+      max-width: calc(86px*3 + 12px*2);
       height: 130px;
       border-radius: 18px;
       border: 1px solid rgba(214,181,106,.45);
@@ -509,7 +530,6 @@
     }
     .ach-t9 img{ width: 92px; height: 92px; object-fit: contain; }
 
-    /* History */
     .hist{
       margin-top: 10px;
       display:flex;
@@ -551,14 +571,12 @@
       color: rgba(255,255,255,.88);
       white-space: nowrap;
     }
-
     .hint{ color: rgba(255,255,255,.45); font-size: 12px; margin-top: 12px; text-align:center; }
   </style>
 </head>
 
 <body>
   <div class="wrap">
-
     <div class="topbar">
       <div class="brand"><img src="./assets/logo.png" alt="River Poker Club"></div>
       <div class="center-title"><div class="title">RIVER RATING</div></div>
@@ -581,15 +599,10 @@
     </div>
 
     <div class="panel">
-      <div class="panel-head">
-        <div class="panel-title">Рейтинг игроков</div>
-      </div>
-
+      <div class="panel-head"><div class="panel-title">Рейтинг игроков</div></div>
       <div class="wide-wrap" id="leaderboardWideWrap">
         <table id="leaderboardWide"></table>
       </div>
-
-      <table id="leaderboardCompact"></table>
     </div>
   </div>
 
@@ -609,13 +622,13 @@
 <script>
   const PROFILE_API_BASE = "https://script.google.com/macros/s/AKfycbwKd6_brG1Pgy3U3AUX_cNCUoznk2nYzIOYKo790MDs48ktJwlKvdQ_P8TNXqvPJsGkTQ/exec";
 
-  const statusEl       = document.getElementById("status");
-  const seasonSelect   = document.getElementById("seasonSelect");
-  const prevBtn        = document.getElementById("prevSeasonBtn");
-  const nextBtn        = document.getElementById("nextSeasonBtn");
-  const seasonNameEl   = document.getElementById("seasonName");
+  const statusEl     = document.getElementById("status");
+  const seasonSelect = document.getElementById("seasonSelect");
+  const prevBtn      = document.getElementById("prevSeasonBtn");
+  const nextBtn      = document.getElementById("nextSeasonBtn");
+  const seasonNameEl = document.getElementById("seasonName");
 
-  const tableWideEl    = document.getElementById("leaderboardWide");
+  const tableWideEl  = document.getElementById("leaderboardWide");
 
   const modalEl   = document.getElementById("modal");
   const modalBody = document.getElementById("modalBody");
@@ -625,12 +638,12 @@
   closeBtn.onclick = () => modalEl.style.display = "none";
   modalEl.onclick = (e) => { if (e.target === modalEl) modalEl.style.display = "none"; };
 
-  function setStatus(t) { statusEl.textContent = t; }
-  function norm(x) { return String(x ?? "").trim(); }
-  function normUp(x) { return norm(x).toUpperCase(); }
+  function setStatus(t){ statusEl.textContent = t; }
+  function norm(x){ return String(x ?? "").trim(); }
+  function normUp(x){ return norm(x).toUpperCase(); }
 
   let seasonsCache = [];
-  let dashboardCache = null;
+  let dashCache = new Map(); // seasonId -> dashboard json
 
   function pad2(n){ return String(n).padStart(2,"0"); }
   function normalizeDdMmAny(v){
@@ -647,11 +660,14 @@
     return await res.json();
   }
   async function apiDashboard(seasonId){
-    const res = await fetch(`${PROFILE_API_BASE}?mode=dashboard&season_id=${encodeURIComponent(seasonId)}`);
-    return await res.json();
+    const sid = normUp(seasonId);
+    if (dashCache.has(sid)) return dashCache.get(sid);
+    const res = await fetch(`${PROFILE_API_BASE}?mode=dashboard&season_id=${encodeURIComponent(sid)}`);
+    const data = await res.json();
+    dashCache.set(sid, data);
+    return data;
   }
   async function apiSetSeason(seasonId){
-    // keep old behavior (writes season to Leaderboard!G2)
     await fetch(`${PROFILE_API_BASE}?season_id=${encodeURIComponent(seasonId)}`);
   }
 
@@ -668,15 +684,13 @@
     return Number.isFinite(n) ? n : 0;
   }
 
-  // Build daily columns strictly from season_table header row (NO SHIFT POSSIBLE)
+  // Build daily columns strictly from season_table header row (NO SHIFT)
   function buildSeasonDailyFromTable(seasonTable){
-    // seasonTable is 2D array: first row headers
-    if (!seasonTable || !seasonTable.length) return { dateCols: [], rowMap: new Map() };
+    if (!seasonTable || !seasonTable.length) return { dateCols: [], rowMap: new Map(), pidCol: -1 };
 
     const headers = seasonTable[0].map(x => norm(x));
-    // expected headers: season | name | player_id | 01.02 | 02.02 ...
     const pidCol = headers.findIndex(h => normUp(h) === "PLAYER_ID");
-    if (pidCol < 0) return { dateCols: [], rowMap: new Map() };
+    if (pidCol < 0) return { dateCols: [], rowMap: new Map(), pidCol: -1 };
 
     const dateCols = [];
     for (let i = pidCol + 1; i < headers.length; i++){
@@ -686,14 +700,14 @@
 
     // newest -> oldest
     dateCols.sort((a,b) => {
-      const ak = a.key.split("."); // dd mm
+      const ak = a.key.split(".");
       const bk = b.key.split(".");
       const aKey = Number(ak[1])*100 + Number(ak[0]);
       const bKey = Number(bk[1])*100 + Number(bk[0]);
       return bKey - aKey;
     });
 
-    const rowMap = new Map(); // pid -> row array
+    const rowMap = new Map();
     for (let r = 1; r < seasonTable.length; r++){
       const row = seasonTable[r];
       const pid = String(row[pidCol] ?? "").trim();
@@ -703,21 +717,25 @@
     return { dateCols, rowMap, pidCol };
   }
 
-  function classifyRow(num){
-    if (num >= 1 && num <= 3) return "el-fire";
-    if (num >= 4 && num <= 6) return "el-earth";
-    if (num >= 7 && num <= 9) return "el-air";
-    if (num >= 10 && num <= 12) return "el-water";
-    return "";
+  function updateElementBackdrop_(){
+    const tbody = document.querySelector("#leaderboardWide tbody");
+    const firstRow = document.querySelector("#leaderboardWide tbody tr");
+    if (!tbody || !firstRow) return;
+
+    const h = Math.max(1, Math.round(firstRow.getBoundingClientRect().height));
+    tbody.style.setProperty("--rowH", h + "px");
+    tbody.style.setProperty("--fireY",  (0 * h) + "px");
+    tbody.style.setProperty("--earthY", (3 * h) + "px");
+    tbody.style.setProperty("--airY",   (6 * h) + "px");
+    tbody.style.setProperty("--waterY", (9 * h) + "px");
   }
 
   async function renderLeaderboard(){
-    setStatus("Загрузка…");
+    setStatus("Загрузка рейтинга…");
     const seasonId = normUp(seasonSelect.value);
 
-    dashboardCache = await apiDashboard(seasonId);
-
-    const rowsRaw = dashboardCache.leaderboard || [];
+    const dash = await apiDashboard(seasonId);
+    const rowsRaw = dash.leaderboard || [];
     const rows = [...rowsRaw].sort((a, b) => {
       const keyA = (seasonId === "TOTAL") ? toNum(a.all_seasons_score) : toNum(a.season_score);
       const keyB = (seasonId === "TOTAL") ? toNum(b.all_seasons_score) : toNum(b.season_score);
@@ -725,7 +743,7 @@
       return String(a.name ?? "").localeCompare(String(b.name ?? ""), "ru", { sensitivity: "base" });
     });
 
-    const { dateCols, rowMap, pidCol } = buildSeasonDailyFromTable(dashboardCache.season_table);
+    const { dateCols, rowMap } = buildSeasonDailyFromTable(dash.season_table);
 
     const head = `<thead><tr>
       <th>№</th><th>Игрок</th><th>Очки сезона</th><th>Total</th>
@@ -736,25 +754,23 @@
       const pid = String(r.player_id);
       const num = idx + 1;
 
-      const elClass = classifyRow(num);
-      const endClass = (num === 3 || num === 6 || num === 9 || num === 12) ? "end" : "";
-      const zebraClass = (!elClass && (num % 2 === 0)) ? "zebra-dark" : "";
+      const elemRow = (num <= 12) ? "elem-row" : "";
+      const zebraClass = (num % 2 === 0) ? "zebra-dark" : "";
 
-      const badgeClass =
+      const placeBadgeClass =
         (num === 1) ? "place-badge place-1" :
         (num === 2) ? "place-badge place-2" :
         (num === 3) ? "place-badge place-3" :
         "place-badge";
 
-      // daily cells strictly from S01 row values, matching header indices (NO SHIFT)
       const seasonRow = rowMap.get(pid);
       const cells = dateCols.map(d => {
         const v = seasonRow ? toNum(seasonRow[d.idx]) : 0;
         return `<td>${v ? v : "—"}</td>`;
       }).join("");
 
-      return `<tr class="${elClass} ${endClass} ${zebraClass}" data-player="${pid}">
-        <td><span class="${badgeClass}">${num}</span></td>
+      return `<tr class="${elemRow} ${zebraClass}" data-player="${pid}">
+        <td><span class="${placeBadgeClass}">${num}</span></td>
         <td>${r.name ?? ""}</td>
         <td>${r.season_score ?? ""}</td>
         <td>${r.all_seasons_score ?? ""}</td>
@@ -768,11 +784,11 @@
       tr.onclick = () => openProfile(tr.getAttribute("data-player"));
     });
 
+    requestAnimationFrame(() => updateElementBackdrop_());
     setStatus("");
   }
 
   function medalIcon(kind){
-    // use emoji-like icons with png if you want later
     if (kind === 'top1') return "🥇";
     if (kind === 'top2') return "🥈";
     return "🥉";
@@ -791,13 +807,9 @@
       html += `<div class="ach-t9"><img src="./assets/t9.png" alt="t9"></div>`;
     }
 
-    // If last row has 2 icons => place left+right (center empty)
-    // We do this by inserting a "spacer" in the middle of the last row.
     const r = [...rest];
     if (r.length % 3 === 2){
-      // insert a spacer as second of the last 2 -> so they become col1 and col3
-      // example: ... [A,B] -> [A, __spacer__, B]
-      r.splice(r.length - 1, 0, "__spacer__");
+      r.splice(r.length - 1, 0, "__spacer__"); // make last row: left + right
     }
 
     for (const t of r){
@@ -851,11 +863,14 @@
       </div>
     `;
 
+    // Player name: prefer Profile summary "Имя", fallback to blank
+    const nameFromProfile = (data.profile || []).find(x => String(x.label || '').toLowerCase().includes("имя"))?.value || "";
+
     profileEl.innerHTML = `
       <div class="pc-top">
         <img class="rank-icon" src="${rankIcon}" alt="rank${rank.level}">
         <div class="rank-title">${rank.title}</div>
-        <div class="player-name">${data.profile?.find(x => x.label?.toLowerCase().includes("имя"))?.value || ""}</div>
+        <div class="player-name">${nameFromProfile}</div>
       </div>
 
       <div class="section-title">📊 СТАТИСТИКА</div>
@@ -869,6 +884,8 @@
       <div class="hist">${hist || `<div class="hint">Нет игр</div>`}</div>
     `;
   }
+
+  window.addEventListener("resize", () => updateElementBackdrop_());
 
   async function init(){
     try{
@@ -928,7 +945,7 @@
       setStatus("");
     } catch(err){
       console.error(err);
-      setStatus("Ошибка загрузки. Проверь Web App и доступ к таблице.");
+      setStatus("Ошибка загрузки. Проверь Web App и доступ.");
     }
   }
 
