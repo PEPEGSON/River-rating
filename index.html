@@ -214,8 +214,6 @@
       box-shadow:0 18px 44px rgba(0,0,0,.45);
       overflow:hidden;
       cursor:pointer;
-
-      /* ускорение длинного списка */
       content-visibility:auto;
       contain-intrinsic-size: 120px 340px;
     }
@@ -308,7 +306,6 @@
         padding:14px 12px;
       }
 
-      /* центрируем Season/Total */
       .scores{
         grid-column:2/3;
         justify-self:stretch;
@@ -724,7 +721,6 @@
     });
   }
 
-  /* ===== SPEED: фоновые прелоады (НЕ блокируют старт) ===== */
   function preloadImages(urls){
     urls.forEach((url) => {
       const img = new Image();
@@ -734,16 +730,15 @@
   }
 
   function warmupAssets(){
-    // минимальный прогрев сразу
     preloadImages([
       "./assets/fire.png","./assets/earth.png","./assets/air.png","./assets/water.png",
       "./assets/rank1.png","./assets/rank2.png","./assets/rank3.png",
       "./assets/t9.png"
     ]);
 
-    // остальное — в idle (когда браузеру удобно)
     const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 400));
     idle(() => preloadImages([
+      "./assets/bg.png","./assets/logo.png","./assets/champion.png",
       "./assets/rank4.png","./assets/rank5.png","./assets/rank6.png","./assets/rank7.png",
       "./assets/t1.png","./assets/t2.png","./assets/t3.png","./assets/t4.png",
       "./assets/t5.png","./assets/t6.png","./assets/t7.png","./assets/t8.png"
@@ -752,7 +747,7 @@
 
   async function init(){
     try{
-      warmupAssets(); // стартуем прогрев сразу, НЕ ждём
+      warmupAssets();
 
       setStatus("Загрузка…");
       const meta = await apiMeta();
@@ -812,5 +807,41 @@
 
   init();
 </script>
+
+<!-- ✅ ВСТАВКА: Service Worker + принудительный прогрев кеша -->
+<script>
+  (async () => {
+    try {
+      if (!("serviceWorker" in navigator)) return;
+
+      const reg = await navigator.serviceWorker.register("./sw.js", { scope: "./" });
+
+      // Если это первый визит — SW может активироваться после установки.
+      // Ждём и затем просим прогреть кеш.
+      const ensureController = async () => {
+        if (navigator.serviceWorker.controller) return true;
+
+        await new Promise((resolve) => {
+          navigator.serviceWorker.addEventListener("controllerchange", resolve, { once: true });
+          setTimeout(resolve, 1200);
+        });
+
+        return !!navigator.serviceWorker.controller;
+      };
+
+      const hasController = await ensureController();
+
+      if (hasController) {
+        navigator.serviceWorker.controller.postMessage({ type: "WARM_CACHE" });
+      } else {
+        // На первом заходе иногда контроллер появляется только после перезагрузки
+        setTimeout(() => location.reload(), 400);
+      }
+    } catch (e) {
+      console.log("SW error:", e);
+    }
+  })();
+</script>
+
 </body>
 </html>
