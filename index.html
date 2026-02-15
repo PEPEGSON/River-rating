@@ -223,10 +223,8 @@
 
       overflow:hidden;
       cursor:pointer;
-
-      content-visibility:auto;
-      contain-intrinsic-size: 92px 340px;
     }
+
     .lb-row:nth-child(odd)::before,
     .lb-row:nth-child(even)::before{
       content:"";
@@ -289,12 +287,13 @@
       flex:0 0 auto;
     }
 
+    /* ✅ достижения начинаются там же, где щит (без сдвига вправо) */
     .ach-mini{
       display:flex;
       gap:6px;
       flex-wrap:wrap;
       align-items:center;
-      margin-left:0; /* ✅ теперь начинается там же, где щит */
+      margin-left:0;
     }
     .ach-mini img{
       width:24px;height:24px;object-fit:contain;
@@ -322,9 +321,17 @@
     .score-pill .lbl{font-size:10px;color:rgba(255,255,255,.55);letter-spacing:.06em;text-transform:uppercase}
     .score-pill .val{margin-top:4px;font-size:20px;font-weight:800;color:rgba(255,255,255,.92)}
 
+    /* ✅ content-visibility только для ПК (чтобы на мобиле не было “полосок”) */
+    @media (min-width: 761px){
+      .lb-row{
+        content-visibility:auto;
+        contain-intrinsic-size: 92px 340px;
+      }
+    }
+
     /* ====== МОБИЛЬНАЯ АДАПТАЦИЯ + СКРОЛЛ ТОЛЬКО СПИСКА ====== */
     @media (max-width: 760px){
-      body{ overflow:hidden; } /* ✅ страница не скроллится */
+      body{ overflow:hidden; }
 
       .wrap{
         width:min(1200px,94vw);
@@ -349,23 +356,20 @@
         flex:1 1 auto;
         display:flex;
         flex-direction:column;
-        overflow:hidden; /* ✅ внутри будет скролл */
+        overflow:hidden;
       }
       .panel-head{ flex:0 0 auto; }
 
       .lb{
         flex:1 1 auto;
-        overflow:auto;                 /* ✅ скролл только рейтинга */
+        overflow:auto;
         -webkit-overflow-scrolling:touch;
         padding:10px 10px 14px;
         gap:10px;
       }
 
-      /* ✅ чтобы не было «полосок» и сжатия — отключаем оптимизацию на мобиле */
+      /* структура как была, без сжатия */
       .lb-row{
-        content-visibility:visible;
-        contain-intrinsic-size:auto;
-
         grid-template-columns: 54px 1fr auto;
         gap:8px;
         padding:10px 10px;
@@ -381,7 +385,7 @@
 
       /* достижения не в столбик: горизонтальный скролл */
       .ach-mini{
-        margin-left:0;          /* ✅ также начинается от щита на мобиле */
+        margin-left:0;
         gap:5px;
         flex-wrap:nowrap;
         overflow-x:auto;
