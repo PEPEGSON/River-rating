@@ -9,13 +9,19 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- мягкий preload -->
+  <!-- Мягкий preload -->
   <link rel="preload" as="image" href="./assets/bg.png">
   <link rel="preload" as="image" href="./assets/logo.png">
   <link rel="preload" as="image" href="./assets/champion.png">
+
+  <!-- rank + t -->
   <link rel="preload" as="image" href="./assets/rank1.png">
   <link rel="preload" as="image" href="./assets/rank2.png">
   <link rel="preload" as="image" href="./assets/rank3.png">
+  <link rel="preload" as="image" href="./assets/rank4.png">
+  <link rel="preload" as="image" href="./assets/rank5.png">
+  <link rel="preload" as="image" href="./assets/rank6.png">
+  <link rel="preload" as="image" href="./assets/rank7.png">
   <link rel="preload" as="image" href="./assets/t9.png">
 
   <style>
@@ -31,10 +37,10 @@
       --shadow2:0 10px 30px rgba(0,0,0,.45);
       --radius:18px;
 
-      --rowA: rgba(220,220,220,.06);
-      --rowB: rgba(220,220,220,.10);
-      --glass: rgba(10,11,14,.38);
-      --glass2: rgba(10,11,14,.46);
+      /* стекло / зебра */
+      --rowA: rgba(255,255,255,.060);
+      --rowB: rgba(255,255,255,.035);
+      --glass: rgba(12, 13, 17, .35);
     }
 
     *{box-sizing:border-box}
@@ -81,7 +87,10 @@
       backdrop-filter:blur(10px);
     }
     .brand{display:flex;align-items:center;justify-content:flex-start;min-width:240px}
-    .brand img{height:44px;width:auto;display:block;filter:drop-shadow(0 10px 18px rgba(0,0,0,.55))}
+    .brand img{
+      height:44px;width:auto;display:block;
+      filter:drop-shadow(0 10px 18px rgba(0,0,0,.55));
+    }
     .center-title{text-align:center;line-height:1}
     .center-title .title{
       font-family:Cinzel,serif;
@@ -192,52 +201,63 @@
       color:rgba(255,255,255,.88);
     }
 
+    /* ===== Leaderboard list ===== */
     .lb{
-      padding:14px 12px 18px;
+      padding:12px 12px 16px;
       display:flex;
       flex-direction:column;
-      gap:12px;
+      gap:10px;
     }
 
-    /* ===== ROW (glass + zebra) ===== */
+    /* общий "матовый" контейнер строки */
     .lb-row{
       position:relative;
       display:grid;
-      grid-template-columns: 70px 1fr auto;
-      grid-template-rows: auto auto;
-      column-gap:12px;
-      row-gap:8px;
+      grid-template-columns: 68px 1fr auto;
+      gap:12px;
       align-items:center;
 
-      padding:14px 14px;
+      padding:12px 12px;
       border-radius:18px;
+
+      background: var(--glass);
       border:1px solid rgba(214,181,106,.18);
-      box-shadow:0 18px 44px rgba(0,0,0,.45);
+      box-shadow:0 14px 34px rgba(0,0,0,.40);
+
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+
       overflow:hidden;
       cursor:pointer;
 
-      background: var(--glass);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-
+      /* ускорение длинного списка */
       content-visibility:auto;
-      contain-intrinsic-size: 120px 340px;
+      contain-intrinsic-size: 92px 340px;
     }
-    .lb-row:nth-child(odd){ background: linear-gradient(to bottom, var(--rowA), var(--rowA)), var(--glass); }
-    .lb-row:nth-child(even){ background: linear-gradient(to bottom, var(--rowB), var(--rowB)), var(--glass2); }
+    /* зебра */
+    .lb-row:nth-child(odd){ box-shadow:0 14px 34px rgba(0,0,0,.38); }
+    .lb-row:nth-child(odd)::before,
+    .lb-row:nth-child(even)::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:0;
+    }
+    .lb-row:nth-child(odd)::before{ background: var(--rowA); }
+    .lb-row:nth-child(even)::before{ background: var(--rowB); }
 
+    /* лёгкая виньетка */
     .lb-row::after{
       content:"";
-      position:absolute; inset:0;
-      background: linear-gradient(to right, rgba(0,0,0,.35), rgba(0,0,0,.12), rgba(0,0,0,.35));
+      position:absolute;
+      inset:0;
+      background: linear-gradient(to right, rgba(0,0,0,.40), rgba(0,0,0,.10), rgba(0,0,0,.40));
+      z-index:0;
       pointer-events:none;
     }
     .lb-row > *{ position:relative; z-index:1; }
 
     .place{
-      grid-column:1/2;
-      grid-row:1/span 2;
-
       display:flex;
       align-items:center;
       justify-content:center;
@@ -247,47 +267,71 @@
       width:54px;height:54px;
       border-radius:999px;
       border:1px solid rgba(255,255,255,.18);
-      background:rgba(0,0,0,.35);
-      margin-left:4px;
+      background:rgba(0,0,0,.28);
+      margin-left:2px;
     }
     .place.p1{ color:rgba(255,226,120,.98); border-color:rgba(255,226,120,.55); box-shadow:0 0 14px rgba(255,210,90,.18); }
     .place.p2{ color:rgba(220,226,235,.98); border-color:rgba(220,226,235,.55); box-shadow:0 0 14px rgba(220,226,235,.12); }
     .place.p3{ color:rgba(205,127,50,.98); border-color:rgba(205,127,50,.55); box-shadow:0 0 14px rgba(205,127,50,.12); }
 
-    .namebox{grid-column:2/3;grid-row:1/span 2;display:flex;flex-direction:column;gap:8px;min-width:0}
+    .namebox{display:flex;flex-direction:column;gap:6px;min-width:0}
     .name-top{display:flex;align-items:center;gap:10px;min-width:0}
-    .rank-mini{width:42px;height:42px;object-fit:contain;filter:drop-shadow(0 12px 18px rgba(0,0,0,.55));flex:0 0 auto}
+    .rank-mini{
+      width:40px;height:40px;object-fit:contain;
+      filter:drop-shadow(0 12px 18px rgba(0,0,0,.55));
+      flex:0 0 auto;
+    }
     .nm{
-      font-family:Cinzel,serif;font-weight:700;font-size:22px;
+      font-family:Cinzel,serif;
+      font-weight:700;
+      font-size:22px;
       color:rgba(255,255,255,.95);
       text-shadow:0 14px 34px rgba(0,0,0,.55);
       overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;
     }
-    .ach-mini{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-    .ach-mini img{width:26px;height:26px;object-fit:contain;filter:drop-shadow(0 10px 14px rgba(0,0,0,.55));opacity:.95}
+
+    .ach-mini{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-left:50px; /* чтобы достижения визуально шли под именем (под строкой rank+имя) */
+    }
+    .ach-mini img{
+      width:24px;height:24px;object-fit:contain;
+      filter:drop-shadow(0 10px 14px rgba(0,0,0,.55));
+      opacity:.95;
+    }
 
     .scores{
-      grid-column:3/4;
-      grid-row:1/span 2;
-
       display:flex;
-      gap:10px;
+      gap:8px;                 /* важно: не раздвигаем далеко */
       justify-content:flex-end;
       align-items:center;
       flex-wrap:nowrap;
     }
     .score-pill{
-      border:1px solid rgba(214,181,106,.35);
+      border:1px solid rgba(214,181,106,.28);
       border-radius:14px;
-      background:rgba(0,0,0,.25);
-      padding:10px 12px;
-      min-width:84px;
+      background:rgba(0,0,0,.20);
+      padding:9px 10px;
+      min-width:86px;
       text-align:center;
-      box-shadow:0 12px 26px rgba(0,0,0,.35) inset;
+      box-shadow:0 12px 24px rgba(0,0,0,.32) inset;
       white-space:nowrap;
     }
-    .score-pill .lbl{font-size:10px;color:rgba(255,255,255,.55);letter-spacing:.06em;text-transform:uppercase}
-    .score-pill .val{margin-top:4px;font-size:20px;font-weight:800;color:rgba(255,255,255,.92)}
+    .score-pill .lbl{
+      font-size:10px;
+      color:rgba(255,255,255,.55);
+      letter-spacing:.06em;
+      text-transform:uppercase
+    }
+    .score-pill .val{
+      margin-top:4px;
+      font-size:20px;
+      font-weight:800;
+      color:rgba(255,255,255,.92)
+    }
 
     @media (max-width: 760px){
       .topbar{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
@@ -296,22 +340,35 @@
       .season-name{text-align:center;max-width:92vw}
       .center-title .title{font-size:18px;letter-spacing:.08em}
 
-      /* НА ТЕЛЕФОНЕ ОСТАВЛЯЕМ РАСКЛАДКУ КАК НА ПК */
+      /* ВАЖНО: на телефоне оставляем ТУ ЖЕ СТРУКТУРУ, как на ПК */
+      .lb{padding:10px 10px 14px; gap:10px;}
       .lb-row{
-        grid-template-columns: 62px 1fr auto;
-        padding:14px 12px;
+        grid-template-columns: 58px 1fr auto; /* как ПК, но компактнее */
+        gap:10px;
+        padding:10px 10px;
+        border-radius:16px;
       }
-      .place{width:50px;height:50px;font-size:20px}
-      .rank-mini{width:40px;height:40px}
-      .nm{font-size:24px}
-      .ach-mini img{width:24px;height:24px}
 
-      .scores{gap:10px}
-      .score-pill{min-width:92px;padding:9px 10px}
+      .place{width:46px;height:46px;font-size:18px}
+      .rank-mini{width:34px;height:34px}
+      .nm{font-size:18px}
+      .ach-mini{
+        margin-left:44px;      /* подстраиваем под уменьшенный rank */
+        gap:5px;
+      }
+      .ach-mini img{width:20px;height:20px}
+
+      .scores{gap:8px}
+      .score-pill{
+        min-width:74px;
+        padding:8px 9px;
+        border-radius:12px;
+      }
       .score-pill .val{font-size:18px}
+      .score-pill .lbl{font-size:9px}
     }
 
-    /* ====== Modal ====== */
+    /* ====== Modal (оставляем как было) ====== */
     .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.70);backdrop-filter:blur(6px);z-index:50}
     .card{
       width:min(560px,92vw);
@@ -701,6 +758,7 @@
     });
   }
 
+  /* ===== SPEED: прогрев картинок (не блокирует старт) ===== */
   function preloadImages(urls){
     urls.forEach((url) => {
       const img = new Image();
@@ -710,7 +768,8 @@
   }
   function warmupAssets(){
     preloadImages([
-      "./assets/rank1.png","./assets/rank2.png","./assets/rank3.png","./assets/t9.png"
+      "./assets/rank1.png","./assets/rank2.png","./assets/rank3.png",
+      "./assets/t9.png","./assets/logo.png"
     ]);
     const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 400));
     idle(() => preloadImages([
