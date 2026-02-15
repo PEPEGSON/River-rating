@@ -332,18 +332,29 @@
         gap:10px;
         padding:14px 12px;
       }
+
+      /* ✅ ВАЖНО: центрируем Season/Total на телефоне */
       .scores{
         grid-column: 2 / 3;
-        justify-self:end;
+        justify-self: stretch;
+        width: 100%;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        margin-top: 4px;
       }
+      .score-pill{
+        min-width: 110px;
+        padding:9px 10px;
+      }
+      .score-pill .val{ font-size:20px; }
+
       .place{
         width:50px;height:50px;
         font-size:20px;
       }
       .rank-mini{ width:40px;height:40px; }
       .nm{ font-size:26px; }
-      .score-pill{ min-width: 92px; padding:9px 10px; }
-      .score-pill .val{ font-size:20px; }
       .ach-mini img{ width:24px;height:24px; }
     }
 
@@ -383,7 +394,7 @@
     .modal-body{
       padding:16px;
       overflow:auto;
-      overflow-x:hidden; /* IMPORTANT: no sideways scroll on phone */
+      overflow-x:hidden;
       -webkit-overflow-scrolling:touch;
       flex:1 1 auto;
       position:relative;
@@ -413,7 +424,6 @@
       color:rgba(240,222,154,.90);margin:16px 0 10px;font-size:14px;
     }
 
-    /* medals: make them tighter on phone */
     .medals{
       display:grid;
       grid-template-columns:repeat(3, minmax(0, 1fr));
@@ -444,7 +454,7 @@
       background:rgba(0,0,0,.20);
       padding:14px;
       max-width:100%;
-      overflow:hidden; /* IMPORTANT: achievements never overflow */
+      overflow:hidden;
     }
     .ach-grid{
       display:grid;
@@ -482,7 +492,6 @@
     }
     .ach-t9 img{ width:140px;height:140px;object-fit:contain; }
 
-    /* phone tweaks for modal so nothing goes out */
     @media (max-width: 420px){
       .pill{ padding:9px 10px; gap:6px; }
       .pill .left{ gap:6px; font-size:12px; }
