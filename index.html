@@ -9,12 +9,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Мягкий preload -->
   <link rel="preload" as="image" href="./assets/bg.png">
   <link rel="preload" as="image" href="./assets/logo.png">
   <link rel="preload" as="image" href="./assets/champion.png">
 
-  <!-- rank + t -->
   <link rel="preload" as="image" href="./assets/rank1.png">
   <link rel="preload" as="image" href="./assets/rank2.png">
   <link rel="preload" as="image" href="./assets/rank3.png">
@@ -37,7 +35,6 @@
       --shadow2:0 10px 30px rgba(0,0,0,.45);
       --radius:18px;
 
-      /* стекло / зебра */
       --rowA: rgba(255,255,255,.060);
       --rowB: rgba(255,255,255,.035);
       --glass: rgba(12, 13, 17, .35);
@@ -201,7 +198,6 @@
       color:rgba(255,255,255,.88);
     }
 
-    /* ===== Leaderboard list ===== */
     .lb{
       padding:12px 12px 16px;
       display:flex;
@@ -209,14 +205,12 @@
       gap:10px;
     }
 
-    /* общий "матовый" контейнер строки */
     .lb-row{
       position:relative;
       display:grid;
       grid-template-columns: 68px 1fr auto;
       gap:12px;
       align-items:center;
-
       padding:12px 12px;
       border-radius:18px;
 
@@ -230,12 +224,9 @@
       overflow:hidden;
       cursor:pointer;
 
-      /* ускорение длинного списка */
       content-visibility:auto;
       contain-intrinsic-size: 92px 340px;
     }
-    /* зебра */
-    .lb-row:nth-child(odd){ box-shadow:0 14px 34px rgba(0,0,0,.38); }
     .lb-row:nth-child(odd)::before,
     .lb-row:nth-child(even)::before{
       content:"";
@@ -246,7 +237,6 @@
     .lb-row:nth-child(odd)::before{ background: var(--rowA); }
     .lb-row:nth-child(even)::before{ background: var(--rowB); }
 
-    /* лёгкая виньетка */
     .lb-row::after{
       content:"";
       position:absolute;
@@ -295,7 +285,7 @@
       gap:6px;
       flex-wrap:wrap;
       align-items:center;
-      margin-left:50px; /* чтобы достижения визуально шли под именем (под строкой rank+имя) */
+      margin-left:50px;
     }
     .ach-mini img{
       width:24px;height:24px;object-fit:contain;
@@ -305,7 +295,7 @@
 
     .scores{
       display:flex;
-      gap:8px;                 /* важно: не раздвигаем далеко */
+      gap:8px;
       justify-content:flex-end;
       align-items:center;
       flex-wrap:nowrap;
@@ -320,19 +310,10 @@
       box-shadow:0 12px 24px rgba(0,0,0,.32) inset;
       white-space:nowrap;
     }
-    .score-pill .lbl{
-      font-size:10px;
-      color:rgba(255,255,255,.55);
-      letter-spacing:.06em;
-      text-transform:uppercase
-    }
-    .score-pill .val{
-      margin-top:4px;
-      font-size:20px;
-      font-weight:800;
-      color:rgba(255,255,255,.92)
-    }
+    .score-pill .lbl{font-size:10px;color:rgba(255,255,255,.55);letter-spacing:.06em;text-transform:uppercase}
+    .score-pill .val{margin-top:4px;font-size:20px;font-weight:800;color:rgba(255,255,255,.92)}
 
+    /* ====== МОБИЛЬНАЯ АДАПТАЦИЯ (фикс) ====== */
     @media (max-width: 760px){
       .topbar{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
       .brand{min-width:0;justify-content:center}
@@ -340,35 +321,48 @@
       .season-name{text-align:center;max-width:92vw}
       .center-title .title{font-size:18px;letter-spacing:.08em}
 
-      /* ВАЖНО: на телефоне оставляем ТУ ЖЕ СТРУКТУРУ, как на ПК */
       .lb{padding:10px 10px 14px; gap:10px;}
+
+      /* ещё компактнее, но структура как на ПК */
       .lb-row{
-        grid-template-columns: 58px 1fr auto; /* как ПК, но компактнее */
-        gap:10px;
+        grid-template-columns: 54px 1fr auto;
+        gap:8px;
         padding:10px 10px;
         border-radius:16px;
       }
 
-      .place{width:46px;height:46px;font-size:18px}
-      .rank-mini{width:34px;height:34px}
-      .nm{font-size:18px}
-      .ach-mini{
-        margin-left:44px;      /* подстраиваем под уменьшенный rank */
-        gap:5px;
-      }
-      .ach-mini img{width:20px;height:20px}
+      .place{width:42px;height:42px;font-size:16px}
 
-      .scores{gap:8px}
+      .rank-mini{width:28px;height:28px}
+      .nm{font-size:17px}
+
+      /* главное: достижения НЕ ПЕРЕНОСЯТСЯ, а скроллятся по горизонтали */
+      .ach-mini{
+        margin-left:38px;        /* под уменьшенный rank */
+        gap:5px;
+        flex-wrap:nowrap;        /* запрет переноса -> не будет столбика */
+        overflow-x:auto;         /* если много — свайп */
+        overflow-y:hidden;
+        -webkit-overflow-scrolling:touch;
+        padding-bottom:2px;
+      }
+      .ach-mini img{width:18px;height:18px}
+
+      /* скрываем скроллбар, чтобы не бесил */
+      .ach-mini::-webkit-scrollbar{height:0}
+      .ach-mini{scrollbar-width:none}
+
+      .scores{gap:6px}
       .score-pill{
-        min-width:74px;
-        padding:8px 9px;
+        min-width:68px;
+        padding:7px 8px;
         border-radius:12px;
       }
-      .score-pill .val{font-size:18px}
       .score-pill .lbl{font-size:9px}
+      .score-pill .val{font-size:16px}
     }
 
-    /* ====== Modal (оставляем как было) ====== */
+    /* ====== Modal (как было) ====== */
     .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.70);backdrop-filter:blur(6px);z-index:50}
     .card{
       width:min(560px,92vw);
@@ -584,7 +578,7 @@
   }
 
   function miniAchievementsHtml(list){
-    const items = (list || []).map(x => String(x).trim()).filter(Boolean).slice(0, 12);
+    const items = (list || []).map(x => String(x).trim()).filter(Boolean).slice(0, 30);
     if (!items.length) return "";
     return `<div class="ach-mini">` + items.map(t => `<img loading="lazy" decoding="async" src="./assets/${t}.png" alt="${t}">`).join("") + `</div>`;
   }
@@ -758,7 +752,6 @@
     });
   }
 
-  /* ===== SPEED: прогрев картинок (не блокирует старт) ===== */
   function preloadImages(urls){
     urls.forEach((url) => {
       const img = new Image();
