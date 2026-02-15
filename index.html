@@ -172,6 +172,7 @@
       transform:translateY(1px);
     }
 
+    /* PANEL как контейнер-колонка, чтобы lb мог быть скроллом на телефоне */
     .panel{
       margin-top:14px;
       border-radius:var(--radius);
@@ -180,6 +181,9 @@
       box-shadow:var(--shadow);
       backdrop-filter:blur(12px);
       overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      min-height: 200px;
     }
     .panel-head{
       display:flex;
@@ -188,6 +192,7 @@
       padding:14px 16px;
       border-bottom:1px solid rgba(255,255,255,.10);
       background:linear-gradient(to right, rgba(214,181,106,.08), transparent 55%);
+      flex:0 0 auto;
     }
     .panel-title{
       font-family:Cinzel,serif;
@@ -203,6 +208,8 @@
       display:flex;
       flex-direction:column;
       gap:10px;
+      flex:1 1 auto;
+      overflow:visible; /* на десктопе обычный поток */
     }
 
     .lb-row{
@@ -223,6 +230,9 @@
 
       overflow:hidden;
       cursor:pointer;
+
+      /* ВАЖНО: НИКАКИХ content-visibility / contain — они и давали “скукоживание” */
+      min-height: 76px;
     }
 
     .lb-row:nth-child(odd)::before,
@@ -263,12 +273,27 @@
     .place.p3{ color:rgba(205,127,50,.98); border-color:rgba(205,127,50,.55); box-shadow:0 0 14px rgba(205,127,50,.12); }
 
     .namebox{display:flex;flex-direction:column;gap:6px;min-width:0}
-    .name-top{display:flex;align-items:center;gap:10px;min-width:0}
+    .name-top{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+    }
+
     .rank-mini{
       width:40px;height:40px;object-fit:contain;
       filter:drop-shadow(0 12px 18px rgba(0,0,0,.55));
       flex:0 0 auto;
     }
+
+    .nm-wrap{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+      flex:1 1 auto;
+    }
+
     .nm{
       font-family:Cinzel,serif;
       font-weight:700;
@@ -276,23 +301,24 @@
       color:rgba(255,255,255,.95);
       text-shadow:0 14px 34px rgba(0,0,0,.55);
       overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;
-      flex:1 1 auto;
     }
 
     /* t9 справа от имени */
-    .t9-mini{
-      width:32px;height:32px;object-fit:contain;
+    .t9-badge{
+      width:30px;height:30px;
+      object-fit:contain;
       filter:drop-shadow(0 12px 18px rgba(0,0,0,.55));
-      opacity:.98;
       flex:0 0 auto;
+      opacity:.98;
     }
 
-    /* ✅ достижения начинаются там же, где щит (без сдвига вправо) */
     .ach-mini{
       display:flex;
       gap:6px;
       flex-wrap:wrap;
       align-items:center;
+
+      /* ВАЖНО: начинать с того же места что и щит (БЕЗ margin-left) */
       margin-left:0;
     }
     .ach-mini img{
@@ -321,59 +347,59 @@
     .score-pill .lbl{font-size:10px;color:rgba(255,255,255,.55);letter-spacing:.06em;text-transform:uppercase}
     .score-pill .val{margin-top:4px;font-size:20px;font-weight:800;color:rgba(255,255,255,.92)}
 
-    /* ✅ content-visibility только для ПК (чтобы на мобиле не было “полосок”) */
-    @media (min-width: 761px){
-      .lb-row{
-        content-visibility:auto;
-        contain-intrinsic-size: 92px 340px;
-      }
-    }
-
-    /* ====== МОБИЛЬНАЯ АДАПТАЦИЯ + СКРОЛЛ ТОЛЬКО СПИСКА ====== */
+    /* ====== МОБИЛЬНАЯ АДАПТАЦИЯ + фикс “скролл только таблицы” ====== */
     @media (max-width: 760px){
-      body{ overflow:hidden; }
+      html,body{height:100%}
+      body{
+        overflow:hidden; /* чтобы страница не скроллилась, будет скроллиться только lb */
+      }
 
       .wrap{
-        width:min(1200px,94vw);
         height:100dvh;
         margin:0 auto;
         padding:14px 0 14px;
         display:flex;
         flex-direction:column;
-        gap:12px;
       }
 
-      .topbar{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+      .topbar{
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        gap:10px;
+        text-align:center;
+        flex:0 0 auto;
+      }
       .brand{min-width:0;justify-content:center}
       .brand img{height:42px}
       .season-name{text-align:center;max-width:92vw}
       .center-title .title{font-size:18px;letter-spacing:.08em}
 
-      .controls{ margin-top:0; }
-
-      .panel{
-        margin-top:0;
-        flex:1 1 auto;
-        display:flex;
-        flex-direction:column;
-        overflow:hidden;
+      .controls{
+        flex:0 0 auto;
       }
-      .panel-head{ flex:0 0 auto; }
 
-      .lb{
+      /* панель занимает остаток высоты */
+      .panel{
         flex:1 1 auto;
-        overflow:auto;
-        -webkit-overflow-scrolling:touch;
+        min-height: 0; /* критично для корректного overflow в flex */
+      }
+
+      /* и скроллим только список */
+      .lb{
         padding:10px 10px 14px;
         gap:10px;
+        overflow:auto;
+        -webkit-overflow-scrolling:touch;
       }
 
-      /* структура как была, без сжатия */
+      /* структура как на ПК, но компактнее */
       .lb-row{
         grid-template-columns: 54px 1fr auto;
         gap:8px;
         padding:10px 10px;
         border-radius:16px;
+        min-height: 64px; /* фикс высоты чтобы НЕ сжималось */
       }
 
       .place{width:42px;height:42px;font-size:16px}
@@ -381,11 +407,10 @@
       .rank-mini{width:28px;height:28px}
       .nm{font-size:17px}
 
-      .t9-mini{width:26px;height:26px}
+      .t9-badge{width:26px;height:26px}
 
-      /* достижения не в столбик: горизонтальный скролл */
+      /* много достижений -> горизонтальный свайп, но старт слева как у щита */
       .ach-mini{
-        margin-left:0;
         gap:5px;
         flex-wrap:nowrap;
         overflow-x:auto;
@@ -594,13 +619,6 @@
     return Number.isFinite(n) ? n : 0;
   }
 
-  function clampRankLevel(v){
-    const n = Number(v);
-    if (!Number.isFinite(n)) return 1;
-    const i = Math.round(n);
-    return Math.min(7, Math.max(1, i));
-  }
-
   async function apiMeta(){
     const res = await fetch(`${API_BASE}?mode=meta`);
     return await res.json();
@@ -630,15 +648,8 @@
     return "";
   }
 
-  function splitAchievements(list){
-    const items = (list || []).map(x => String(x).trim()).filter(Boolean);
-    const hasT9 = items.includes("t9");
-    const rest = items.filter(x => x !== "t9");
-    return { hasT9, rest };
-  }
-
-  function miniAchievementsHtml(listWithoutT9){
-    const items = (listWithoutT9 || []).map(x => String(x).trim()).filter(Boolean).slice(0, 30);
+  function miniAchievementsHtml(list){
+    const items = (list || []).map(x => String(x).trim()).filter(Boolean).slice(0, 30);
     if (!items.length) return "";
     return `<div class="ach-mini">` + items.map(t => `<img loading="lazy" decoding="async" src="./assets/${t}.png" alt="${t}">`).join("") + `</div>`;
   }
@@ -659,17 +670,16 @@
 
     lbEl.innerHTML = rows.map((r, idx) => {
       const place = idx + 1;
-      const rankLevel = clampRankLevel(r.rank_level || 1);
+      const rankLevel = Number(r.rank_level || 1);
 
-      const achListRaw = r.achievements_list || (String(r.achievements || "").split(",").map(s=>s.trim()).filter(Boolean));
-      const { hasT9, rest } = splitAchievements(achListRaw);
+      const achRaw = r.achievements_list || (String(r.achievements || "").split(",").map(s=>s.trim()).filter(Boolean));
+      const hasT9 = achRaw.includes("t9");
+      const achList = achRaw.filter(x => x !== "t9"); // t9 убираем из строки
 
       const seasonScore = toNum(r.season_score);
       const totalScore  = toNum(r.all_seasons_score);
 
-      const t9Html = hasT9
-        ? `<img class="t9-mini" decoding="async" loading="eager" src="./assets/t9.png" alt="t9">`
-        : ``;
+      const t9Html = hasT9 ? `<img class="t9-badge" decoding="async" loading="eager" src="./assets/t9.png" alt="t9">` : "";
 
       return `
         <div class="lb-row" data-player="${r.player_id}">
@@ -677,11 +687,13 @@
 
           <div class="namebox">
             <div class="name-top">
-              <img class="rank-mini" decoding="async" loading="eager" src="./assets/rank${rankLevel}.png" alt="rank${rankLevel}">
-              <div class="nm">${r.name ?? ""}</div>
-              ${t9Html}
+              <img class="rank-mini" decoding="async" loading="eager" src="./assets/rank${rankLevel}.png" alt="rank${rankLevel}" onerror="this.style.display='none'">
+              <div class="nm-wrap">
+                <div class="nm">${r.name ?? ""}</div>
+                ${t9Html}
+              </div>
             </div>
-            ${miniAchievementsHtml(rest)}
+            ${miniAchievementsHtml(achList)}
           </div>
 
           <div class="scores">
@@ -787,7 +799,7 @@
     const ach = data.achievements || [];
     if (ach.includes("t9")) modalBody.classList.add("champion");
 
-    const rankIcon = `./assets/rank${clampRankLevel(rank.level)}.png`;
+    const rankIcon = `./assets/rank${rank.level}.png`;
     const nameFromProfile = (data.profile || []).find(x => String(x.label || '').toLowerCase().includes("имя"))?.value || "";
 
     const medalsHtml = `
