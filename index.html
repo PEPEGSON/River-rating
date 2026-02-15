@@ -9,7 +9,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- preload -->
   <link rel="preload" as="image" href="./assets/bg.png">
   <link rel="preload" as="image" href="./assets/logo.png">
   <link rel="preload" as="image" href="./assets/champion.png">
@@ -21,7 +20,6 @@
   <link rel="preload" as="image" href="./assets/rank5.png">
   <link rel="preload" as="image" href="./assets/rank6.png">
   <link rel="preload" as="image" href="./assets/rank7.png">
-
   <link rel="preload" as="image" href="./assets/t9.png">
 
   <style>
@@ -36,6 +34,10 @@
       --shadow:0 20px 60px rgba(0,0,0,.55);
       --shadow2:0 10px 30px rgba(0,0,0,.45);
       --radius:18px;
+
+      --rowA: rgba(255,255,255,.060);
+      --rowB: rgba(255,255,255,.035);
+      --glass: rgba(12, 13, 17, .35);
     }
 
     *{box-sizing:border-box}
@@ -82,16 +84,30 @@
       backdrop-filter:blur(10px);
     }
     .brand{display:flex;align-items:center;justify-content:flex-start;min-width:240px}
-    .brand img{height:44px;width:auto;display:block;filter:drop-shadow(0 10px 18px rgba(0,0,0,.55))}
+    .brand img{
+      height:44px;width:auto;display:block;
+      filter:drop-shadow(0 10px 18px rgba(0,0,0,.55));
+    }
     .center-title{text-align:center;line-height:1}
     .center-title .title{
-      font-family:Cinzel,serif;font-weight:700;letter-spacing:.10em;font-size:22px;
-      text-transform:uppercase;color:rgba(255,255,255,.94);
-      text-shadow:0 18px 40px rgba(0,0,0,.6);white-space:nowrap;
+      font-family:Cinzel,serif;
+      font-weight:700;
+      letter-spacing:.10em;
+      font-size:22px;
+      text-transform:uppercase;
+      color:rgba(255,255,255,.94);
+      text-shadow:0 18px 40px rgba(0,0,0,.6);
+      white-space:nowrap;
     }
     .season-name{
-      font-family:Cinzel,serif;font-weight:600;letter-spacing:.02em;font-size:14px;
-      color:rgba(240,222,154,.92);text-align:right;justify-self:end;max-width:520px;
+      font-family:Cinzel,serif;
+      font-weight:600;
+      letter-spacing:.02em;
+      font-size:14px;
+      color:rgba(240,222,154,.92);
+      text-align:right;
+      justify-self:end;
+      max-width:520px;
     }
 
     .controls{
@@ -183,34 +199,53 @@
     }
 
     .lb{
-      padding:14px 12px 18px;
+      padding:12px 12px 16px;
       display:flex;
       flex-direction:column;
-      gap:12px;
+      gap:10px;
     }
 
     .lb-row{
       position:relative;
       display:grid;
-      grid-template-columns: 70px 1fr auto;
+      grid-template-columns: 68px 1fr auto;
       gap:12px;
       align-items:center;
-      padding:14px 14px;
+      padding:12px 12px;
       border-radius:18px;
-      border:1px solid rgba(214,181,106,.22);
-      background:rgba(10,11,14,.46);
-      box-shadow:0 18px 44px rgba(0,0,0,.45);
+
+      background: var(--glass);
+      border:1px solid rgba(214,181,106,.18);
+      box-shadow:0 14px 34px rgba(0,0,0,.40);
+
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+
       overflow:hidden;
       cursor:pointer;
 
-      /* ускорение (на ПК норм) */
       content-visibility:auto;
-      contain-intrinsic-size: 120px 340px;
+      contain-intrinsic-size: 92px 340px;
     }
+    .lb-row:nth-child(odd)::before,
+    .lb-row:nth-child(even)::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:0;
+    }
+    .lb-row:nth-child(odd)::before{ background: var(--rowA); }
+    .lb-row:nth-child(even)::before{ background: var(--rowB); }
 
-    /* матовое стекло + зебра */
-    .lb-row.z1{ background: rgba(22,24,30,.42); }
-    .lb-row.z2{ background: rgba(16,18,24,.36); }
+    .lb-row::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: linear-gradient(to right, rgba(0,0,0,.40), rgba(0,0,0,.10), rgba(0,0,0,.40));
+      z-index:0;
+      pointer-events:none;
+    }
+    .lb-row > *{ position:relative; z-index:1; }
 
     .place{
       display:flex;
@@ -222,162 +257,109 @@
       width:54px;height:54px;
       border-radius:999px;
       border:1px solid rgba(255,255,255,.18);
-      background:rgba(0,0,0,.35);
-      margin-left:4px;
+      background:rgba(0,0,0,.28);
+      margin-left:2px;
     }
     .place.p1{ color:rgba(255,226,120,.98); border-color:rgba(255,226,120,.55); box-shadow:0 0 14px rgba(255,210,90,.18); }
     .place.p2{ color:rgba(220,226,235,.98); border-color:rgba(220,226,235,.55); box-shadow:0 0 14px rgba(220,226,235,.12); }
     .place.p3{ color:rgba(205,127,50,.98); border-color:rgba(205,127,50,.55); box-shadow:0 0 14px rgba(205,127,50,.12); }
 
-    .namebox{min-width:0}
-    .namegrid{
-      display:grid;
-      grid-template-columns: 46px 1fr auto;
-      grid-template-rows: auto auto;
-      column-gap:10px;
-      row-gap:8px;
-      align-items:center;
-      min-width:0;
-    }
-
+    .namebox{display:flex;flex-direction:column;gap:6px;min-width:0}
+    .name-top{display:flex;align-items:center;gap:10px;min-width:0}
     .rank-mini{
-      grid-column:1;
-      grid-row:1;
-      width:42px;height:42px;object-fit:contain;
+      width:40px;height:40px;object-fit:contain;
       filter:drop-shadow(0 12px 18px rgba(0,0,0,.55));
+      flex:0 0 auto;
     }
-
     .nm{
-      grid-column:2;
-      grid-row:1;
       font-family:Cinzel,serif;
       font-weight:700;
       font-size:22px;
       color:rgba(255,255,255,.95);
       text-shadow:0 14px 34px rgba(0,0,0,.55);
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
-      min-width:0;
-    }
-
-    .t9-mini{
-      grid-column:3;
-      grid-row:1;
-      width:34px;height:34px;
-      object-fit:contain;
-      filter:drop-shadow(0 12px 18px rgba(0,0,0,.55));
-      opacity:.98;
+      overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;
     }
 
     .ach-mini{
-      grid-column:1 / 4;
-      grid-row:2;
       display:flex;
       gap:6px;
+      flex-wrap:wrap;
       align-items:center;
-      min-width:0;
+      margin-left:50px;
     }
     .ach-mini img{
-      width:26px;height:26px;object-fit:contain;
+      width:24px;height:24px;object-fit:contain;
       filter:drop-shadow(0 10px 14px rgba(0,0,0,.55));
       opacity:.95;
     }
 
     .scores{
-      display:flex;gap:10px;justify-content:flex-end;align-items:center;flex-wrap:wrap;
+      display:flex;
+      gap:8px;
+      justify-content:flex-end;
+      align-items:center;
+      flex-wrap:nowrap;
     }
     .score-pill{
-      border:1px solid rgba(214,181,106,.35);
+      border:1px solid rgba(214,181,106,.28);
       border-radius:14px;
-      background:rgba(0,0,0,.22);
-      padding:10px 12px;
-      min-width:84px;
+      background:rgba(0,0,0,.20);
+      padding:9px 10px;
+      min-width:86px;
       text-align:center;
-      box-shadow:0 12px 26px rgba(0,0,0,.35) inset;
+      box-shadow:0 12px 24px rgba(0,0,0,.32) inset;
       white-space:nowrap;
     }
     .score-pill .lbl{font-size:10px;color:rgba(255,255,255,.55);letter-spacing:.06em;text-transform:uppercase}
     .score-pill .val{margin-top:4px;font-size:20px;font-weight:800;color:rgba(255,255,255,.92)}
 
-    /* ===== MOBILE: фиксируем верх (без sticky) и скроллим ТОЛЬКО список ===== */
+    /* ====== МОБИЛЬНАЯ АДАПТАЦИЯ (фикс) ====== */
     @media (max-width: 760px){
-      body{ overflow:hidden; } /* страница не скроллится */
-
-      .wrap{
-        width:min(1200px,94vw);
-        height:100dvh;            /* важно для андроид */
-        margin:0 auto;
-        padding:14px 0 14px;
-        display:flex;
-        flex-direction:column;
-        gap:12px;
-      }
-
-      .topbar{
-        display:flex;
-        flex-direction:column;
-        align-items:center;
-        gap:10px;
-        text-align:center;
-      }
+      .topbar{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
       .brand{min-width:0;justify-content:center}
       .brand img{height:42px}
       .season-name{text-align:center;max-width:92vw}
       .center-title .title{font-size:18px;letter-spacing:.08em}
 
-      .controls{ margin-top:0; }
+      .lb{padding:10px 10px 14px; gap:10px;}
 
-      .panel{
-        margin-top:0;
-        flex:1 1 auto;
-        display:flex;
-        flex-direction:column;
-        overflow:hidden; /* внутри будет скролл */
-      }
-      .panel-head{ flex:0 0 auto; }
-
-      .lb{
-        flex:1 1 auto;
-        overflow:auto;                 /* скролл только рейтинга */
-        -webkit-overflow-scrolling:touch;
-        padding:12px 10px 16px;
-      }
-
-      /* ✅ главное исправление тонких полос: выключаем content-visibility на мобиле */
+      /* ещё компактнее, но структура как на ПК */
       .lb-row{
-        content-visibility:visible;
-        contain-intrinsic-size:auto;
-
-        grid-template-columns:58px 1fr auto;
-        gap:10px;
-        padding:12px 12px;
+        grid-template-columns: 54px 1fr auto;
+        gap:8px;
+        padding:10px 10px;
+        border-radius:16px;
       }
 
-      .place{width:50px;height:50px;font-size:20px;margin-left:2px}
+      .place{width:42px;height:42px;font-size:16px}
 
-      .namegrid{
-        grid-template-columns: 40px 1fr auto;
-        column-gap:8px;
-        row-gap:6px;
-      }
-      .rank-mini{width:36px;height:36px}
-      .nm{font-size:20px}
-      .t9-mini{width:30px;height:30px}
+      .rank-mini{width:28px;height:28px}
+      .nm{font-size:17px}
 
+      /* главное: достижения НЕ ПЕРЕНОСЯТСЯ, а скроллятся по горизонтали */
       .ach-mini{
-        flex-wrap:nowrap;
-        overflow-x:auto;
+        margin-left:38px;        /* под уменьшенный rank */
+        gap:5px;
+        flex-wrap:nowrap;        /* запрет переноса -> не будет столбика */
+        overflow-x:auto;         /* если много — свайп */
         overflow-y:hidden;
         -webkit-overflow-scrolling:touch;
         padding-bottom:2px;
-        gap:5px;
       }
-      .ach-mini img{width:20px;height:20px}
+      .ach-mini img{width:18px;height:18px}
 
-      .scores{gap:8px}
-      .score-pill{min-width:74px;padding:8px 10px;border-radius:12px}
-      .score-pill .val{font-size:18px}
+      /* скрываем скроллбар, чтобы не бесил */
+      .ach-mini::-webkit-scrollbar{height:0}
+      .ach-mini{scrollbar-width:none}
+
+      .scores{gap:6px}
+      .score-pill{
+        min-width:68px;
+        padding:7px 8px;
+        border-radius:12px;
+      }
+      .score-pill .lbl{font-size:9px}
+      .score-pill .val{font-size:16px}
     }
 
     /* ====== Modal (как было) ====== */
@@ -431,6 +413,49 @@
       font-family:Cinzel,serif;letter-spacing:.10em;font-weight:700;text-transform:uppercase;
       color:rgba(240,222,154,.90);margin:16px 0 10px;font-size:14px;
     }
+
+    .medals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px;width:100%}
+    .pill{
+      border:1px solid rgba(214,181,106,.35);
+      border-radius:14px;
+      background:rgba(0,0,0,.25);
+      padding:10px 12px;
+      display:flex;align-items:center;justify-content:space-between;gap:8px;
+      box-shadow:0 12px 26px rgba(0,0,0,.35) inset;
+      min-width:0;
+    }
+    .pill .left{display:flex;align-items:center;gap:8px;font-weight:700;color:rgba(255,255,255,.9);min-width:0}
+    .pill .left span{white-space:nowrap}
+    .pill .num{font-weight:800;color:rgba(255,255,255,.92);white-space:nowrap}
+
+    .ach-wrap{border:1px solid rgba(214,181,106,.25);border-radius:16px;background:rgba(0,0,0,.20);padding:14px;max-width:100%;overflow:hidden}
+    .ach-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;justify-items:center;align-items:center;width:100%;max-width:100%}
+    .ach-item{width:108px;height:108px;border-radius:18px;border:1px solid rgba(214,181,106,.25);background:rgba(0,0,0,.22);display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;max-width:100%}
+    .ach-item img{width:78%;height:78%;object-fit:contain;filter:drop-shadow(0 12px 18px rgba(0,0,0,.55))}
+    .ach-t9{grid-column:1/span 3;width:100%;max-width:100%;height:170px;border-radius:20px;border:1px solid rgba(214,181,106,.45);background:rgba(0,0,0,.22);display:flex;align-items:center;justify-content:center;box-shadow:0 0 28px rgba(214,181,106,.18);cursor:pointer;overflow:hidden}
+    .ach-t9 img{width:140px;height:140px;object-fit:contain}
+
+    @media (max-width: 420px){
+      .pill{padding:9px 10px;gap:6px}
+      .pill .left{gap:6px;font-size:12px}
+      .pill .num{font-size:14px}
+      .ach-item{width:92px;height:92px;border-radius:16px}
+      .ach-t9{height:150px;border-radius:18px}
+      .ach-t9 img{width:120px;height:120px}
+      .ach-grid{gap:10px}
+    }
+
+    .history-wrap{border:1px solid rgba(214,181,106,.25);border-radius:16px;background:rgba(0,0,0,.16);padding:12px}
+    .history-scroll{max-height:44vh;overflow:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:14px;padding-right:6px}
+    .season-block-title{font-family:Cinzel,serif;letter-spacing:.08em;font-weight:800;text-transform:uppercase;color:rgba(240,222,154,.92);font-size:13px;text-align:center;margin:6px 0 2px}
+    .hist{display:flex;flex-direction:column;gap:10px}
+    .hist-card{border:1px solid rgba(214,181,106,.22);border-radius:14px;background:rgba(0,0,0,.18);padding:10px 12px;display:grid;grid-template-columns:86px 1fr auto;align-items:center;gap:10px;max-width:100%}
+    .hist-date{font-weight:800;font-size:18px;color:rgba(255,255,255,.94)}
+    .hist-game{color:rgba(240,222,154,.90);font-weight:800;text-align:center}
+    .chips{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+    .chip{border:1px solid rgba(214,181,106,.25);background:rgba(0,0,0,.22);border-radius:999px;padding:6px 10px;font-size:12px;color:rgba(255,255,255,.88);white-space:nowrap;max-width:100%}
+
+    .hint{color:rgba(255,255,255,.45);font-size:12px;margin-top:12px;text-align:center}
 
     .viewer{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:80;padding:18px;align-items:center;justify-content:center}
     .viewer.open{display:flex}
@@ -523,13 +548,6 @@
     return Number.isFinite(n) ? n : 0;
   }
 
-  function clampRankLevel(v){
-    const n = Number(v);
-    if (!Number.isFinite(n)) return 1;
-    const i = Math.round(n);
-    return Math.min(7, Math.max(1, i));
-  }
-
   async function apiMeta(){
     const res = await fetch(`${API_BASE}?mode=meta`);
     return await res.json();
@@ -559,26 +577,10 @@
     return "";
   }
 
-  function splitMiniAchievements(list){
-    const items = (list || []).map(x => String(x).trim()).filter(Boolean);
-    const hasT9 = items.includes("t9");
-    const rest = items.filter(x => x !== "t9");
-    return { hasT9, rest };
-  }
-
   function miniAchievementsHtml(list){
-    const { hasT9, rest } = splitMiniAchievements(list);
-    const icons = rest.slice(0, 12);
-
-    const achLine = `<div class="ach-mini">${
-      icons.map(t => `<img loading="lazy" decoding="async" src="./assets/${t}.png" alt="${t}">`).join("")
-    }</div>`;
-
-    const t9 = hasT9
-      ? `<img class="t9-mini" loading="eager" decoding="async" src="./assets/t9.png" alt="t9">`
-      : ``;
-
-    return { achLine, t9 };
+    const items = (list || []).map(x => String(x).trim()).filter(Boolean).slice(0, 30);
+    if (!items.length) return "";
+    return `<div class="ach-mini">` + items.map(t => `<img loading="lazy" decoding="async" src="./assets/${t}.png" alt="${t}">`).join("") + `</div>`;
   }
 
   async function renderLeaderboard(){
@@ -597,30 +599,21 @@
 
     lbEl.innerHTML = rows.map((r, idx) => {
       const place = idx + 1;
-      const rankLevel = clampRankLevel(r.rank_level);
+      const rankLevel = Number(r.rank_level || 1);
       const achList = r.achievements_list || (String(r.achievements || "").split(",").map(s=>s.trim()).filter(Boolean));
       const seasonScore = toNum(r.season_score);
       const totalScore  = toNum(r.all_seasons_score);
-      const zebra = (place % 2 === 0) ? "z2" : "z1";
-
-      const { achLine, t9 } = miniAchievementsHtml(achList);
 
       return `
-        <div class="lb-row ${zebra}" data-player="${r.player_id}">
+        <div class="lb-row" data-player="${r.player_id}">
           <div class="place ${placeClass(place)}">${place}</div>
 
           <div class="namebox">
-            <div class="namegrid">
-              <img class="rank-mini"
-                   decoding="async"
-                   loading="eager"
-                   src="./assets/rank${rankLevel}.png"
-                   alt="rank${rankLevel}"
-                   onerror="this.onerror=null;this.src='./assets/rank1.png';">
+            <div class="name-top">
+              <img class="rank-mini" decoding="async" loading="eager" src="./assets/rank${rankLevel}.png" alt="rank${rankLevel}">
               <div class="nm">${r.name ?? ""}</div>
-              ${t9}
-              ${achLine}
             </div>
+            ${miniAchievementsHtml(achList)}
           </div>
 
           <div class="scores">
@@ -655,34 +648,6 @@
     viewer.classList.add("open");
   }
 
-  function buildHistoryHtml(history){
-    const blocks = (history || []);
-    if (!blocks.length) return `<div class="hint">Нет игр</div>`;
-
-    const parts = blocks.map(b => {
-      const games = (b.games || []);
-      const rows = games.map(g => `
-        <div class="hist-card">
-          <div class="hist-date">${g.date || "—"}</div>
-          <div class="hist-game">${g.game_name || "—"}</div>
-          <div class="chips">
-            <div class="chip">место: ${g.place ?? "—"}</div>
-            <div class="chip">очки: ${g.points ?? "—"}</div>
-          </div>
-        </div>
-      `).join("");
-
-      return `
-        <div>
-          <div class="season-block-title">Сезон «${b.season}»</div>
-          <div class="hist">${rows || `<div class="hint">Нет игр</div>`}</div>
-        </div>
-      `;
-    }).join("");
-
-    return `<div class="history-wrap"><div class="history-scroll">${parts}</div></div>`;
-  }
-
   function buildAchievementsHtml(list){
     const items = (list || []).map(x => String(x).trim()).filter(Boolean);
     if (!items.length) return `<div class="hint">Пока нет достижений</div>`;
@@ -713,6 +678,34 @@
     return html;
   }
 
+  function buildHistoryHtml(history){
+    const blocks = (history || []);
+    if (!blocks.length) return `<div class="hint">Нет игр</div>`;
+
+    const parts = blocks.map(b => {
+      const games = (b.games || []);
+      const rows = games.map(g => `
+        <div class="hist-card">
+          <div class="hist-date">${g.date || "—"}</div>
+          <div class="hist-game">${g.game_name || "—"}</div>
+          <div class="chips">
+            <div class="chip">место: ${g.place ?? "—"}</div>
+            <div class="chip">очки: ${g.points ?? "—"}</div>
+          </div>
+        </div>
+      `).join("");
+
+      return `
+        <div>
+          <div class="season-block-title">Сезон «${b.season}»</div>
+          <div class="hist">${rows || `<div class="hint">Нет игр</div>`}</div>
+        </div>
+      `;
+    }).join("");
+
+    return `<div class="history-wrap"><div class="history-scroll">${parts}</div></div>`;
+  }
+
   async function openProfile(playerId){
     modalEl.style.display = "block";
     profileEl.textContent = "Загрузка профиля…";
@@ -726,7 +719,7 @@
     const ach = data.achievements || [];
     if (ach.includes("t9")) modalBody.classList.add("champion");
 
-    const rankIcon = `./assets/rank${clampRankLevel(rank.level)}.png`;
+    const rankIcon = `./assets/rank${rank.level}.png`;
     const nameFromProfile = (data.profile || []).find(x => String(x.label || '').toLowerCase().includes("имя"))?.value || "";
 
     const medalsHtml = `
@@ -739,7 +732,7 @@
 
     profileEl.innerHTML = `
       <div class="pc-top">
-        <img class="rank-icon" decoding="async" loading="eager" src="${rankIcon}" alt="rank${rank.level}" onerror="this.onerror=null;this.src='./assets/rank1.png';">
+        <img class="rank-icon" decoding="async" loading="eager" src="${rankIcon}" alt="rank${rank.level}">
         <div class="rank-title">${rank.title}</div>
         <div class="player-name">${nameFromProfile}</div>
       </div>
@@ -766,16 +759,14 @@
       img.src = url;
     });
   }
-
   function warmupAssets(){
     preloadImages([
       "./assets/rank1.png","./assets/rank2.png","./assets/rank3.png",
-      "./assets/rank4.png","./assets/rank5.png","./assets/rank6.png","./assets/rank7.png",
-      "./assets/t9.png"
+      "./assets/t9.png","./assets/logo.png"
     ]);
-
     const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 400));
     idle(() => preloadImages([
+      "./assets/rank4.png","./assets/rank5.png","./assets/rank6.png","./assets/rank7.png",
       "./assets/t1.png","./assets/t2.png","./assets/t3.png","./assets/t4.png",
       "./assets/t5.png","./assets/t6.png","./assets/t7.png","./assets/t8.png"
     ]));
