@@ -9,620 +9,551 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- preload -->
   <link rel="preload" as="image" href="./assets/fire.png">
   <link rel="preload" as="image" href="./assets/earth.png">
   <link rel="preload" as="image" href="./assets/air.png">
   <link rel="preload" as="image" href="./assets/water.png">
   <link rel="preload" as="image" href="./assets/champion.png">
-  <link rel="preload" as="image" href="./assets/rank1.png">
-  <link rel="preload" as="image" href="./assets/rank2.png">
-  <link rel="preload" as="image" href="./assets/rank3.png">
-  <link rel="preload" as="image" href="./assets/rank4.png">
-  <link rel="preload" as="image" href="./assets/rank5.png">
-  <link rel="preload" as="image" href="./assets/rank6.png">
-  <link rel="preload" as="image" href="./assets/rank7.png">
-  <link rel="preload" as="image" href="./assets/t1.png">
-  <link rel="preload" as="image" href="./assets/t2.png">
-  <link rel="preload" as="image" href="./assets/t3.png">
-  <link rel="preload" as="image" href="./assets/t4.png">
-  <link rel="preload" as="image" href="./assets/t5.png">
-  <link rel="preload" as="image" href="./assets/t6.png">
-  <link rel="preload" as="image" href="./assets/t7.png">
-  <link rel="preload" as="image" href="./assets/t8.png">
-  <link rel="preload" as="image" href="./assets/t9.png">
 
   <style>
     :root{
-      --bg: #0b0c0f;
-      --panel: rgba(18, 20, 26, .62);
-      --panel-2: rgba(18, 20, 26, .78);
-      --stroke: rgba(255, 255, 255, .10);
-      --text: rgba(255,255,255,.90);
-      --muted: rgba(255,255,255,.62);
-      --muted2: rgba(255,255,255,.42);
-
-      --shadow: 0 20px 60px rgba(0,0,0,.55);
-      --shadow2: 0 10px 30px rgba(0,0,0,.45);
-
-      --radius: 18px;
+      --bg:#0b0c0f;
+      --panel:rgba(18,20,26,.62);
+      --panel2:rgba(18,20,26,.78);
+      --stroke:rgba(255,255,255,.10);
+      --text:rgba(255,255,255,.90);
+      --muted:rgba(255,255,255,.62);
+      --muted2:rgba(255,255,255,.42);
+      --shadow:0 20px 60px rgba(0,0,0,.55);
+      --shadow2:0 10px 30px rgba(0,0,0,.45);
+      --radius:18px;
     }
 
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
-    body {
-      margin: 0;
-      color: var(--text);
-      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: var(--bg);
-      overflow-x: hidden;
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      color:var(--text);
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:var(--bg);
+      overflow-x:hidden;
     }
-
     body::before{
       content:"";
-      position: fixed;
-      inset: 0;
-      background: url("./assets/bg.png") center/cover no-repeat;
-      filter: saturate(1.05) contrast(1.05);
-      transform: scale(1.03);
-      z-index: -3;
+      position:fixed;
+      inset:0;
+      background:url("./assets/bg.png") center/cover no-repeat;
+      filter:saturate(1.05) contrast(1.05);
+      transform:scale(1.03);
+      z-index:-3;
     }
     body::after{
       content:"";
-      position: fixed;
-      inset: 0;
+      position:fixed;
+      inset:0;
       background:
         radial-gradient(900px 520px at 50% 25%, rgba(214,181,106,.22), transparent 62%),
         radial-gradient(900px 520px at 20% 90%, rgba(0,0,0,.55), transparent 60%),
         linear-gradient(to bottom, rgba(0,0,0,.70), rgba(0,0,0,.82));
-      z-index: -2;
+      z-index:-2;
     }
 
-    .wrap{ width: min(1200px, 94vw); margin: 22px auto 40px; }
+    .wrap{width:min(1200px,94vw);margin:22px auto 40px}
 
     .topbar{
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      align-items: center;
-      gap: 14px;
-      padding: 14px 16px;
-      border-radius: var(--radius);
-      background: linear-gradient(to bottom, rgba(18,20,26,.62), rgba(18,20,26,.40));
-      border: 1px solid var(--stroke);
-      box-shadow: var(--shadow2);
-      backdrop-filter: blur(10px);
+      display:grid;
+      grid-template-columns:1fr auto 1fr;
+      align-items:center;
+      gap:14px;
+      padding:14px 16px;
+      border-radius:var(--radius);
+      background:linear-gradient(to bottom, rgba(18,20,26,.62), rgba(18,20,26,.40));
+      border:1px solid var(--stroke);
+      box-shadow:var(--shadow2);
+      backdrop-filter:blur(10px);
     }
-    .brand{ display:flex; align-items:center; justify-content:flex-start; min-width: 240px; }
-    .brand img{ height: 44px; width: auto; display:block; filter: drop-shadow(0 10px 18px rgba(0,0,0,.55)); }
-    .center-title{ text-align: center; line-height: 1; }
+    .brand{display:flex;align-items:center;justify-content:flex-start;min-width:240px}
+    .brand img{height:44px;width:auto;display:block;filter:drop-shadow(0 10px 18px rgba(0,0,0,.55))}
+    .center-title{text-align:center;line-height:1}
     .center-title .title{
-      font-family: Cinzel, serif;
-      font-weight: 700;
-      letter-spacing: .10em;
-      font-size: 22px;
-      text-transform: uppercase;
-      color: rgba(255,255,255,.94);
-      text-shadow: 0 18px 40px rgba(0,0,0,.6);
-      white-space: nowrap;
+      font-family:Cinzel,serif;
+      font-weight:700;
+      letter-spacing:.10em;
+      font-size:22px;
+      text-transform:uppercase;
+      color:rgba(255,255,255,.94);
+      text-shadow:0 18px 40px rgba(0,0,0,.6);
+      white-space:nowrap;
     }
     .season-name{
-      font-family: Cinzel, serif;
-      font-weight: 600;
-      letter-spacing: .02em;
-      font-size: 14px;
-      color: rgba(240,222,154,.92);
-      text-align: right;
-      justify-self: end;
-      max-width: 520px;
+      font-family:Cinzel,serif;
+      font-weight:600;
+      letter-spacing:.02em;
+      font-size:14px;
+      color:rgba(240,222,154,.92);
+      text-align:right;
+      justify-self:end;
+      max-width:520px;
     }
 
     .controls{
-      margin-top: 14px;
-      padding: 12px 16px;
-      border-radius: var(--radius);
-      background: var(--panel);
-      border: 1px solid var(--stroke);
-      box-shadow: var(--shadow2);
-      backdrop-filter: blur(10px);
-
+      margin-top:14px;
+      padding:12px 16px;
+      border-radius:var(--radius);
+      background:var(--panel);
+      border:1px solid var(--stroke);
+      box-shadow:var(--shadow2);
+      backdrop-filter:blur(10px);
       display:flex;
       align-items:center;
-      justify-content: space-between;
-      gap: 14px;
-      flex-wrap: wrap;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
     }
-    .left-controls, .right-controls{
-      display:flex;
-      align-items:center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .label{ font-size: 12px; color: var(--muted); letter-spacing: .02em; }
-    .status{ font-size: 12px; color: var(--muted2); margin-left: 8px; }
+    .left-controls,.right-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .label{font-size:12px;color:var(--muted);letter-spacing:.02em}
+    .status{font-size:12px;color:var(--muted2);margin-left:8px}
 
     .btn{
-      appearance: none;
-      border: 1px solid rgba(214,181,106,.42);
-      background: linear-gradient(to bottom, rgba(240,222,154,.18), rgba(214,181,106,.08));
-      color: rgba(255,255,255,.88);
-      padding: 9px 12px;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: transform .12s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
-      box-shadow: 0 8px 18px rgba(0,0,0,.35);
-      font-weight: 600;
-      letter-spacing: .01em;
+      appearance:none;
+      border:1px solid rgba(214,181,106,.42);
+      background:linear-gradient(to bottom, rgba(240,222,154,.18), rgba(214,181,106,.08));
+      color:rgba(255,255,255,.88);
+      padding:9px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      transition:transform .12s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+      box-shadow:0 8px 18px rgba(0,0,0,.35);
+      font-weight:600;
+      letter-spacing:.01em;
     }
     .btn:hover{
-      transform: translateY(-1px);
-      border-color: rgba(240,222,154,.65);
-      background: linear-gradient(to bottom, rgba(240,222,154,.24), rgba(214,181,106,.12));
-      box-shadow: 0 12px 26px rgba(0,0,0,.45);
+      transform:translateY(-1px);
+      border-color:rgba(240,222,154,.65);
+      background:linear-gradient(to bottom, rgba(240,222,154,.24), rgba(214,181,106,.12));
+      box-shadow:0 12px 26px rgba(0,0,0,.45);
     }
 
     select{
-      appearance: none;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(10, 11, 14, .55);
-      color: rgba(255,255,255,.90);
-      padding: 9px 38px 9px 12px;
-      border-radius: 12px;
-      outline: none;
-      cursor: pointer;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 10px 24px rgba(0,0,0,.35);
-      max-width: 78vw;
+      appearance:none;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(10, 11, 14, .55);
+      color:rgba(255,255,255,.90);
+      padding:9px 38px 9px 12px;
+      border-radius:12px;
+      outline:none;
+      cursor:pointer;
+      backdrop-filter:blur(10px);
+      box-shadow:0 10px 24px rgba(0,0,0,.35);
+      max-width:78vw;
     }
-    .select-wrap{ position: relative; display: inline-flex; align-items: center; gap: 10px; }
+    .select-wrap{position:relative;display:inline-flex;align-items:center;gap:10px}
     .select-wrap::after{
       content:"▾";
       position:absolute;
-      right: 12px;
-      pointer-events: none;
-      color: rgba(240,222,154,.90);
-      font-size: 14px;
-      transform: translateY(1px);
+      right:12px;
+      pointer-events:none;
+      color:rgba(240,222,154,.90);
+      font-size:14px;
+      transform:translateY(1px);
     }
 
     .panel{
-      margin-top: 14px;
-      border-radius: var(--radius);
-      background: var(--panel-2);
-      border: 1px solid var(--stroke);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(12px);
-      overflow: hidden;
+      margin-top:14px;
+      border-radius:var(--radius);
+      background:var(--panel2);
+      border:1px solid var(--stroke);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(12px);
+      overflow:hidden;
     }
     .panel-head{
       display:flex;
       align-items:center;
-      justify-content: space-between;
-      padding: 14px 16px;
-      border-bottom: 1px solid rgba(255,255,255,.10);
-      background: linear-gradient(to right, rgba(214,181,106,.08), transparent 55%);
+      justify-content:space-between;
+      padding:14px 16px;
+      border-bottom:1px solid rgba(255,255,255,.10);
+      background:linear-gradient(to right, rgba(214,181,106,.08), transparent 55%);
     }
     .panel-title{
-      font-family: Cinzel, serif;
-      font-weight: 700;
-      letter-spacing: .05em;
-      text-transform: uppercase;
-      font-size: 13px;
-      color: rgba(255,255,255,.88);
+      font-family:Cinzel,serif;
+      font-weight:700;
+      letter-spacing:.05em;
+      text-transform:uppercase;
+      font-size:13px;
+      color:rgba(255,255,255,.88);
     }
 
-    /* Leaderboard cards */
-    #leaderboardList{
-      padding: 14px 14px 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+    /* ====== leaderboard cards ====== */
+    .lb{
+      padding:14px 12px 18px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
     }
 
     .lb-row{
-      position: relative;
-      border-radius: 18px;
-      border: 1px solid rgba(214,181,106,.28);
-      background: rgba(10,11,14,.55);
-      overflow: hidden;
-      box-shadow: 0 14px 32px rgba(0,0,0,.45);
-      cursor: pointer;
+      position:relative;
+      display:grid;
+      grid-template-columns: 70px 140px 1fr auto;
+      gap:12px;
+      align-items:center;
+      padding:14px 14px;
+      border-radius:18px;
+      border:1px solid rgba(214,181,106,.22);
+      background:rgba(10,11,14,.55);
+      box-shadow:0 18px 44px rgba(0,0,0,.45);
+      overflow:hidden;
+      cursor:pointer;
     }
     .lb-row::before{
       content:"";
       position:absolute;
       inset:0;
-      opacity: .75;
-      filter: saturate(1.05) contrast(1.05);
-      background-size: cover;
-      background-position: center;
-      z-index: 0;
+      opacity:.85;
+      filter:saturate(1.05) contrast(1.05);
+      z-index:0;
     }
-    .lb-row.elem-fire::before{ background-image: url("./assets/fire.png"); }
-    .lb-row.elem-earth::before{ background-image: url("./assets/earth.png"); }
-    .lb-row.elem-air::before{ background-image: url("./assets/air.png"); }
-    .lb-row.elem-water::before{ background-image: url("./assets/water.png"); }
-
+    .lb-row.elem-fire::before{ background:url("./assets/fire.png") center/cover no-repeat; }
+    .lb-row.elem-earth::before{ background:url("./assets/earth.png") center/cover no-repeat; }
+    .lb-row.elem-air::before{ background:url("./assets/air.png") center/cover no-repeat; }
+    .lb-row.elem-water::before{ background:url("./assets/water.png") center/cover no-repeat; }
     .lb-row::after{
       content:"";
       position:absolute;
       inset:0;
-      background: linear-gradient(to right, rgba(0,0,0,.68), rgba(0,0,0,.25) 55%, rgba(0,0,0,.70));
-      z-index: 0;
+      background:linear-gradient(to right, rgba(0,0,0,.55), rgba(0,0,0,.25), rgba(0,0,0,.55));
+      z-index:0;
     }
+    .lb-row > *{ position:relative; z-index:1; }
 
-    .lb-inner{
-      position: relative;
-      z-index: 1;
-      display: grid;
-      grid-template-columns: 60px 84px 1fr auto;
-      gap: 12px;
-      align-items: center;
-      padding: 14px 14px;
-    }
-
-    .lb-place{
+    .place{
       display:flex;
       align-items:center;
       justify-content:center;
-      width: 40px;
-      height: 40px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.16);
-      background: rgba(0,0,0,.35);
-      font-weight: 900;
-      color: rgba(255,255,255,.92);
-      margin-left: 6px;
+      font-family:Cinzel,serif;
+      font-weight:800;
+      font-size:22px;
+      width:54px;height:54px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(0,0,0,.35);
+      margin-left:4px;
     }
-    .lb-place.p1{ color: rgba(255,226,120,.98); border-color: rgba(255,226,120,.55); box-shadow: 0 0 18px rgba(255,210,90,.18); }
-    .lb-place.p2{ color: rgba(220,226,235,.98); border-color: rgba(220,226,235,.55); box-shadow: 0 0 18px rgba(220,226,235,.12); }
-    .lb-place.p3{ color: rgba(205,127,50,.98); border-color: rgba(205,127,50,.55); box-shadow: 0 0 18px rgba(205,127,50,.12); }
+    .place.p1{ color:rgba(255,226,120,.98); border-color:rgba(255,226,120,.55); box-shadow:0 0 14px rgba(255,210,90,.18); }
+    .place.p2{ color:rgba(220,226,235,.98); border-color:rgba(220,226,235,.55); box-shadow:0 0 14px rgba(220,226,235,.12); }
+    .place.p3{ color:rgba(205,127,50,.98); border-color:rgba(205,127,50,.55); box-shadow:0 0 14px rgba(205,127,50,.12); }
 
-    .lb-rank{
-      display:flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-    }
-    .lb-rank img{
-      width: 52px;
-      height: 52px;
-      object-fit: contain;
-      filter: drop-shadow(0 10px 18px rgba(0,0,0,.55));
-    }
-    .lb-rank .title{
-      font-family: Cinzel, serif;
-      font-weight: 700;
-      font-size: 11px;
-      letter-spacing: .10em;
-      color: rgba(240,222,154,.92);
-      text-transform: uppercase;
-      text-align:center;
-      line-height: 1.05;
-      white-space: nowrap;
-    }
-
-    .lb-main{ min-width: 0; }
-    .lb-name{
-      font-family: Cinzel, serif;
-      font-weight: 700;
-      font-size: 18px;
-      color: rgba(255,255,255,.95);
-      text-shadow: 0 14px 28px rgba(0,0,0,.55);
-      line-height: 1.05;
-    }
-    .lb-ach{
-      margin-top: 8px;
-      display:flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      align-items:center;
-      min-height: 22px;
-    }
-    .lb-ach img{
-      width: 22px;
-      height: 22px;
-      object-fit: contain;
-      filter: drop-shadow(0 10px 14px rgba(0,0,0,.55));
-      opacity: .95;
-    }
-
-    .lb-scores{
-      display:flex;
-      flex-direction: column;
-      gap: 8px;
-      align-items: flex-end;
-    }
-    .lb-pill{
-      min-width: 92px;
-      text-align:center;
-      padding: 8px 10px;
-      border-radius: 14px;
-      border: 1px solid rgba(214,181,106,.35);
-      background: rgba(0,0,0,.32);
-      color: rgba(255,255,255,.92);
-      font-weight: 900;
-      box-shadow: inset 0 10px 18px rgba(0,0,0,.35);
-      white-space: nowrap;
-    }
-    .lb-pill small{
-      display:block;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: .06em;
-      color: rgba(240,222,154,.88);
-      text-transform: uppercase;
-      margin-bottom: 2px;
-      white-space: nowrap;
-    }
-
-    @media (max-width: 520px){
-      .lb-inner{ grid-template-columns: 52px 74px 1fr auto; padding: 12px; }
-      .lb-name{ font-size: 16px; }
-      .lb-pill{ min-width: 82px; padding: 7px 9px; }
-    }
-
-    @media (max-width: 760px) and (orientation: portrait) {
-      .topbar{
-        display:flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-        text-align: center;
-      }
-      .brand{ min-width: 0; justify-content: center; }
-      .brand img{ height: 42px; }
-      .season-name{ text-align: center; max-width: 92vw; }
-      .center-title .title{ font-size: 18px; letter-spacing: .08em; }
-    }
-
-    /* Modal */
-    .modal { display:none; position:fixed; inset:0; background: rgba(0,0,0,.70); backdrop-filter: blur(6px); z-index: 50; }
-    .card  {
-      width: min(560px, 92vw);
-      margin: 5vh auto;
-      border-radius: 18px;
-      background: rgba(16, 18, 24, .88);
-      border: 1px solid rgba(214,181,106,.55);
-      box-shadow: 0 30px 90px rgba(0,0,0,.72);
-      overflow: hidden;
-      max-height: 90vh;
-      display:flex;
-      flex-direction: column;
-    }
-    .modal-head{
+    .rankbox{
       display:flex;
       align-items:center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 14px 16px;
-      background: linear-gradient(to right, rgba(214,181,106,.14), rgba(0,0,0,.0));
-      border-bottom: 1px solid rgba(255,255,255,.10);
+      gap:10px;
+      min-width: 120px;
+    }
+    .rankbox img{
+      width:46px;height:46px;
+      object-fit:contain;
+      filter:drop-shadow(0 12px 18px rgba(0,0,0,.55));
       flex: 0 0 auto;
     }
+    .rank-meta{
+      display:flex;
+      flex-direction:column;
+      line-height:1.05;
+      min-width:0;
+    }
+    .rank-meta .rt{
+      font-family:Cinzel,serif;
+      font-weight:700;
+      font-size:12px;
+      letter-spacing:.06em;
+      color:rgba(240,222,154,.92);
+      text-transform:uppercase;
+      white-space:nowrap;
+    }
+    .rank-meta .rg{
+      font-size:11px;
+      color:rgba(255,255,255,.60);
+      white-space:nowrap;
+    }
+
+    .namebox{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      min-width: 0;
+    }
+    .namebox .nm{
+      font-family:Cinzel,serif;
+      font-weight:700;
+      font-size:22px;
+      color:rgba(255,255,255,.95);
+      text-shadow:0 14px 34px rgba(0,0,0,.55);
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .ach-mini{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .ach-mini img{
+      width:26px;height:26px;
+      object-fit:contain;
+      filter:drop-shadow(0 10px 14px rgba(0,0,0,.55));
+      opacity:.95;
+    }
+
+    .scores{
+      display:flex;
+      gap:10px;
+      justify-content:flex-end;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .score-pill{
+      border:1px solid rgba(214,181,106,.35);
+      border-radius:14px;
+      background:rgba(0,0,0,.25);
+      padding:10px 12px;
+      min-width: 84px;
+      text-align:center;
+      box-shadow:0 12px 26px rgba(0,0,0,.35) inset;
+      white-space:nowrap;
+    }
+    .score-pill .lbl{
+      font-size:10px;
+      color:rgba(255,255,255,.55);
+      letter-spacing:.06em;
+      text-transform:uppercase;
+    }
+    .score-pill .val{
+      margin-top:4px;
+      font-size:20px;
+      font-weight:800;
+      color:rgba(255,255,255,.92);
+    }
+
+    @media (max-width: 760px){
+      .topbar{ display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center; }
+      .brand{ min-width:0; justify-content:center; }
+      .brand img{ height:42px; }
+      .season-name{ text-align:center; max-width:92vw; }
+      .center-title .title{ font-size:18px; letter-spacing:.08em; }
+
+      .lb-row{
+        grid-template-columns: 58px 1fr;
+        grid-template-rows: auto auto auto;
+        gap:10px;
+      }
+      .rankbox{ grid-column: 2 / 3; }
+      .namebox{ grid-column: 2 / 3; }
+      .scores{ grid-column: 2 / 3; justify-self:end; }
+    }
+
+    /* ====== Modal ====== */
+    .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.70);backdrop-filter:blur(6px);z-index:50}
+    .card{
+      width:min(560px,92vw);
+      margin:5vh auto;
+      border-radius:18px;
+      background:rgba(16,18,24,.88);
+      border:1px solid rgba(214,181,106,.55);
+      box-shadow:0 30px 90px rgba(0,0,0,.72);
+      overflow:hidden;
+      max-height:90vh;
+      display:flex;
+      flex-direction:column;
+    }
+    .modal-head{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      padding:14px 16px;
+      background:linear-gradient(to right, rgba(214,181,106,.14), rgba(0,0,0,0));
+      border-bottom:1px solid rgba(255,255,255,.10);
+      flex:0 0 auto;
+    }
     .modal-title{
-      font-family: Cinzel, serif;
-      font-weight: 700;
-      letter-spacing: .05em;
-      text-transform: uppercase;
-      font-size: 14px;
-      color: rgba(240,222,154,.95);
+      font-family:Cinzel,serif;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+      font-size:14px;color:rgba(240,222,154,.95);
     }
     .close{
-      border: 1px solid rgba(214,181,106,.7);
-      background: rgba(0,0,0,.30);
-      color: rgba(255,255,255,.86);
-      border-radius: 12px;
-      padding: 8px 10px;
+      border:1px solid rgba(214,181,106,.7);
+      background:rgba(0,0,0,.30);
+      color:rgba(255,255,255,.86);
+      border-radius:12px;
+      padding:8px 10px;
       cursor:pointer;
     }
     .modal-body{
-      padding: 16px;
-      overflow: auto;
-      -webkit-overflow-scrolling: touch;
-      flex: 1 1 auto;
-      position: relative;
+      padding:16px;
+      overflow:auto;
+      -webkit-overflow-scrolling:touch;
+      flex:1 1 auto;
+      position:relative;
     }
     .modal-body.champion::before{
       content:"";
-      position:absolute;
-      inset:0;
-      background: url("./assets/champion.png") center/cover no-repeat;
-      filter: blur(6px) brightness(.55);
-      opacity: .9;
-      z-index: 0;
+      position:absolute;inset:0;
+      background:url("./assets/champion.png") center/cover no-repeat;
+      filter:blur(6px) brightness(.55);
+      opacity:.9;
+      z-index:0;
     }
-    .modal-body > *{ position: relative; z-index: 1; }
+    .modal-body > *{ position:relative; z-index:1; }
 
     .pc-top{
       text-align:center;
-      padding: 18px 10px 8px;
-      border-bottom: 1px solid rgba(214,181,106,.35);
+      padding:18px 10px 8px;
+      border-bottom:1px solid rgba(214,181,106,.35);
     }
-    .rank-icon{
-      width: 110px;
-      height: 110px;
-      object-fit: contain;
-      display:block;
-      margin: 0 auto 10px;
-      filter: drop-shadow(0 14px 26px rgba(0,0,0,.6));
-    }
-    .rank-title{
-      font-family: Cinzel, serif;
-      letter-spacing: .12em;
-      font-weight: 700;
-      font-size: 14px;
-      color: rgba(240,222,154,.90);
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-    .player-name{
-      font-family: Cinzel, serif;
-      font-weight: 700;
-      font-size: 40px;
-      letter-spacing: .02em;
-      color: rgba(255,255,255,.95);
-      text-shadow: 0 18px 45px rgba(0,0,0,.55);
-      margin-bottom: 10px;
-    }
-    .sub-gold{
-      margin-top: 6px;
-      font-size: 12px;
-      color: rgba(240,222,154,.85);
-      letter-spacing: .04em;
-    }
+    .rank-icon{ width:110px;height:110px;object-fit:contain;display:block;margin:0 auto 10px;filter:drop-shadow(0 14px 26px rgba(0,0,0,.6)); }
+    .rank-title{ font-family:Cinzel,serif;letter-spacing:.12em;font-weight:700;font-size:14px;color:rgba(240,222,154,.90);text-transform:uppercase;margin-bottom:6px; }
+    .player-name{ font-family:Cinzel,serif;font-weight:700;font-size:40px;letter-spacing:.02em;color:rgba(255,255,255,.95);text-shadow:0 18px 45px rgba(0,0,0,.55);margin-bottom:10px; }
 
     .section-title{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap: 10px;
-      font-family: Cinzel, serif;
-      letter-spacing: .10em;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: rgba(240,222,154,.90);
-      margin: 16px 0 10px;
-      font-size: 14px;
+      display:flex;align-items:center;justify-content:center;gap:10px;
+      font-family:Cinzel,serif;letter-spacing:.10em;font-weight:700;text-transform:uppercase;
+      color:rgba(240,222,154,.90);margin:16px 0 10px;font-size:14px;
     }
 
-    .medals{
-      display:grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-top: 10px;
-    }
+    .medals{ display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px; }
     .pill{
-      border: 1px solid rgba(214,181,106,.35);
-      border-radius: 14px;
-      background: rgba(0,0,0,.25);
-      padding: 10px 12px;
-      display:flex;
-      align-items:center;
-      justify-content: space-between;
-      gap: 10px;
-      box-shadow: 0 12px 26px rgba(0,0,0,.35) inset;
+      border:1px solid rgba(214,181,106,.35);
+      border-radius:14px;
+      background:rgba(0,0,0,.25);
+      padding:10px 12px;
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      box-shadow:0 12px 26px rgba(0,0,0,.35) inset;
+      min-width:0;
     }
-    .pill .left{
-      display:flex;
-      align-items:center;
-      gap: 10px;
-      font-weight: 700;
-      color: rgba(255,255,255,.9);
-      white-space: nowrap; /* FIX no wrap Top-1 */
-    }
-    .pill .num{ font-weight: 800; color: rgba(255,255,255,.92); }
-
-    @media (max-width: 380px){
-      .pill{ padding: 9px 10px; }
-      .pill .left{ font-size: 13px; }
-    }
+    .pill .left{ display:flex;align-items:center;gap:10px;font-weight:700;color:rgba(255,255,255,.9); }
+    .pill .left span{ white-space:nowrap; }
+    .pill .num{ font-weight:800;color:rgba(255,255,255,.92); white-space:nowrap; }
 
     .ach-wrap{
-      border: 1px solid rgba(214,181,106,.25);
-      border-radius: 16px;
-      background: rgba(0,0,0,.20);
-      padding: 14px;
+      border:1px solid rgba(214,181,106,.25);
+      border-radius:16px;
+      background:rgba(0,0,0,.20);
+      padding:14px;
     }
     .ach-grid{
       display:grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      justify-items: center;
-      align-items: center;
+      grid-template-columns:repeat(3,1fr);
+      gap:14px;
+      justify-items:center;
+      align-items:center;
     }
     .ach-item{
-      width: 104px;
-      height: 104px;
-      border-radius: 18px;
-      border: 1px solid rgba(214,181,106,.25);
-      background: rgba(0,0,0,.22);
-      display:flex;
-      align-items:center;
-      justify-content:center;
+      width:108px;height:108px;
+      border-radius:18px;
+      border:1px solid rgba(214,181,106,.25);
+      background:rgba(0,0,0,.22);
+      display:flex;align-items:center;justify-content:center;
       overflow:hidden;
+      cursor:pointer;
     }
-    .ach-item img{ width: 78%; height: 78%; object-fit: contain; filter: drop-shadow(0 12px 18px rgba(0,0,0,.55)); }
+    .ach-item img{ width:78%;height:78%;object-fit:contain;filter:drop-shadow(0 12px 18px rgba(0,0,0,.55)); }
 
     .ach-t9{
-      grid-column: 1 / span 3;
-      width: 100%;
-      max-width: calc(104px*3 + 12px*2);
-      height: 170px;
-      border-radius: 18px;
-      border: 1px solid rgba(214,181,106,.45);
-      background: rgba(0,0,0,.22);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      box-shadow: 0 0 28px rgba(214,181,106,.18);
-      overflow:hidden;
+      grid-column:1 / span 3;
+      width:100%;
+      max-width: calc(108px*3 + 14px*2);
+      height:170px;
+      border-radius:20px;
+      border:1px solid rgba(214,181,106,.45);
+      background:rgba(0,0,0,.22);
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 0 28px rgba(214,181,106,.18);
+      cursor:pointer;
     }
-    .ach-t9 img{ width: 140px; height: 140px; object-fit: contain; }
+    .ach-t9 img{ width:140px;height:140px;object-fit:contain; }
 
+    .history-wrap{
+      border:1px solid rgba(214,181,106,.25);
+      border-radius:16px;
+      background:rgba(0,0,0,.16);
+      padding:12px;
+    }
+    .history-scroll{
+      max-height: 44vh;
+      overflow:auto;
+      -webkit-overflow-scrolling:touch;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      padding-right:6px;
+    }
+    .season-block-title{
+      font-family:Cinzel,serif;
+      letter-spacing:.08em;
+      font-weight:800;
+      text-transform:uppercase;
+      color:rgba(240,222,154,.92);
+      font-size:13px;
+      text-align:center;
+      margin:6px 0 2px;
+    }
     .hist{
-      margin-top: 10px;
-      display:flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .season-block{
-      margin-top: 12px;
-      border: 1px solid rgba(214,181,106,.22);
-      border-radius: 16px;
-      background: rgba(0,0,0,.16);
-      overflow: hidden;
-    }
-    .season-head{
-      padding: 10px 12px;
-      border-bottom: 1px solid rgba(214,181,106,.18);
-      font-family: Cinzel, serif;
-      letter-spacing: .08em;
-      font-weight: 700;
-      color: rgba(240,222,154,.9);
-      text-transform: uppercase;
-      font-size: 12px;
-      display:flex;
-      justify-content: space-between;
-      gap: 10px;
-      align-items:center;
+      display:flex;flex-direction:column;gap:10px;
     }
     .hist-card{
-      border-top: 1px solid rgba(214,181,106,.12);
-      background: rgba(0,0,0,.16);
-      padding: 10px 12px;
+      border:1px solid rgba(214,181,106,.22);
+      border-radius:14px;
+      background:rgba(0,0,0,.18);
+      padding:10px 12px;
       display:grid;
-      grid-template-columns: 90px 1fr auto;
+      grid-template-columns: 86px 1fr auto;
       align-items:center;
-      gap: 10px;
+      gap:10px;
     }
-    .hist-date{
-      font-weight: 800;
-      font-size: 18px;
-      color: rgba(255,255,255,.94);
-    }
-    .hist-game{
-      color: rgba(240,222,154,.90);
-      font-weight: 700;
-      text-align:center;
-    }
-    .chips{
-      display:flex;
-      flex-direction: column;
-      gap: 8px;
-      align-items:flex-end;
-    }
+    .hist-date{ font-weight:800;font-size:18px;color:rgba(255,255,255,.94); }
+    .hist-game{ color:rgba(240,222,154,.90);font-weight:800;text-align:center; }
+    .chips{ display:flex;flex-direction:column;gap:8px;align-items:flex-end; }
     .chip{
-      border: 1px solid rgba(214,181,106,.25);
-      background: rgba(0,0,0,.22);
-      border-radius: 999px;
-      padding: 6px 10px;
-      font-size: 12px;
-      color: rgba(255,255,255,.88);
-      white-space: nowrap;
+      border:1px solid rgba(214,181,106,.25);
+      background:rgba(0,0,0,.22);
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:12px;
+      color:rgba(255,255,255,.88);
+      white-space:nowrap;
     }
 
-    .hint{ color: rgba(255,255,255,.45); font-size: 12px; margin-top: 12px; text-align:center; }
+    .hint{ color:rgba(255,255,255,.45);font-size:12px;margin-top:12px;text-align:center; }
+
+    /* fullscreen viewer */
+    .viewer{
+      display:none;
+      position:fixed; inset:0;
+      background:rgba(0,0,0,.85);
+      z-index:80;
+      padding:18px;
+      align-items:center;
+      justify-content:center;
+    }
+    .viewer.open{ display:flex; }
+    .viewer img{
+      max-width:92vw;
+      max-height:92vh;
+      object-fit:contain;
+      border-radius:18px;
+      border:1px solid rgba(214,181,106,.45);
+      box-shadow:0 30px 90px rgba(0,0,0,.75);
+      background:rgba(0,0,0,.20);
+    }
+    .viewer .x{
+      position:absolute;
+      top:16px; right:16px;
+      width:44px;height:44px;
+      border-radius:14px;
+      border:1px solid rgba(214,181,106,.65);
+      background:rgba(0,0,0,.35);
+      color:rgba(255,255,255,.88);
+      cursor:pointer;
+      font-size:18px;
+    }
   </style>
 </head>
 
@@ -653,12 +584,10 @@
       <div class="panel-head">
         <div class="panel-title">Рейтинг игроков</div>
       </div>
-
-      <div id="leaderboardList"></div>
+      <div class="lb" id="leaderboard"></div>
     </div>
   </div>
 
-  <!-- Player modal -->
   <div class="modal" id="modal">
     <div class="card">
       <div class="modal-head">
@@ -672,159 +601,143 @@
     </div>
   </div>
 
-  <!-- Achievement fullscreen modal -->
-  <div class="modal" id="achModal" style="display:none;">
-    <div class="card" style="width:min(920px,94vw);margin:4vh auto;background:rgba(0,0,0,.86);border:1px solid rgba(214,181,106,.55);">
-      <div class="modal-head">
-        <div class="modal-title">Достижение</div>
-        <button class="close" id="achCloseBtn">✕</button>
-      </div>
-      <div class="modal-body" style="display:flex;align-items:center;justify-content:center;">
-        <img id="achFullImg" src="" alt="achievement" style="max-width:92vw;max-height:74vh;object-fit:contain;">
-      </div>
-    </div>
+  <div class="viewer" id="viewer">
+    <button class="x" id="viewerClose">✕</button>
+    <img id="viewerImg" alt="achievement">
   </div>
 
 <script>
-  const PROFILE_API_BASE = "https://script.google.com/macros/s/AKfycbwKd6_brG1Pgy3U3AUX_cNCUoznk2nYzIOYKo790MDs48ktJwlKvdQ_P8TNXqvPJsGkTQ/exec";
+  const API_BASE = "https://script.google.com/macros/s/AKfycbwKd6_brG1Pgy3U3AUX_cNCUoznk2nYzIOYKo790MDs48ktJwlKvdQ_P8TNXqvPJsGkTQ/exec";
 
-  const statusEl       = document.getElementById("status");
-  const seasonSelect   = document.getElementById("seasonSelect");
-  const prevBtn        = document.getElementById("prevSeasonBtn");
-  const nextBtn        = document.getElementById("nextSeasonBtn");
-  const seasonNameEl   = document.getElementById("seasonName");
-  const leaderboardListEl = document.getElementById("leaderboardList");
+  const statusEl     = document.getElementById("status");
+  const seasonSelect = document.getElementById("seasonSelect");
+  const prevBtn      = document.getElementById("prevSeasonBtn");
+  const nextBtn      = document.getElementById("nextSeasonBtn");
+  const seasonNameEl = document.getElementById("seasonName");
+  const lbEl         = document.getElementById("leaderboard");
 
   const modalEl   = document.getElementById("modal");
   const modalBody = document.getElementById("modalBody");
   const profileEl = document.getElementById("profile");
   const closeBtn  = document.getElementById("closeBtn");
 
-  const achModal = document.getElementById("achModal");
-  const achCloseBtn = document.getElementById("achCloseBtn");
-  const achFullImg = document.getElementById("achFullImg");
+  const viewer = document.getElementById("viewer");
+  const viewerImg = document.getElementById("viewerImg");
+  const viewerClose = document.getElementById("viewerClose");
+
+  viewerClose.onclick = () => viewer.classList.remove("open");
+  viewer.onclick = (e) => { if (e.target === viewer) viewer.classList.remove("open"); };
 
   closeBtn.onclick = () => modalEl.style.display = "none";
   modalEl.onclick = (e) => { if (e.target === modalEl) modalEl.style.display = "none"; };
 
-  achCloseBtn.onclick = () => achModal.style.display = "none";
-  achModal.onclick = (e) => { if (e.target === achModal) achModal.style.display = "none"; };
-
-  function openAchievementFull(src){
-    achFullImg.src = src;
-    achModal.style.display = "block";
-  }
-
-  function setStatus(t) { statusEl.textContent = t; }
-  function norm(x) { return String(x ?? "").trim(); }
-  function normUp(x) { return norm(x).toUpperCase(); }
-
-  let seasonsCache = [];
-  let dashboardCache = null;
-
-  async function apiMeta(){
-    const res = await fetch(`${PROFILE_API_BASE}?mode=meta`);
-    return await res.json();
-  }
-  async function apiDashboard(seasonId){
-    const res = await fetch(`${PROFILE_API_BASE}?mode=dashboard&season_id=${encodeURIComponent(seasonId)}`);
-    return await res.json();
-  }
-  async function apiSetSeason(seasonId){
-    await fetch(`${PROFILE_API_BASE}?season_id=${encodeURIComponent(seasonId)}`);
-  }
-
-  function updateSeasonName(){
-    const id = normUp(seasonSelect.value);
-    if (id === "TOTAL") { seasonNameEl.textContent = "Общий зачёт (Total)"; return; }
-    const s = seasonsCache.find(x => normUp(x.season_id) === id);
-    seasonNameEl.textContent = s ? s.season_name : "—";
-  }
+  function setStatus(t){ statusEl.textContent = t; }
+  function norm(x){ return String(x ?? "").trim(); }
+  function up(x){ return norm(x).toUpperCase(); }
 
   function toNum(v){
-    const s = String(v ?? "").trim().replace(/\s+/g, "").replace(",", ".");
+    const s = String(v ?? "").trim().replace(/\s+/g,"").replace(",",".");
     const n = Number(s);
     return Number.isFinite(n) ? n : 0;
   }
 
-  function elemClassByPlace(n){
-    if (n >= 1 && n <= 3) return "elem-fire";
-    if (n >= 4 && n <= 6) return "elem-earth";
-    if (n >= 7 && n <= 9) return "elem-air";
-    if (n >= 10 && n <= 12) return "elem-water";
-    return "";
+  async function apiMeta(){
+    const res = await fetch(`${API_BASE}?mode=meta`);
+    return await res.json();
   }
+  async function apiDashboard(seasonId){
+    const res = await fetch(`${API_BASE}?mode=dashboard&season_id=${encodeURIComponent(seasonId)}`);
+    return await res.json();
+  }
+  async function apiProfile(playerId, seasonId){
+    const res = await fetch(`${API_BASE}?player_id=${encodeURIComponent(playerId)}&season_id=${encodeURIComponent(seasonId)}`);
+    return await res.json();
+  }
+
+  let seasonsCache = [];
+
+  function updateSeasonName(){
+    const id = up(seasonSelect.value);
+    if (id === "TOTAL") { seasonNameEl.textContent = "Общий зачёт (Total)"; return; }
+    const s = seasonsCache.find(x => up(x.season_id) === id);
+    seasonNameEl.textContent = s ? s.season_name : "—";
+  }
+
   function placeClass(n){
     if (n === 1) return "p1";
     if (n === 2) return "p2";
     if (n === 3) return "p3";
     return "";
   }
+  function elemClass(n){
+    if (n >= 1 && n <= 3) return "elem-fire";
+    if (n >= 4 && n <= 6) return "elem-earth";
+    if (n >= 7 && n <= 9) return "elem-air";
+    if (n >= 10 && n <= 12) return "elem-water";
+    return "";
+  }
 
-  function safeAchList(r){
-    const a = r.achievements_list || [];
-    if (Array.isArray(a)) return a.map(x => String(x).trim()).filter(Boolean);
-    const s = String(r.achievements || "").trim();
-    return s ? s.split(",").map(x => String(x).trim()).filter(Boolean) : [];
+  function miniAchievementsHtml(list){
+    const items = (list || []).map(x => String(x).trim()).filter(Boolean).slice(0, 8);
+    if (!items.length) return "";
+    return `<div class="ach-mini">` + items.map(t => `<img src="./assets/${t}.png" alt="${t}">`).join("") + `</div>`;
   }
 
   async function renderLeaderboard(){
     setStatus("Загрузка…");
-    const seasonId = normUp(seasonSelect.value);
+    const seasonId = up(seasonSelect.value);
 
-    dashboardCache = await apiDashboard(seasonId);
+    const dash = await apiDashboard(seasonId);
+    const rowsRaw = dash.leaderboard || [];
 
-    const rowsRaw = dashboardCache.leaderboard || [];
-    const rows = [...rowsRaw].sort((a, b) => {
+    const rows = [...rowsRaw].sort((a,b) => {
       const keyA = (seasonId === "TOTAL") ? toNum(a.all_seasons_score) : toNum(a.season_score);
       const keyB = (seasonId === "TOTAL") ? toNum(b.all_seasons_score) : toNum(b.season_score);
       if (keyB !== keyA) return keyB - keyA;
-      return String(a.name ?? "").localeCompare(String(b.name ?? ""), "ru", { sensitivity: "base" });
+      return String(a.name ?? "").localeCompare(String(b.name ?? ""), "ru", {sensitivity:"base"});
     });
 
-    leaderboardListEl.innerHTML = rows.map((r, idx) => {
+    lbEl.innerHTML = rows.map((r, idx) => {
       const place = idx + 1;
-      const pid = String(r.player_id || "").trim();
-
-      const elem = elemClassByPlace(place);
-      const pcls = placeClass(place);
-
-      // rank from TOTAL gold comes from API dashboard
       const rankLevel = Number(r.rank_level || 1);
       const rankTitle = String(r.rank_title || "Новичок");
-      const rankIcon = `./assets/rank${rankLevel}.png`;
-
-      const ach = safeAchList(r);
-      const achHtml = ach.slice(0, 9).map(t => `<img src="./assets/${t}.png" alt="${t}">`).join("");
+      const achList = r.achievements_list || (String(r.achievements || "").split(",").map(s=>s.trim()).filter(Boolean));
 
       const seasonScore = toNum(r.season_score);
       const totalScore  = toNum(r.all_seasons_score);
 
       return `
-        <div class="lb-row ${elem}" data-player="${pid}">
-          <div class="lb-inner">
-            <div class="lb-place ${pcls}">${place}</div>
+        <div class="lb-row ${elemClass(place)}" data-player="${r.player_id}">
+          <div class="place ${placeClass(place)}">${place}</div>
 
-            <div class="lb-rank">
-              <img src="${rankIcon}" alt="rank${rankLevel}">
-              <div class="title">${rankTitle}</div>
+          <div class="rankbox">
+            <img src="./assets/rank${rankLevel}.png" alt="rank${rankLevel}">
+            <div class="rank-meta">
+              <div class="rt">${rankTitle}</div>
+              <div class="rg">rank ${rankLevel}</div>
             </div>
+          </div>
 
-            <div class="lb-main">
-              <div class="lb-name">${r.name ?? ""}</div>
-              <div class="lb-ach">${achHtml || `<span style="color:rgba(255,255,255,.45);font-size:12px;">—</span>`}</div>
+          <div class="namebox">
+            <div class="nm">${r.name ?? ""}</div>
+            ${miniAchievementsHtml(achList)}
+          </div>
+
+          <div class="scores">
+            <div class="score-pill">
+              <div class="lbl">Season</div>
+              <div class="val">${seasonScore}</div>
             </div>
-
-            <div class="lb-scores">
-              <div class="lb-pill"><small>Season</small>${seasonScore || 0}</div>
-              <div class="lb-pill"><small>Total</small>${totalScore || 0}</div>
+            <div class="score-pill">
+              <div class="lbl">Total</div>
+              <div class="val">${totalScore}</div>
             </div>
           </div>
         </div>
       `;
     }).join("");
 
-    [...document.querySelectorAll(".lb-row[data-player]")].forEach(el => {
+    [...lbEl.querySelectorAll("[data-player]")].forEach(el => {
       el.onclick = () => openProfile(el.getAttribute("data-player"));
     });
 
@@ -837,6 +750,11 @@
     return "🥉";
   }
 
+  function openViewer(src){
+    viewerImg.src = src;
+    viewer.classList.add("open");
+  }
+
   function buildAchievementsHtml(list){
     const items = (list || []).map(x => String(x).trim()).filter(Boolean);
     if (!items.length) return `<div class="hint">Пока нет достижений</div>`;
@@ -847,33 +765,32 @@
     let html = `<div class="ach-wrap"><div class="ach-grid">`;
 
     if (hasT9){
-      html += `<div class="ach-t9"><img src="./assets/t9.png" alt="t9" data-ach="./assets/t9.png"></div>`;
+      html += `<div class="ach-t9" data-ach="t9"><img src="./assets/t9.png" alt="t9"></div>`;
     }
 
     const r = [...rest];
     if (r.length % 3 === 2){
-      r.splice(r.length - 1, 0, "__spacer__"); // край-край
+      r.splice(r.length - 1, 0, "__spacer__");
     }
 
     for (const t of r){
       if (t === "__spacer__"){
-        html += `<div style="width:104px;height:104px;"></div>`;
+        html += `<div style="width:108px;height:108px;"></div>`;
         continue;
       }
-      html += `<div class="ach-item"><img src="./assets/${t}.png" alt="${t}" data-ach="./assets/${t}.png"></div>`;
+      html += `<div class="ach-item" data-ach="${t}"><img src="./assets/${t}.png" alt="${t}"></div>`;
     }
 
     html += `</div></div>`;
     return html;
   }
 
-  function renderHistory(history){
-    if (!history || !history.length) return `<div class="hint">Нет игр</div>`;
+  function buildHistoryHtml(history){
+    const blocks = (history || []);
+    if (!blocks.length) return `<div class="hint">Нет игр</div>`;
 
-    return history.map(block => {
-      const seasonId = String(block.season || "").toUpperCase();
-      const games = block.games || [];
-
+    const parts = blocks.map(b => {
+      const games = (b.games || []);
       const rows = games.map(g => `
         <div class="hist-card">
           <div class="hist-date">${g.date || "—"}</div>
@@ -886,15 +803,14 @@
       `).join("");
 
       return `
-        <div class="season-block">
-          <div class="season-head">
-            <span>Сезон «${seasonId}»</span>
-            <span style="opacity:.75;font-size:11px;">игр: ${games.length}</span>
-          </div>
-          ${rows || `<div class="hint">Нет игр</div>`}
+        <div>
+          <div class="season-block-title">Сезон «${b.season}»</div>
+          <div class="hist">${rows || `<div class="hint">Нет игр</div>`}</div>
         </div>
       `;
     }).join("");
+
+    return `<div class="history-wrap"><div class="history-scroll">${parts}</div></div>`;
   }
 
   async function openProfile(playerId){
@@ -902,21 +818,17 @@
     profileEl.textContent = "Загрузка профиля…";
     modalBody.classList.remove("champion");
 
-    const seasonId = normUp(seasonSelect.value);
-    const url = `${PROFILE_API_BASE}?player_id=${encodeURIComponent(playerId)}&season_id=${encodeURIComponent(seasonId)}`;
-    const res = await fetch(url);
-    const data = await res.json();
+    const seasonId = up(seasonSelect.value);
+    const data = await apiProfile(playerId, seasonId);
 
     const medals = data.medals || { top1:0, top2:0, top3:0 };
-    const rank = data.rank || { level: 1, title: "Новичок", total_gold: 0 };
+    const rank = data.rank || { level:1, title:"Новичок", total_gold:0 };
     const ach = data.achievements || [];
     const hasT9 = ach.includes("t9");
     if (hasT9) modalBody.classList.add("champion");
 
     const rankIcon = `./assets/rank${rank.level}.png`;
-
-    const nameFromProfile =
-      (data.profile || []).find(x => String(x.label || '').toLowerCase().includes("имя"))?.value || "";
+    const nameFromProfile = (data.profile || []).find(x => String(x.label || '').toLowerCase().includes("имя"))?.value || "";
 
     const medalsHtml = `
       <div class="medals">
@@ -924,7 +836,6 @@
         <div class="pill"><div class="left"><span>${medalIcon('top2')}</span><span>Top-2</span></div><div class="num">${medals.top2 ?? 0}</div></div>
         <div class="pill"><div class="left"><span>${medalIcon('top3')}</span><span>Top-3</span></div><div class="num">${medals.top3 ?? 0}</div></div>
       </div>
-      <div class="hint" style="margin-top:10px;">Top-1/2/3 — статистика выбранного сезона «${seasonId}»</div>
     `;
 
     profileEl.innerHTML = `
@@ -932,7 +843,6 @@
         <img class="rank-icon" src="${rankIcon}" alt="rank${rank.level}">
         <div class="rank-title">${rank.title}</div>
         <div class="player-name">${nameFromProfile}</div>
-        <div class="sub-gold">Всего 🥇 (за все сезоны): <b>${rank.total_gold ?? 0}</b> — каждые 50 🥇 повышают ранг</div>
       </div>
 
       <div class="section-title">📊 СТАТИСТИКА</div>
@@ -942,15 +852,13 @@
       ${buildAchievementsHtml(ach)}
 
       <div class="section-title">🗂 ИСТОРИЯ ИГР</div>
-      ${renderHistory(data.history)}
+      ${buildHistoryHtml(data.history || [])}
     `;
 
-    // click achievements -> fullscreen
-    [...profileEl.querySelectorAll("img[data-ach]")].forEach(img => {
-      img.style.cursor = "pointer";
-      img.onclick = (e) => {
-        e.stopPropagation();
-        openAchievementFull(img.getAttribute("data-ach"));
+    profileEl.querySelectorAll("[data-ach]").forEach(el => {
+      el.onclick = () => {
+        const t = el.getAttribute("data-ach");
+        openViewer(`./assets/${t}.png`);
       };
     });
   }
@@ -963,49 +871,45 @@
 
       seasonSelect.innerHTML =
         `<option value="TOTAL">Total</option>` +
-        seasonsCache.map(s => `<option value="${normUp(s.season_id)}">${s.season_name}</option>`).join("");
+        seasonsCache.map(s => `<option value="${up(s.season_id)}">${s.season_name}</option>`).join("");
 
-      const currentSeason = normUp(meta.current_season_id || "");
-      const exists = seasonsCache.some(s => normUp(s.season_id) === currentSeason);
+      const currentSeason = up(meta.current_season_id || "");
+      const exists = seasonsCache.some(s => up(s.season_id) === currentSeason);
       if (currentSeason && exists) seasonSelect.value = currentSeason;
-      else if (seasonsCache.length) seasonSelect.value = normUp(seasonsCache[seasonsCache.length - 1].season_id);
+      else if (seasonsCache.length) seasonSelect.value = up(seasonsCache[seasonsCache.length - 1].season_id);
       else seasonSelect.value = "TOTAL";
 
-      await apiSetSeason(normUp(seasonSelect.value));
       updateSeasonName();
       await renderLeaderboard();
 
       seasonSelect.onchange = async () => {
         setStatus("Переключаю сезон…");
-        await apiSetSeason(normUp(seasonSelect.value));
         updateSeasonName();
         await renderLeaderboard();
       };
 
       prevBtn.onclick = async () => {
-        const current = normUp(seasonSelect.value);
+        const current = up(seasonSelect.value);
         if (current === "TOTAL"){
           if (!seasonsCache.length) return;
-          seasonSelect.value = normUp(seasonsCache[seasonsCache.length - 1].season_id);
+          seasonSelect.value = up(seasonsCache[seasonsCache.length - 1].season_id);
         } else {
-          const idx = seasonsCache.findIndex(s => normUp(s.season_id) === current);
-          if (idx > 0) seasonSelect.value = normUp(seasonsCache[idx - 1].season_id);
+          const idx = seasonsCache.findIndex(s => up(s.season_id) === current);
+          if (idx > 0) seasonSelect.value = up(seasonsCache[idx - 1].season_id);
         }
-        await apiSetSeason(normUp(seasonSelect.value));
         updateSeasonName();
         await renderLeaderboard();
       };
 
       nextBtn.onclick = async () => {
-        const current = normUp(seasonSelect.value);
+        const current = up(seasonSelect.value);
         if (current === "TOTAL"){
           if (!seasonsCache.length) return;
-          seasonSelect.value = normUp(seasonsCache[0].season_id);
+          seasonSelect.value = up(seasonsCache[0].season_id);
         } else {
-          const idx = seasonsCache.findIndex(s => normUp(s.season_id) === current);
-          if (idx >= 0 && idx < seasonsCache.length - 1) seasonSelect.value = normUp(seasonsCache[idx + 1].season_id);
+          const idx = seasonsCache.findIndex(s => up(s.season_id) === current);
+          if (idx >= 0 && idx < seasonsCache.length - 1) seasonSelect.value = up(seasonsCache[idx + 1].season_id);
         }
-        await apiSetSeason(normUp(seasonSelect.value));
         updateSeasonName();
         await renderLeaderboard();
       };
@@ -1019,6 +923,5 @@
 
   init();
 </script>
-
 </body>
 </html>
