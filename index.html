@@ -210,8 +210,7 @@
       display:grid;
       grid-template-columns: 68px 1fr auto;
       gap:12px;
-      align-items:center;
-      align-content:center;
+      align-items:center; /* центр по вертикали */
       padding:12px 12px;
       border-radius:18px;
 
@@ -228,8 +227,6 @@
       content-visibility:auto;
       contain-intrinsic-size: 92px 340px;
     }
-    .lb-row > *{ position:relative; z-index:1; align-self:center; }
-
     .lb-row:nth-child(odd)::before,
     .lb-row:nth-child(even)::before{
       content:"";
@@ -248,6 +245,7 @@
       z-index:0;
       pointer-events:none;
     }
+    .lb-row > *{ position:relative; z-index:1; }
 
     .place{
       display:flex;
@@ -266,41 +264,31 @@
     .place.p2{ color:rgba(220,226,235,.98); border-color:rgba(220,226,235,.55); box-shadow:0 0 14px rgba(220,226,235,.12); }
     .place.p3{ color:rgba(205,127,50,.98); border-color:rgba(205,127,50,.55); box-shadow:0 0 14px rgba(205,127,50,.12); }
 
+    /* ======= ВАЖНО: namebox теперь grid, чтобы:
+       - имя в одной строке с щитом
+       - t9 справа от имени
+       - достижения начинаются ПОД щитом (с самого левого края namebox), без пустой зоны
+    ======= */
     .namebox{
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-      min-width:0;
-      justify-content:center;
-    }
-
-    /* ВАЖНО: отдельная сетка, чтобы 2-я строка начиналась под rank */
-    .name-grid{
       display:grid;
-      grid-template-columns: 40px 1fr;   /* = rank width */
-      column-gap:10px;                  /* = gap как в верхней строке */
+      grid-template-columns: auto 1fr auto;
+      grid-template-rows: auto auto;
+      column-gap:10px;
       row-gap:6px;
       align-items:center;
       min-width:0;
+      align-self:center; /* центр в строке */
     }
-
     .rank-mini{
-      grid-row:1;
       grid-column:1;
+      grid-row:1;
       width:40px;height:40px;object-fit:contain;
       filter:drop-shadow(0 12px 18px rgba(0,0,0,.55));
+      flex:0 0 auto;
     }
-
-    .name-line{
-      grid-row:1;
-      grid-column:2;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      min-width:0;
-    }
-
     .nm{
+      grid-column:2;
+      grid-row:1;
       font-family:Cinzel,serif;
       font-weight:700;
       font-size:22px;
@@ -309,28 +297,26 @@
       overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;
       line-height:1.05;
     }
-
     .t9-mini{
-      width:28px;height:28px;
+      grid-column:3;
+      grid-row:1;
+      width:30px;height:30px;
       object-fit:contain;
       filter:drop-shadow(0 10px 14px rgba(0,0,0,.55));
       opacity:.98;
-      flex:0 0 auto;
+      justify-self:end;
     }
 
     .ach-mini{
       grid-row:2;
-      grid-column:1 / span 2;
+      grid-column:1 / span 3;  /* начинается прямо под щитом */
       display:flex;
       gap:6px;
       align-items:center;
-
-      /* ключ: делаем "пустую колонку" шириной rank,
-         чтобы иконки начинались строго под rank */
-      padding-left:50px; /* 40 (rank) + 10 (gap) */
       min-width:0;
+      justify-content:flex-start;
+      /* ВАЖНО: НЕТ padding-left / margin-left -> не будет "пустого места" при скролле */
     }
-
     .ach-mini img{
       width:24px;height:24px;object-fit:contain;
       filter:drop-shadow(0 10px 14px rgba(0,0,0,.55));
@@ -342,8 +328,9 @@
       display:flex;
       gap:8px;
       justify-content:flex-end;
-      align-items:center;
+      align-items:center; /* центр */
       flex-wrap:nowrap;
+      align-self:center; /* центр в строке */
     }
     .score-pill{
       border:1px solid rgba(214,181,106,.28);
@@ -356,8 +343,9 @@
       white-space:nowrap;
     }
     .score-pill .lbl{font-size:10px;color:rgba(255,255,255,.55);letter-spacing:.06em;text-transform:uppercase}
-    .score-pill .val{margin-top:4px;font-size:20px;font-weight:800;color:rgba(255,255,255,.92);line-height:1.05}
+    .score-pill .val{margin-top:4px;font-size:20px;font-weight:800;color:rgba(255,255,255,.92)}
 
+    /* ====== МОБИЛЬНАЯ АДАПТАЦИЯ ====== */
     @media (max-width: 760px){
       .topbar{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
       .brand{min-width:0;justify-content:center}
@@ -370,34 +358,35 @@
       .lb-row{
         grid-template-columns: 54px 1fr auto;
         gap:8px;
-        padding:12px 10px;
-        min-height:76px;
+        padding:10px 10px;
+        border-radius:16px;
         align-items:center;
-        align-content:center;
       }
 
       .place{width:42px;height:42px;font-size:16px}
 
-      .name-grid{
-        grid-template-columns: 28px 1fr; /* = rank-mini mobile */
-        column-gap:10px;
-        row-gap:4px;
+      .namebox{
+        column-gap:8px;
+        row-gap:5px;
       }
 
       .rank-mini{width:28px;height:28px}
-      .nm{font-size:17px; line-height:1.05}
-      .t9-mini{width:22px;height:22px}
+      .nm{font-size:17px}
+      .t9-mini{width:24px;height:24px}
 
+      /* достижения: всегда в одну строку, горизонтальный скролл */
       .ach-mini{
-        padding-left:38px; /* 28 + 10 */
         gap:5px;
         flex-wrap:nowrap;
         overflow-x:auto;
         overflow-y:hidden;
         -webkit-overflow-scrolling:touch;
         padding-bottom:0;
+        justify-content:flex-start;
       }
       .ach-mini img{width:18px;height:18px}
+
+      /* скрыть полосу скролла */
       .ach-mini::-webkit-scrollbar{height:0}
       .ach-mini{scrollbar-width:none}
 
@@ -408,10 +397,10 @@
         border-radius:12px;
       }
       .score-pill .lbl{font-size:9px}
-      .score-pill .val{font-size:16px; line-height:1.05}
+      .score-pill .val{font-size:16px}
     }
 
-    /* ====== Modal (без изменений) ====== */
+    /* ====== Modal (как было) ====== */
     .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.70);backdrop-filter:blur(6px);z-index:50}
     .card{
       width:min(560px,92vw);
@@ -626,15 +615,8 @@
     return "";
   }
 
-  function splitT9(list){
-    const items = (list || []).map(x => String(x).trim()).filter(Boolean);
-    const hasT9 = items.includes("t9");
-    const rest = items.filter(x => x !== "t9");
-    return { hasT9, rest };
-  }
-
-  function miniAchievementsHtml(listWithoutT9){
-    const items = (listWithoutT9 || []).map(x => String(x).trim()).filter(Boolean).slice(0, 30);
+  function miniAchievementsHtml(list){
+    const items = (list || []).map(x => String(x).trim()).filter(Boolean).slice(0, 30);
     if (!items.length) return "";
     return `<div class="ach-mini">` + items.map(t => `<img loading="lazy" decoding="async" src="./assets/${t}.png" alt="${t}">`).join("") + `</div>`;
   }
@@ -656,8 +638,10 @@
     lbEl.innerHTML = rows.map((r, idx) => {
       const place = idx + 1;
       const rankLevel = Number(r.rank_level || 1);
-      const achList = r.achievements_list || (String(r.achievements || "").split(",").map(s=>s.trim()).filter(Boolean));
-      const { hasT9, rest } = splitT9(achList);
+
+      const achListAll = r.achievements_list || (String(r.achievements || "").split(",").map(s=>s.trim()).filter(Boolean));
+      const hasT9 = achListAll.includes("t9");
+      const achList = achListAll.filter(x => x !== "t9"); // t9 отдельно справа от имени
 
       const seasonScore = toNum(r.season_score);
       const totalScore  = toNum(r.all_seasons_score);
@@ -667,14 +651,15 @@
           <div class="place ${placeClass(place)}">${place}</div>
 
           <div class="namebox">
-            <div class="name-grid">
-              <img class="rank-mini" decoding="async" loading="eager" src="./assets/rank${rankLevel}.png" alt="rank${rankLevel}">
-              <div class="name-line">
-                <div class="nm">${r.name ?? ""}</div>
-                ${hasT9 ? `<img class="t9-mini" decoding="async" loading="eager" src="./assets/t9.png" alt="t9">` : ``}
-              </div>
-              ${miniAchievementsHtml(rest)}
-            </div>
+            <img class="rank-mini" decoding="async" loading="eager"
+              src="./assets/rank${rankLevel}.png" alt="rank${rankLevel}"
+              onerror="this.onerror=null;this.src='./assets/rank1.png';">
+
+            <div class="nm">${r.name ?? ""}</div>
+
+            ${hasT9 ? `<img class="t9-mini" decoding="async" loading="eager" src="./assets/t9.png" alt="t9">` : ""}
+
+            ${miniAchievementsHtml(achList)}
           </div>
 
           <div class="scores">
