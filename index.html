@@ -1,865 +1,464 @@
-<!doctype html>
-<html lang="ru">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>River Rating</title>
+/** =========================
+ * River Rating – Sync Sxx -> Matches
+ * ========================= */
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+const CFG = {
+  SHEET_PLAYERS: 'Players',
+  SHEET_MATCHES: 'Matches',
+  SHEET_GAMES: 'Games',
+  CACHE_META_SEC: 120,
+  CACHE_DASH_SEC: 60,
 
-  <link rel="preload" as="image" href="./assets/bg.png">
-  <link rel="preload" as="image" href="./assets/logo.png">
-  <link rel="preload" as="image" href="./assets/champion.png">
+  // где в S01 находятся имена/даты
+  S_NAME_COL: 2,     // B
+  S_HEADER_ROW: 1,   // 1
+  S_FIRST_PLAYER_ROW: 2, // 2
+  S_FIRST_DATE_COL: 3,   // C
+};
 
-  <link rel="preload" as="image" href="./assets/rank1.png">
-  <link rel="preload" as="image" href="./assets/rank2.png">
-  <link rel="preload" as="image" href="./assets/rank3.png">
-  <link rel="preload" as="image" href="./assets/rank4.png">
-  <link rel="preload" as="image" href="./assets/rank5.png">
-  <link rel="preload" as="image" href="./assets/rank6.png">
-  <link rel="preload" as="image" href="./assets/rank7.png">
-  <link rel="preload" as="image" href="./assets/t9.png">
+function doGet(e) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const mode = (e && e.parameter && e.parameter.mode ? String(e.parameter.mode) : '').toLowerCase();
+  const playerId = (e && e.parameter && e.parameter.player_id ? String(e.parameter.player_id) : '');
+  const seasonId = (e && e.parameter && e.parameter.season_id ? String(e.parameter.season_id) : '');
 
-  <style>
-    :root{
-      --bg:#0b0c0f;
-      --panel:rgba(18,20,26,.62);
-      --panel2:rgba(18,20,26,.78);
-      --stroke:rgba(255,255,255,.10);
-      --text:rgba(255,255,255,.90);
-      --muted:rgba(255,255,255,.62);
-      --muted2:rgba(255,255,255,.42);
-      --shadow:0 20px 60px rgba(0,0,0,.55);
-      --shadow2:0 10px 30px rgba(0,0,0,.45);
-      --radius:18px;
-
-      --rowA: rgba(255,255,255,.060);
-      --rowB: rgba(255,255,255,.035);
-      --glass: rgba(12, 13, 17, .35);
-    }
-
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      color:var(--text);
-      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-      background:var(--bg);
-      overflow-x:hidden;
-    }
-    body::before{
-      content:"";
-      position:fixed;
-      inset:0;
-      background:url("./assets/bg.png") center/cover no-repeat;
-      filter:saturate(1.05) contrast(1.05);
-      transform:scale(1.03);
-      z-index:-3;
-    }
-    body::after{
-      content:"";
-      position:fixed;
-      inset:0;
-      background:
-        radial-gradient(900px 520px at 50% 25%, rgba(214,181,106,.22), transparent 62%),
-        radial-gradient(900px 520px at 20% 90%, rgba(0,0,0,.55), transparent 60%),
-        linear-gradient(to bottom, rgba(0,0,0,.70), rgba(0,0,0,.82));
-      z-index:-2;
-    }
-
-    .wrap{width:min(1200px,94vw);margin:22px auto 40px}
-
-    .topbar{
-      display:grid;
-      grid-template-columns:1fr auto 1fr;
-      align-items:center;
-      gap:14px;
-      padding:14px 16px;
-      border-radius:var(--radius);
-      background:linear-gradient(to bottom, rgba(18,20,26,.62), rgba(18,20,26,.40));
-      border:1px solid var(--stroke);
-      box-shadow:var(--shadow2);
-      backdrop-filter:blur(10px);
-    }
-    .brand{display:flex;align-items:center;justify-content:flex-start;min-width:240px}
-    .brand img{
-      height:44px;width:auto;display:block;
-      filter:drop-shadow(0 10px 18px rgba(0,0,0,.55));
-    }
-    .center-title{text-align:center;line-height:1}
-    .center-title .title{
-      font-family:Cinzel,serif;
-      font-weight:700;
-      letter-spacing:.10em;
-      font-size:22px;
-      text-transform:uppercase;
-      color:rgba(255,255,255,.94);
-      text-shadow:0 18px 40px rgba(0,0,0,.6);
-      white-space:nowrap;
-    }
-    .season-name{
-      font-family:Cinzel,serif;
-      font-weight:600;
-      letter-spacing:.02em;
-      font-size:14px;
-      color:rgba(240,222,154,.92);
-      text-align:right;
-      justify-self:end;
-      max-width:520px;
-    }
-
-    .controls{
-      margin-top:14px;
-      padding:12px 16px;
-      border-radius:var(--radius);
-      background:var(--panel);
-      border:1px solid var(--stroke);
-      box-shadow:var(--shadow2);
-      backdrop-filter:blur(10px);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:14px;
-      flex-wrap:wrap;
-    }
-    .left-controls,.right-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-    .label{font-size:12px;color:var(--muted);letter-spacing:.02em}
-    .status{font-size:12px;color:var(--muted2);margin-left:8px}
-
-    .btn{
-      appearance:none;
-      border:1px solid rgba(214,181,106,.42);
-      background:linear-gradient(to bottom, rgba(240,222,154,.18), rgba(214,181,106,.08));
-      color:rgba(255,255,255,.88);
-      padding:9px 12px;
-      border-radius:12px;
-      cursor:pointer;
-      transition:transform .12s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
-      box-shadow:0 8px 18px rgba(0,0,0,.35);
-      font-weight:600;
-      letter-spacing:.01em;
-    }
-    .btn:hover{
-      transform:translateY(-1px);
-      border-color:rgba(240,222,154,.65);
-      background:linear-gradient(to bottom, rgba(240,222,154,.24), rgba(214,181,106,.12));
-      box-shadow:0 12px 26px rgba(0,0,0,.45);
-    }
-
-    select{
-      appearance:none;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(10, 11, 14, .55);
-      color:rgba(255,255,255,.90);
-      padding:9px 38px 9px 12px;
-      border-radius:12px;
-      outline:none;
-      cursor:pointer;
-      backdrop-filter:blur(10px);
-      box-shadow:0 10px 24px rgba(0,0,0,.35);
-      max-width:78vw;
-    }
-    .select-wrap{position:relative;display:inline-flex;align-items:center;gap:10px}
-    .select-wrap::after{
-      content:"▾";
-      position:absolute;
-      right:12px;
-      pointer-events:none;
-      color:rgba(240,222,154,.90);
-      font-size:14px;
-      transform:translateY(1px);
-    }
-
-    .panel{
-      margin-top:14px;
-      border-radius:var(--radius);
-      background:var(--panel2);
-      border:1px solid var(--stroke);
-      box-shadow:var(--shadow);
-      backdrop-filter:blur(12px);
-      overflow:hidden;
-    }
-    .panel-head{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding:14px 16px;
-      border-bottom:1px solid rgba(255,255,255,.10);
-      background:linear-gradient(to right, rgba(214,181,106,.08), transparent 55%);
-    }
-    .panel-title{
-      font-family:Cinzel,serif;
-      font-weight:700;
-      letter-spacing:.05em;
-      text-transform:uppercase;
-      font-size:13px;
-      color:rgba(255,255,255,.88);
-    }
-
-    .lb{
-      padding:12px 12px 16px;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
-
-    .lb-row{
-      position:relative;
-      display:grid;
-      grid-template-columns: 68px 1fr auto;
-      gap:12px;
-      align-items:center; /* центр по вертикали */
-      padding:12px 12px;
-      border-radius:18px;
-
-      background: var(--glass);
-      border:1px solid rgba(214,181,106,.18);
-      box-shadow:0 14px 34px rgba(0,0,0,.40);
-
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-
-      overflow:hidden;
-      cursor:pointer;
-
-      content-visibility:auto;
-      contain-intrinsic-size: 92px 340px;
-    }
-    .lb-row:nth-child(odd)::before,
-    .lb-row:nth-child(even)::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      z-index:0;
-    }
-    .lb-row:nth-child(odd)::before{ background: var(--rowA); }
-    .lb-row:nth-child(even)::before{ background: var(--rowB); }
-
-    .lb-row::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      background: linear-gradient(to right, rgba(0,0,0,.40), rgba(0,0,0,.10), rgba(0,0,0,.40));
-      z-index:0;
-      pointer-events:none;
-    }
-    .lb-row > *{ position:relative; z-index:1; }
-
-    .place{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-family:Cinzel,serif;
-      font-weight:800;
-      font-size:22px;
-      width:54px;height:54px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.18);
-      background:rgba(0,0,0,.28);
-      margin-left:2px;
-    }
-    .place.p1{ color:rgba(255,226,120,.98); border-color:rgba(255,226,120,.55); box-shadow:0 0 14px rgba(255,210,90,.18); }
-    .place.p2{ color:rgba(220,226,235,.98); border-color:rgba(220,226,235,.55); box-shadow:0 0 14px rgba(220,226,235,.12); }
-    .place.p3{ color:rgba(205,127,50,.98); border-color:rgba(205,127,50,.55); box-shadow:0 0 14px rgba(205,127,50,.12); }
-
-    .namebox{display:flex;flex-direction:column;gap:6px;min-width:0}
-    .name-top{display:flex;align-items:center;gap:10px;min-width:0}
-
-    .rank-mini{
-      width:40px;height:40px;object-fit:contain;
-      filter:drop-shadow(0 12px 18px rgba(0,0,0,.55));
-      flex:0 0 auto;
-    }
-
-    /* имя + t9 справа */
-    .nm-wrap{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      min-width:0;
-      flex:1 1 auto;
-    }
-    .nm{
-      font-family:Cinzel,serif;
-      font-weight:700;
-      font-size:22px;
-      color:rgba(255,255,255,.95);
-      text-shadow:0 14px 34px rgba(0,0,0,.55);
-      overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;
-    }
-    .t9-mini{
-      width:26px;height:26px;object-fit:contain;
-      filter:drop-shadow(0 10px 14px rgba(0,0,0,.55));
-      flex:0 0 auto;
-      opacity:.98;
-    }
-
-    /* Лента достижений: визуальный старт под щитом + нет пустоты при скролле */
-    .ach-mini{
-      display:flex;
-      gap:6px;
-      flex-wrap:nowrap;
-      align-items:center;
-
-      overflow-x:auto;
-      overflow-y:hidden;
-      -webkit-overflow-scrolling:touch;
-
-      scrollbar-width:none;
-      padding-bottom:2px;
-
-      /* старт под щитом */
-      padding-left:50px;
-      margin-left:-50px;
-    }
-    .ach-mini::-webkit-scrollbar{height:0}
-
-    .ach-mini img{
-      width:24px;height:24px;object-fit:contain;
-      filter:drop-shadow(0 10px 14px rgba(0,0,0,.55));
-      opacity:.95;
-      flex:0 0 auto;
-    }
-
-    .scores{
-      display:flex;
-      gap:8px;
-      justify-content:flex-end;
-      align-items:center;
-      flex-wrap:nowrap;
-    }
-    .score-pill{
-      border:1px solid rgba(214,181,106,.28);
-      border-radius:14px;
-      background:rgba(0,0,0,.20);
-      padding:9px 10px;
-      min-width:86px;
-      text-align:center;
-      box-shadow:0 12px 24px rgba(0,0,0,.32) inset;
-      white-space:nowrap;
-    }
-    .score-pill .lbl{font-size:10px;color:rgba(255,255,255,.55);letter-spacing:.06em;text-transform:uppercase}
-    .score-pill .val{margin-top:4px;font-size:20px;font-weight:800;color:rgba(255,255,255,.92)}
-
-    @media (max-width: 760px){
-      .topbar{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
-      .brand{min-width:0;justify-content:center}
-      .brand img{height:42px}
-      .season-name{text-align:center;max-width:92vw}
-      .center-title .title{font-size:18px;letter-spacing:.08em}
-
-      .lb{padding:10px 10px 14px; gap:10px;}
-
-      .lb-row{
-        grid-template-columns: 54px 1fr auto;
-        gap:8px;
-        padding:12px 10px;
-        border-radius:16px;
-        align-items:center;
-      }
-
-      .place{width:42px;height:42px;font-size:16px}
-
-      .rank-mini{width:28px;height:28px}
-      .nm{font-size:17px}
-      .t9-mini{width:20px;height:20px}
-
-      .ach-mini{
-        padding-left:38px;
-        margin-left:-38px;
-        gap:5px;
-      }
-      .ach-mini img{width:18px;height:18px}
-
-      .scores{gap:6px}
-      .score-pill{
-        min-width:68px;
-        padding:7px 8px;
-        border-radius:12px;
-      }
-      .score-pill .lbl{font-size:9px}
-      .score-pill .val{font-size:16px}
-    }
-
-    /* ===== Modal ===== */
-    .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.70);backdrop-filter:blur(6px);z-index:50}
-    .card{
-      width:min(560px,92vw);
-      margin:5vh auto;
-      border-radius:18px;
-      background:rgba(16,18,24,.88);
-      border:1px solid rgba(214,181,106,.55);
-      box-shadow:0 30px 90px rgba(0,0,0,.72);
-      overflow:hidden;
-      max-height:90vh;
-      display:flex;
-      flex-direction:column;
-    }
-    .modal-head{
-      display:flex;align-items:center;justify-content:space-between;gap:10px;
-      padding:14px 16px;
-      background:linear-gradient(to right, rgba(214,181,106,.14), rgba(0,0,0,0));
-      border-bottom:1px solid rgba(255,255,255,.10);
-      flex:0 0 auto;
-    }
-    .modal-title{font-family:Cinzel,serif;font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:14px;color:rgba(240,222,154,.95)}
-    .close{border:1px solid rgba(214,181,106,.7);background:rgba(0,0,0,.30);color:rgba(255,255,255,.86);border-radius:12px;padding:8px 10px;cursor:pointer}
-    .modal-body{
-      padding:16px;
-      overflow:auto;
-      overflow-x:hidden;
-      -webkit-overflow-scrolling:touch;
-      flex:1 1 auto;
-      position:relative;
-    }
-    .modal-body.champion::before{
-      content:"";
-      position:absolute;inset:0;
-      background:url("./assets/champion.png") center/cover no-repeat;
-      filter:blur(6px) brightness(.55);
-      opacity:.9;
-      z-index:0;
-    }
-    .modal-body > *{ position:relative; z-index:1; }
-
-    .pc-top{text-align:center;padding:18px 10px 8px;border-bottom:1px solid rgba(214,181,106,.35)}
-    .rank-icon{width:110px;height:110px;object-fit:contain;display:block;margin:0 auto 10px;filter:drop-shadow(0 14px 26px rgba(0,0,0,.6))}
-    .rank-title{font-family:Cinzel,serif;letter-spacing:.12em;font-weight:700;font-size:14px;color:rgba(240,222,154,.90);text-transform:uppercase;margin-bottom:6px}
-    .player-name{font-family:Cinzel,serif;font-weight:700;font-size:40px;letter-spacing:.02em;color:rgba(255,255,255,.95);text-shadow:0 18px 45px rgba(0,0,0,.55);margin-bottom:10px}
-
-    .section-title{
-      display:flex;align-items:center;justify-content:center;gap:10px;
-      font-family:Cinzel,serif;letter-spacing:.10em;font-weight:700;text-transform:uppercase;
-      color:rgba(240,222,154,.90);margin:16px 0 10px;font-size:14px;
-    }
-
-    .medals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px;width:100%}
-    .pill{
-      border:1px solid rgba(214,181,106,.35);
-      border-radius:14px;
-      background:rgba(0,0,0,.25);
-      padding:10px 12px;
-      display:flex;align-items:center;justify-content:space-between;gap:8px;
-      box-shadow:0 12px 26px rgba(0,0,0,.35) inset;
-      min-width:0;
-    }
-    .pill .left{display:flex;align-items:center;gap:8px;font-weight:700;color:rgba(255,255,255,.9);min-width:0}
-    .pill .left span{white-space:nowrap}
-    .pill .num{font-weight:800;color:rgba(255,255,255,.92);white-space:nowrap}
-
-    .ach-wrap{border:1px solid rgba(214,181,106,.25);border-radius:16px;background:rgba(0,0,0,.20);padding:14px;max-width:100%;overflow:hidden}
-    .ach-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;justify-items:center;align-items:center;width:100%;max-width:100%}
-    .ach-item{width:108px;height:108px;border-radius:18px;border:1px solid rgba(214,181,106,.25);background:rgba(0,0,0,.22);display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;max-width:100%}
-    .ach-item img{width:78%;height:78%;object-fit:contain;filter:drop-shadow(0 12px 18px rgba(0,0,0,.55))}
-    .ach-t9{grid-column:1/span 3;width:100%;max-width:100%;height:170px;border-radius:20px;border:1px solid rgba(214,181,106,.45);background:rgba(0,0,0,.22);display:flex;align-items:center;justify-content:center;box-shadow:0 0 28px rgba(214,181,106,.18);cursor:pointer;overflow:hidden}
-    .ach-t9 img{width:140px;height:140px;object-fit:contain}
-
-    @media (max-width: 420px){
-      .pill{padding:9px 10px;gap:6px}
-      .pill .left{gap:6px;font-size:12px}
-      .pill .num{font-size:14px}
-      .ach-item{width:92px;height:92px;border-radius:16px}
-      .ach-t9{height:150px;border-radius:18px}
-      .ach-t9 img{width:120px;height:120px}
-      .ach-grid{gap:10px}
-    }
-
-    .history-wrap{border:1px solid rgba(214,181,106,.25);border-radius:16px;background:rgba(0,0,0,.16);padding:12px}
-    .history-scroll{max-height:44vh;overflow:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:14px;padding-right:6px}
-    .season-block-title{font-family:Cinzel,serif;letter-spacing:.08em;font-weight:800;text-transform:uppercase;color:rgba(240,222,154,.92);font-size:13px;text-align:center;margin:6px 0 2px}
-    .hist{display:flex;flex-direction:column;gap:10px}
-    .hist-card{border:1px solid rgba(214,181,106,.22);border-radius:14px;background:rgba(0,0,0,.18);padding:10px 12px;display:grid;grid-template-columns:86px 1fr auto;align-items:center;gap:10px;max-width:100%}
-    .hist-date{font-weight:800;font-size:18px;color:rgba(255,255,255,.94)}
-    .hist-game{color:rgba(240,222,154,.90);font-weight:800;text-align:center}
-    .chips{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
-    .chip{border:1px solid rgba(214,181,106,.25);background:rgba(0,0,0,.22);border-radius:999px;padding:6px 10px;font-size:12px;color:rgba(255,255,255,.88);white-space:nowrap;max-width:100%}
-
-    .hint{color:rgba(255,255,255,.45);font-size:12px;margin-top:12px;text-align:center}
-
-    .viewer{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:80;padding:18px;align-items:center;justify-content:center}
-    .viewer.open{display:flex}
-    .viewer img{max-width:92vw;max-height:92vh;object-fit:contain;border-radius:18px;border:1px solid rgba(214,181,106,.45);box-shadow:0 30px 90px rgba(0,0,0,.75);background:rgba(0,0,0,.20)}
-    .viewer .x{position:absolute;top:16px;right:16px;width:44px;height:44px;border-radius:14px;border:1px solid rgba(214,181,106,.65);background:rgba(0,0,0,.35);color:rgba(255,255,255,.88);cursor:pointer;font-size:18px}
-  </style>
-</head>
-
-<body>
-  <div class="wrap">
-    <div class="topbar">
-      <div class="brand"><img src="./assets/logo.png" alt="River Poker Club"></div>
-      <div class="center-title"><div class="title">RIVER RATING</div></div>
-      <div class="season-name" id="seasonName">—</div>
-    </div>
-
-    <div class="controls">
-      <div class="left-controls">
-        <button class="btn" id="prevSeasonBtn" type="button">← Предыдущий сезон</button>
-        <button class="btn" id="nextSeasonBtn" type="button">Следующий сезон →</button>
-        <span class="status" id="status">Загрузка…</span>
-      </div>
-
-      <div class="right-controls">
-        <span class="label">Сезон</span>
-        <div class="select-wrap">
-          <select id="seasonSelect"></select>
-        </div>
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-head">
-        <div class="panel-title">Рейтинг игроков</div>
-      </div>
-      <div class="lb" id="leaderboard"></div>
-    </div>
-  </div>
-
-  <div class="modal" id="modal">
-    <div class="card">
-      <div class="modal-head">
-        <div class="modal-title">Статистика игрока</div>
-        <button class="close" id="closeBtn">✕</button>
-      </div>
-      <div class="modal-body" id="modalBody">
-        <div id="profile">Загрузка профиля…</div>
-        <div class="hint">Клик вне окна — закрыть</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="viewer" id="viewer">
-    <button class="x" id="viewerClose">✕</button>
-    <img id="viewerImg" alt="achievement">
-  </div>
-
-<script>
-  const API_BASE = "https://script.google.com/macros/s/AKfycbwKd6_brG1Pgy3U3AUX_cNCUoznk2nYzIOYKo790MDs48ktJwlKvdQ_P8TNXqvPJsGkTQ/exec";
-
-  const statusEl     = document.getElementById("status");
-  const seasonSelect = document.getElementById("seasonSelect");
-  const prevBtn      = document.getElementById("prevSeasonBtn");
-  const nextBtn      = document.getElementById("nextSeasonBtn");
-  const seasonNameEl = document.getElementById("seasonName");
-  const lbEl         = document.getElementById("leaderboard");
-
-  const modalEl   = document.getElementById("modal");
-  const modalBody = document.getElementById("modalBody");
-  const profileEl = document.getElementById("profile");
-  const closeBtn  = document.getElementById("closeBtn");
-
-  const viewer = document.getElementById("viewer");
-  const viewerImg = document.getElementById("viewerImg");
-  const viewerClose = document.getElementById("viewerClose");
-
-  viewerClose.onclick = () => viewer.classList.remove("open");
-  viewer.onclick = (e) => { if (e.target === viewer) viewer.classList.remove("open"); };
-
-  closeBtn.onclick = () => modalEl.style.display = "none";
-  modalEl.onclick = (e) => { if (e.target === modalEl) modalEl.style.display = "none"; };
-
-  function setStatus(t){ statusEl.textContent = t; }
-  function norm(x){ return String(x ?? "").trim(); }
-  function up(x){ return norm(x).toUpperCase(); }
-
-  function toNum(v){
-    const s = String(v ?? "").trim().replace(/\s+/g,"").replace(",",".");
-    const n = Number(s);
-    return Number.isFinite(n) ? n : 0;
+  if (mode === 'meta') {
+    return json_(getMeta_(ss));
   }
 
-  async function apiMeta(){
-    const res = await fetch(`${API_BASE}?mode=meta`);
-    return await res.json();
-  }
-  async function apiDashboard(seasonId){
-    const res = await fetch(`${API_BASE}?mode=dashboard&season_id=${encodeURIComponent(seasonId)}`);
-    return await res.json();
-  }
-  async function apiProfile(playerId, seasonId){
-    const res = await fetch(`${API_BASE}?player_id=${encodeURIComponent(playerId)}&season_id=${encodeURIComponent(seasonId)}`);
-    return await res.json();
-  }
+  if (mode === 'dashboard') {
+    const sid = String(seasonId || '').trim();
+    if (!sid) return json_({ error: 'season_id required' });
 
-  let seasonsCache = [];
+    const cache = CacheService.getScriptCache();
+    const cacheKey = `dash_${sid.toUpperCase()}`;
+    const cached = cache.get(cacheKey);
+    if (cached) return json_(JSON.parse(cached));
 
-  function updateSeasonName(){
-    const id = up(seasonSelect.value);
-    if (id === "TOTAL") { seasonNameEl.textContent = "Общий зачёт (Total)"; return; }
-    const s = seasonsCache.find(x => up(x.season_id) === id);
-    seasonNameEl.textContent = s ? s.season_name : "—";
+    const dash = getDashboard_(ss, sid);
+    cache.put(cacheKey, JSON.stringify(dash), CFG.CACHE_DASH_SEC);
+    return json_(dash);
   }
 
-  function placeClass(n){
-    if (n === 1) return "p1";
-    if (n === 2) return "p2";
-    if (n === 3) return "p3";
-    return "";
+  if (playerId) {
+    const sid = String(seasonId || '').trim();
+    return json_(getProfile_(ss, playerId, sid));
   }
 
-  function miniAchievementsHtml(list){
-    const all = (list || []).map(x => String(x).trim()).filter(Boolean);
-    const items = all.filter(x => x !== "t9").slice(0, 30);
-    if (!items.length) return "";
-    return `<div class="ach-mini">` + items.map(t => `<img loading="lazy" decoding="async" src="./assets/${t}.png" alt="${t}">`).join("") + `</div>`;
+  return json_({ ok: true, hint: 'use ?mode=meta or ?mode=dashboard&season_id=S01 or ?player_id=P001&season_id=S01' });
+}
+
+/** =========================
+ * META / DASHBOARD
+ * ========================= */
+
+function getMeta_(ss) {
+  const seasonsSheet = ss.getSheetByName('Seasons');
+  const leaderboardSheet = ss.getSheetByName('Leaderboard');
+
+  const current = String(leaderboardSheet && leaderboardSheet.getRange('G2').getValue() || '').trim();
+
+  let seasons = [];
+  if (seasonsSheet) {
+    const v = seasonsSheet.getDataRange().getDisplayValues();
+    const h = (v[0] || []).map(x => String(x).trim().toLowerCase());
+    const idxId = h.indexOf('season_id');
+    const idxName = h.indexOf('season_name');
+
+    for (let i = 1; i < v.length; i++) {
+      const row = v[i];
+      const id = String(row[idxId] || '').trim();
+      const name = String(row[idxName] || '').trim();
+      if (id) seasons.push({ season_id: id, season_name: name || id });
+    }
   }
 
-  async function renderLeaderboard(){
-    setStatus("Загрузка…");
-    const seasonId = up(seasonSelect.value);
+  return { seasons, current_season_id: current || (seasons[0]?.season_id || '') };
+}
 
-    const dash = await apiDashboard(seasonId);
-    const rowsRaw = dash.leaderboard || [];
+function getDashboard_(ss, seasonId) {
+  const sid = String(seasonId || '').trim().toUpperCase();
 
-    const rows = [...rowsRaw].sort((a,b) => {
-      const keyA = (seasonId === "TOTAL") ? toNum(a.all_seasons_score) : toNum(a.season_score);
-      const keyB = (seasonId === "TOTAL") ? toNum(b.all_seasons_score) : toNum(b.season_score);
-      if (keyB !== keyA) return keyB - keyA;
-      return String(a.name ?? "").localeCompare(String(b.name ?? ""), "ru", {sensitivity:"base"});
-    });
+  const matches = readMatches_(ss, sid);
 
-    lbEl.innerHTML = rows.map((r, idx) => {
-      const place = idx + 1;
-      const rankLevel = Number(r.rank_level || 1);
-      const achList = r.achievements_list || (String(r.achievements || "").split(",").map(s=>s.trim()).filter(Boolean));
-      const hasT9 = (achList || []).includes("t9");
+  // ВАЖНО: оставляем как было в твоём эталоне:
+  // leaderboard собираем (как и раньше) через buildLeaderboardFromMatches_.
+  // Если у тебя в реальном проекте leaderboard берётся из листа Leaderboard (с rank/achievements),
+  // то он был в твоём “рабочем” коде, а не в этом “упрощённом эталоне”.
+  // Здесь мы ничего НЕ вырезаем, чтобы не ломать структуру.
+  const leaderboard = buildLeaderboardFromMatches_(ss, matches, sid);
 
-      const seasonScore = toNum(r.season_score);
-      const totalScore  = toNum(r.all_seasons_score);
+  const season_table = readSeasonTableRaw_(ss, sid);
 
-      return `
-        <div class="lb-row" data-player="${r.player_id}">
-          <div class="place ${placeClass(place)}">${place}</div>
+  return {
+    season_id: sid,
+    leaderboard,
+    matches,
+    season_table,
+  };
+}
 
-          <div class="namebox">
-            <div class="name-top">
-              <img class="rank-mini" decoding="async" loading="eager" src="./assets/rank${rankLevel}.png" alt="rank${rankLevel}">
-              <div class="nm-wrap">
-                <div class="nm">${r.name ?? ""}</div>
-                ${hasT9 ? `<img class="t9-mini" decoding="async" loading="eager" src="./assets/t9.png" alt="t9">` : ``}
-              </div>
-            </div>
-            ${miniAchievementsHtml(achList)}
-          </div>
+/** =========================
+ * SYNC: Sxx -> Matches
+ * ========================= */
 
-          <div class="scores">
-            <div class="score-pill">
-              <div class="lbl">Season</div>
-              <div class="val">${seasonScore}</div>
-            </div>
-            <div class="score-pill">
-              <div class="lbl">Total</div>
-              <div class="val">${totalScore}</div>
-            </div>
-          </div>
-        </div>
-      `;
-    }).join("");
+function rebuildMatchesForSeason(seasonId) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  rebuildMatchesForSeason_(ss, String(seasonId || '').trim().toUpperCase());
+  clearDashCache_(String(seasonId || '').trim().toUpperCase());
+}
 
-    [...lbEl.querySelectorAll("[data-player]")].forEach(el => {
-      el.onclick = () => openProfile(el.getAttribute("data-player"));
-    });
+function onEdit(e) {
+  try {
+    if (!e || !e.range) return;
 
-    setStatus("");
+    const sh = e.range.getSheet();
+    const name = sh.getName();
+    if (!/^S\d+$/i.test(name)) return;
+
+    const r = e.range.getRow();
+    const c = e.range.getColumn();
+    if (r < CFG.S_FIRST_PLAYER_ROW) return;
+    if (c < CFG.S_FIRST_DATE_COL) return;
+
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sid = name.toUpperCase();
+
+    rebuildMatchesForSeason_(ss, sid);
+    clearDashCache_(sid);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+function setupTriggers() {
+  const triggers = ScriptApp.getProjectTriggers();
+  const has = triggers.some(t => t.getHandlerFunction() === 'onEdit');
+  if (!has) {
+    ScriptApp.newTrigger('onEdit')
+      .forSpreadsheet(SpreadsheetApp.getActiveSpreadsheet())
+      .onEdit()
+      .create();
+  }
+}
+
+/** =========================
+ * CORE: rebuild matches
+ * (FIX) НЕ ЧИСТИМ ВЕСЬ Matches
+ * а удаляем только строки нужного season_id
+ * ========================= */
+
+function rebuildMatchesForSeason_(ss, seasonId) {
+  const sid = String(seasonId || '').trim().toUpperCase();
+
+  const seasonSheet = ss.getSheetByName(sid);
+  if (!seasonSheet) throw new Error(`Season sheet not found: ${sid}`);
+
+  const mapNameToPlayerId = getPlayersMap_(ss);
+  const mapDateToGameName = getGamesMap_(ss, sid);
+
+  const lastRow = seasonSheet.getLastRow();
+  const lastCol = seasonSheet.getLastColumn();
+  if (lastRow < CFG.S_FIRST_PLAYER_ROW || lastCol < CFG.S_FIRST_DATE_COL) return;
+
+  const data = seasonSheet.getRange(CFG.S_HEADER_ROW, 1, lastRow, lastCol).getDisplayValues();
+
+  const headers = data[CFG.S_HEADER_ROW - 1] || [];
+  const dateHeaders = [];
+
+  for (let col = CFG.S_FIRST_DATE_COL - 1; col < headers.length; col++) {
+    const ddmm = normalizeDdMm_(headers[col]);
+    if (ddmm) dateHeaders.push({ colIndex: col, ddmm });
   }
 
-  function medalIcon(kind){
-    if (kind === 'top1') return "🥇";
-    if (kind === 'top2') return "🥈";
-    return "🥉";
-  }
+  const newMatchesThisSeason = [];
 
-  function openViewer(src){
-    viewerImg.src = src;
-    viewer.classList.add("open");
-  }
+  for (const d of dateHeaders) {
+    const rowsForDay = [];
 
-  function buildAchievementsHtml(list){
-    const items = (list || []).map(x => String(x).trim()).filter(Boolean);
-    if (!items.length) return `<div class="hint">Пока нет достижений</div>`;
+    for (let r = CFG.S_FIRST_PLAYER_ROW - 1; r < data.length; r++) {
+      const name = String(data[r][CFG.S_NAME_COL - 1] || '').trim();
+      if (!name) continue;
 
-    const hasT9 = items.includes("t9");
-    const rest = items.filter(x => x !== "t9");
+      const pid = mapNameToPlayerId[name];
+      if (!pid) continue;
 
-    let html = `<div class="ach-wrap"><div class="ach-grid">`;
+      const pts = toNum_(data[r][d.colIndex]);
+      if (pts <= 0) continue;
 
-    if (hasT9){
-      html += `<div class="ach-t9" data-ach="t9"><img decoding="async" loading="eager" src="./assets/t9.png" alt="t9"></div>`;
+      rowsForDay.push({ pid, pts, name });
     }
 
-    const r = [...rest];
-    if (r.length % 3 === 2){
-      r.splice(r.length - 1, 0, "__spacer__");
-    }
+    rowsForDay.sort((a, b) => (b.pts - a.pts) || a.name.localeCompare(b.name, 'ru', { sensitivity: 'base' }));
 
-    for (const t of r){
-      if (t === "__spacer__"){
-        html += `<div style="width:92px;height:92px;"></div>`;
-        continue;
-      }
-      html += `<div class="ach-item" data-ach="${t}"><img decoding="async" loading="lazy" src="./assets/${t}.png" alt="${t}"></div>`;
+    for (let i = 0; i < rowsForDay.length; i++) {
+      const place = i + 1;
+      const gameName = mapDateToGameName[d.ddmm] || '';
+      newMatchesThisSeason.push([d.ddmm, sid, rowsForDay[i].pid, rowsForDay[i].pts, place, gameName]);
     }
-
-    html += `</div></div>`;
-    return html;
   }
 
-  function buildHistoryHtml(history){
-    const blocks = (history || []);
-    if (!blocks.length) return `<div class="hint">Нет игр</div>`;
+  const matchesSheet = ss.getSheetByName(CFG.SHEET_MATCHES) || ss.insertSheet(CFG.SHEET_MATCHES);
 
-    const parts = blocks.map(b => {
-      const games = (b.games || []);
-      const rows = games.map(g => `
-        <div class="hist-card">
-          <div class="hist-date">${g.date || "—"}</div>
-          <div class="hist-game">${g.game_name || "—"}</div>
-          <div class="chips">
-            <div class="chip">место: ${g.place ?? "—"}</div>
-            <div class="chip">очки: ${g.points ?? "—"}</div>
-          </div>
-        </div>
-      `).join("");
+  // читаем текущие строки Matches, оставляем все сезоны кроме sid
+  const kept = readMatchesKeepOtherSeasons_(matchesSheet, sid);
 
-      return `
-        <div>
-          <div class="season-block-title">Сезон «${b.season}»</div>
-          <div class="hist">${rows || `<div class="hint">Нет игр</div>`}</div>
-        </div>
-      `;
-    }).join("");
+  // пересобираем лист
+  matchesSheet.clearContents();
 
-    return `<div class="history-wrap"><div class="history-scroll">${parts}</div></div>`;
+  const header = [['date', 'season_id', 'player_id', 'points', 'place', 'game_name']];
+  matchesSheet.getRange(1, 1, 1, header[0].length).setValues(header);
+
+  const out = kept.concat(newMatchesThisSeason);
+
+  if (out.length) {
+    matchesSheet.getRange(2, 1, out.length, header[0].length).setValues(out);
+    matchesSheet.getRange(2, 4, out.length, 2).setNumberFormat('0');
+  } else {
+    matchesSheet.getRange(2, 4, 1, 2).setNumberFormat('0');
   }
+}
 
-  async function openProfile(playerId){
-    modalEl.style.display = "block";
-    profileEl.textContent = "Загрузка профиля…";
-    modalBody.classList.remove("champion");
+function readMatchesKeepOtherSeasons_(matchesSheet, seasonIdToRemove) {
+  const sid = String(seasonIdToRemove || '').trim().toUpperCase();
 
-    const seasonId = up(seasonSelect.value);
-    const data = await apiProfile(playerId, seasonId);
+  const v = matchesSheet.getDataRange().getDisplayValues();
+  if (!v || v.length < 2) return [];
 
-    const medals = data.medals || { top1:0, top2:0, top3:0 };
-    const rank = data.rank || { level:1, title:"Новичок" };
-    const ach = data.achievements || [];
-    if (ach.includes("t9")) modalBody.classList.add("champion");
+  const h = (v[0] || []).map(x => String(x).trim().toLowerCase());
+  const iSeason = h.indexOf('season_id');
 
-    const rankIcon = `./assets/rank${rank.level}.png`;
-    const nameFromProfile = (data.profile || []).find(x => String(x.label || '').toLowerCase().includes("имя"))?.value || "";
+  // если заголовок сломан — ничего не сохраняем (пересоздадим с нуля)
+  if (iSeason < 0) return [];
 
-    const medalsHtml = `
-      <div class="medals">
-        <div class="pill"><div class="left"><span>${medalIcon('top1')}</span><span>Top-1</span></div><div class="num">${medals.top1 ?? 0}</div></div>
-        <div class="pill"><div class="left"><span>${medalIcon('top2')}</span><span>Top-2</span></div><div class="num">${medals.top2 ?? 0}</div></div>
-        <div class="pill"><div class="left"><span>${medalIcon('top3')}</span><span>Top-3</span></div><div class="num">${medals.top3 ?? 0}</div></div>
-      </div>
-    `;
+  const kept = [];
+  for (let r = 1; r < v.length; r++) {
+    const row = v[r];
+    const rowSid = String(row[iSeason] || '').trim().toUpperCase();
+    if (rowSid && rowSid !== sid) kept.push(row);
+  }
+  return kept;
+}
 
-    profileEl.innerHTML = `
-      <div class="pc-top">
-        <img class="rank-icon" decoding="async" loading="eager" src="${rankIcon}" alt="rank${rank.level}">
-        <div class="rank-title">${rank.title}</div>
-        <div class="player-name">${nameFromProfile}</div>
-      </div>
+/** =========================
+ * READ helpers
+ * ========================= */
 
-      <div class="section-title">📊 СТАТИСТИКА</div>
-      ${medalsHtml}
+function readMatches_(ss, seasonId) {
+  const sh = ss.getSheetByName(CFG.SHEET_MATCHES);
+  if (!sh) return [];
 
-      <div class="section-title">🏆 ДОСТИЖЕНИЯ</div>
-      ${buildAchievementsHtml(ach)}
+  const v = sh.getDataRange().getDisplayValues();
+  if (v.length < 2) return [];
 
-      <div class="section-title">🗂 ИСТОРИЯ ИГР</div>
-      ${buildHistoryHtml(data.history || [])}
-    `;
+  const h = v[0].map(x => String(x).trim().toLowerCase());
+  const iDate = h.indexOf('date');
+  const iSeason = h.indexOf('season_id');
+  const iPid = h.indexOf('player_id');
+  const iPts = h.indexOf('points');
+  const iPlace = h.indexOf('place');
+  const iGame = h.indexOf('game_name');
 
-    profileEl.querySelectorAll("[data-ach]").forEach(el => {
-      el.onclick = () => openViewer(`./assets/${el.getAttribute("data-ach")}.png`);
+  const sid = String(seasonId || '').trim().toUpperCase();
+
+  const out = [];
+  for (let r = 1; r < v.length; r++) {
+    const row = v[r];
+    if (String(row[iSeason] || '').trim().toUpperCase() !== sid) continue;
+    out.push({
+      date: normalizeDdMm_(row[iDate]),
+      season_id: String(row[iSeason] || '').trim(),
+      player_id: String(row[iPid] || '').trim(),
+      points: toNum_(row[iPts]),
+      place: toNum_(row[iPlace]),
+      game_name: String(row[iGame] || '').trim(),
     });
   }
+  return out;
+}
 
-  function preloadImages(urls){
-    urls.forEach((url) => {
-      const img = new Image();
-      img.decoding = "async";
-      img.src = url;
-    });
+function readSeasonTableRaw_(ss, seasonId) {
+  const sh = ss.getSheetByName(String(seasonId || '').trim().toUpperCase());
+  if (!sh) return { headers: [], rows: [] };
+
+  const v = sh.getDataRange().getDisplayValues();
+  return {
+    headers: v[0] || [],
+    rows: v.slice(1),
+  };
+}
+
+/** =========================
+ * LEADERBOARD from matches
+ * ========================= */
+
+function buildLeaderboardFromMatches_(ss, matches, seasonId) {
+  const pidToName = getPlayersMapReverse_(ss);
+
+  const byPid = new Map();
+  for (const m of matches) {
+    const pid = m.player_id;
+    if (!byPid.has(pid)) byPid.set(pid, { player_id: pid, name: pidToName[pid] || pid, season_score: 0 });
+    byPid.get(pid).season_score += Number(m.points || 0);
   }
-  function warmupAssets(){
-    preloadImages([
-      "./assets/rank1.png","./assets/rank2.png","./assets/rank3.png",
-      "./assets/t9.png","./assets/logo.png"
-    ]);
-    const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 400));
-    idle(() => preloadImages([
-      "./assets/rank4.png","./assets/rank5.png","./assets/rank6.png","./assets/rank7.png",
-      "./assets/t1.png","./assets/t2.png","./assets/t3.png","./assets/t4.png",
-      "./assets/t5.png","./assets/t6.png","./assets/t7.png","./assets/t8.png"
-    ]));
+
+  const arr = [...byPid.values()].map(x => ({
+    player_id: x.player_id,
+    name: x.name,
+    season_score: x.season_score,
+    all_seasons_score: x.season_score,
+    rank_level: 1,
+    achievements: '',
+    achievements_list: [],
+  }));
+
+  arr.sort((a, b) => (b.season_score - a.season_score) || a.name.localeCompare(b.name, 'ru', { sensitivity: 'base' }));
+  return arr;
+}
+
+/** =========================
+ * PROFILE (заглушка)
+ * ========================= */
+function getProfile_(ss, playerId, seasonId) {
+  return {
+    profile: [{ label: 'Имя', value: playerId }],
+    medals: { top1: 0, top2: 0, top3: 0 },
+    rank: { level: 1, title: 'Новичок' },
+    achievements: [],
+    history: [],
+  };
+}
+
+/** =========================
+ * MAPS
+ * ========================= */
+
+function getPlayersMap_(ss) {
+  const sh = ss.getSheetByName(CFG.SHEET_PLAYERS);
+  if (!sh) throw new Error('Players sheet not found');
+
+  const v = sh.getDataRange().getDisplayValues();
+  const h = v[0].map(x => String(x).trim().toLowerCase());
+  const iPid = h.indexOf('player_id');
+  const iName = h.indexOf('name');
+
+  const map = {};
+  for (let i = 1; i < v.length; i++) {
+    const pid = String(v[i][iPid] || '').trim();
+    const name = String(v[i][iName] || '').trim();
+    if (pid && name) map[name] = pid;
   }
+  return map;
+}
 
-  async function init(){
-    try{
-      warmupAssets();
+function getPlayersMapReverse_(ss) {
+  const sh = ss.getSheetByName(CFG.SHEET_PLAYERS);
+  if (!sh) return {};
 
-      setStatus("Загрузка…");
-      const meta = await apiMeta();
-      seasonsCache = meta.seasons || [];
+  const v = sh.getDataRange().getDisplayValues();
+  const h = v[0].map(x => String(x).trim().toLowerCase());
+  const iPid = h.indexOf('player_id');
+  const iName = h.indexOf('name');
 
-      seasonSelect.innerHTML =
-        `<option value="TOTAL">Total</option>` +
-        seasonsCache.map(s => `<option value="${up(s.season_id)}">${s.season_name}</option>`).join("");
+  const map = {};
+  for (let i = 1; i < v.length; i++) {
+    const pid = String(v[i][iPid] || '').trim();
+    const name = String(v[i][iName] || '').trim();
+    if (pid && name) map[pid] = name;
+  }
+  return map;
+}
 
-      const currentSeason = up(meta.current_season_id || "");
-      const exists = seasonsCache.some(s => up(s.season_id) === currentSeason);
-      if (currentSeason && exists) seasonSelect.value = currentSeason;
-      else if (seasonsCache.length) seasonSelect.value = up(seasonsCache[seasonsCache.length - 1].season_id);
-      else seasonSelect.value = "TOTAL";
+function getGamesMap_(ss, seasonId) {
+  const sh = ss.getSheetByName(CFG.SHEET_GAMES);
+  if (!sh) return {};
 
-      updateSeasonName();
-      await renderLeaderboard();
+  const v = sh.getDataRange().getDisplayValues();
+  const h = v[0].map(x => String(x).trim().toLowerCase());
 
-      seasonSelect.onchange = async () => {
-        setStatus("Переключаю сезон…");
-        updateSeasonName();
-        await renderLeaderboard();
-      };
+  const iDate = h.indexOf('date');
+  const iSeason = h.indexOf('season_id');
+  const iGame =
+    (h.indexOf('game_name') >= 0 ? h.indexOf('game_name') :
+     (h.indexOf('game') >= 0 ? h.indexOf('game') :
+      h.indexOf('name')));
 
-      prevBtn.onclick = async () => {
-        const current = up(seasonSelect.value);
-        if (current === "TOTAL"){
-          if (!seasonsCache.length) return;
-          seasonSelect.value = up(seasonsCache[seasonsCache.length - 1].season_id);
-        } else {
-          const idx = seasonsCache.findIndex(s => up(s.season_id) === current);
-          if (idx > 0) seasonSelect.value = up(seasonsCache[idx - 1].season_id);
-        }
-        updateSeasonName();
-        await renderLeaderboard();
-      };
+  // если заголовки не найдены — просто не будет подстановки, но скрипт не упадёт
+  if (iDate < 0 || iSeason < 0 || iGame < 0) return {};
 
-      nextBtn.onclick = async () => {
-        const current = up(seasonSelect.value);
-        if (current === "TOTAL"){
-          if (!seasonsCache.length) return;
-          seasonSelect.value = up(seasonsCache[0].season_id);
-        } else {
-          const idx = seasonsCache.findIndex(s => up(s.season_id) === current);
-          if (idx >= 0 && idx < seasonsCache.length - 1) seasonSelect.value = up(seasonsCache[idx + 1].season_id);
-        }
-        updateSeasonName();
-        await renderLeaderboard();
-      };
+  const sid = String(seasonId || '').trim().toUpperCase();
 
-      setStatus("");
-    } catch(err){
-      console.error(err);
-      setStatus("Ошибка загрузки. Проверь Web App и доступ к таблице.");
+  const map = {};
+  for (let i = 1; i < v.length; i++) {
+    const rowSid = String(v[i][iSeason] || '').trim().toUpperCase();
+    if (rowSid !== sid) continue;
+
+    const ddmm = normalizeDdMm_(v[i][iDate]);
+    const g = String(v[i][iGame] || '').trim();
+    if (ddmm && g) map[ddmm] = g;
+  }
+  return map;
+}
+
+/** =========================
+ * CACHE / UTILS
+ * ========================= */
+
+function clearDashCache_(seasonId) {
+  const cache = CacheService.getScriptCache();
+  cache.remove(`dash_${String(seasonId).trim().toUpperCase()}`);
+}
+
+function normalizeDdMm_(v) {
+  if (v === null || v === undefined) return '';
+
+  // если это Date object
+  try {
+    if (Object.prototype.toString.call(v) === '[object Date]' && !isNaN(v.getTime())) {
+      return Utilities.formatDate(v, Session.getScriptTimeZone(), 'dd.MM');
     }
+  } catch (e) {}
+
+  const s0 = String(v).trim();
+  if (!s0) return '';
+
+  const s = s0.replace(/\s+/g, '');
+
+  // dd.mm
+  let m = s.match(/^(\d{1,2})\.(\d{1,2})$/);
+  if (m) {
+    const dd = String(m[1]).padStart(2, '0');
+    const mm = String(m[2]).padStart(2, '0');
+    return `${dd}.${mm}`;
   }
 
-  init();
-</script>
-</body>
-</html>
+  // dd.mm.yyyy (или dd.mm.yy)
+  m = s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{2,4})$/);
+  if (m) {
+    const dd = String(m[1]).padStart(2, '0');
+    const mm = String(m[2]).padStart(2, '0');
+    return `${dd}.${mm}`;
+  }
+
+  // fallback: попытка вытащить первые dd.mm из строки
+  m = s.match(/(\d{1,2})\.(\d{1,2})/);
+  if (m) {
+    const dd = String(m[1]).padStart(2, '0');
+    const mm = String(m[2]).padStart(2, '0');
+    return `${dd}.${mm}`;
+  }
+
+  return s0;
+}
+
+function toNum_(v) {
+  const s = String(v ?? '').trim().replace(/\s+/g, '').replace(',', '.');
+  const n = Number(s);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function json_(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
