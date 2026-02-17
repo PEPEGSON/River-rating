@@ -172,7 +172,6 @@
       transform:translateY(1px);
     }
 
-    /* PANEL как контейнер-колонка, чтобы lb мог быть скроллом на телефоне */
     .panel{
       margin-top:14px;
       border-radius:var(--radius);
@@ -181,9 +180,6 @@
       box-shadow:var(--shadow);
       backdrop-filter:blur(12px);
       overflow:hidden;
-      display:flex;
-      flex-direction:column;
-      min-height: 200px;
     }
     .panel-head{
       display:flex;
@@ -192,7 +188,6 @@
       padding:14px 16px;
       border-bottom:1px solid rgba(255,255,255,.10);
       background:linear-gradient(to right, rgba(214,181,106,.08), transparent 55%);
-      flex:0 0 auto;
     }
     .panel-title{
       font-family:Cinzel,serif;
@@ -208,8 +203,6 @@
       display:flex;
       flex-direction:column;
       gap:10px;
-      flex:1 1 auto;
-      overflow:visible; /* на десктопе обычный поток */
     }
 
     .lb-row{
@@ -217,7 +210,11 @@
       display:grid;
       grid-template-columns: 68px 1fr auto;
       gap:12px;
+
+      /* ВАЖНО: центрируем всё содержимое по вертикали */
       align-items:center;
+      align-content:center;
+
       padding:12px 12px;
       border-radius:18px;
 
@@ -231,9 +228,12 @@
       overflow:hidden;
       cursor:pointer;
 
-      /* ВАЖНО: НИКАКИХ content-visibility / contain — они и давали “скукоживание” */
-      min-height: 76px;
+      content-visibility:auto;
+      contain-intrinsic-size: 92px 340px;
     }
+
+    /* дополнительно: каждый блок в строке принудительно по центру */
+    .lb-row > *{ position:relative; z-index:1; align-self:center; }
 
     .lb-row:nth-child(odd)::before,
     .lb-row:nth-child(even)::before{
@@ -253,7 +253,6 @@
       z-index:0;
       pointer-events:none;
     }
-    .lb-row > *{ position:relative; z-index:1; }
 
     .place{
       display:flex;
@@ -272,7 +271,16 @@
     .place.p2{ color:rgba(220,226,235,.98); border-color:rgba(220,226,235,.55); box-shadow:0 0 14px rgba(220,226,235,.12); }
     .place.p3{ color:rgba(205,127,50,.98); border-color:rgba(205,127,50,.55); box-shadow:0 0 14px rgba(205,127,50,.12); }
 
-    .namebox{display:flex;flex-direction:column;gap:6px;min-width:0}
+    .namebox{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width:0;
+
+      /* ВАЖНО: центр по вертикали внутри namebox */
+      justify-content:center;
+    }
+
     .name-top{
       display:flex;
       align-items:center;
@@ -285,15 +293,6 @@
       filter:drop-shadow(0 12px 18px rgba(0,0,0,.55));
       flex:0 0 auto;
     }
-
-    .nm-wrap{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      min-width:0;
-      flex:1 1 auto;
-    }
-
     .nm{
       font-family:Cinzel,serif;
       font-weight:700;
@@ -301,15 +300,7 @@
       color:rgba(255,255,255,.95);
       text-shadow:0 14px 34px rgba(0,0,0,.55);
       overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;
-    }
-
-    /* t9 справа от имени */
-    .t9-badge{
-      width:30px;height:30px;
-      object-fit:contain;
-      filter:drop-shadow(0 12px 18px rgba(0,0,0,.55));
-      flex:0 0 auto;
-      opacity:.98;
+      line-height:1.05;
     }
 
     .ach-mini{
@@ -318,13 +309,14 @@
       flex-wrap:wrap;
       align-items:center;
 
-      /* ВАЖНО: начинать с того же места что и щит (БЕЗ margin-left) */
-      margin-left:0;
+      /* было: margin-left:50px; — оставляем как в рабочей версии */
+      margin-left:50px;
     }
     .ach-mini img{
       width:24px;height:24px;object-fit:contain;
       filter:drop-shadow(0 10px 14px rgba(0,0,0,.55));
       opacity:.95;
+      flex:0 0 auto;
     }
 
     .scores{
@@ -345,78 +337,50 @@
       white-space:nowrap;
     }
     .score-pill .lbl{font-size:10px;color:rgba(255,255,255,.55);letter-spacing:.06em;text-transform:uppercase}
-    .score-pill .val{margin-top:4px;font-size:20px;font-weight:800;color:rgba(255,255,255,.92)}
+    .score-pill .val{margin-top:4px;font-size:20px;font-weight:800;color:rgba(255,255,255,.92);line-height:1.05}
 
-    /* ====== МОБИЛЬНАЯ АДАПТАЦИЯ + фикс “скролл только таблицы” ====== */
+    /* ====== МОБИЛЬНАЯ АДАПТАЦИЯ (центрирование по вертикали) ====== */
     @media (max-width: 760px){
-      html,body{height:100%}
-      body{
-        overflow:hidden; /* чтобы страница не скроллилась, будет скроллиться только lb */
-      }
-
-      .wrap{
-        height:100dvh;
-        margin:0 auto;
-        padding:14px 0 14px;
-        display:flex;
-        flex-direction:column;
-      }
-
-      .topbar{
-        display:flex;
-        flex-direction:column;
-        align-items:center;
-        gap:10px;
-        text-align:center;
-        flex:0 0 auto;
-      }
+      .topbar{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
       .brand{min-width:0;justify-content:center}
       .brand img{height:42px}
       .season-name{text-align:center;max-width:92vw}
       .center-title .title{font-size:18px;letter-spacing:.08em}
 
-      .controls{
-        flex:0 0 auto;
-      }
+      .lb{padding:10px 10px 14px; gap:10px;}
 
-      /* панель занимает остаток высоты */
-      .panel{
-        flex:1 1 auto;
-        min-height: 0; /* критично для корректного overflow в flex */
-      }
-
-      /* и скроллим только список */
-      .lb{
-        padding:10px 10px 14px;
-        gap:10px;
-        overflow:auto;
-        -webkit-overflow-scrolling:touch;
-      }
-
-      /* структура как на ПК, но компактнее */
       .lb-row{
         grid-template-columns: 54px 1fr auto;
         gap:8px;
-        padding:10px 10px;
-        border-radius:16px;
-        min-height: 64px; /* фикс высоты чтобы НЕ сжималось */
+
+        /* симметричные отступы + минимальная высота, чтобы ничего не “прилипало” */
+        padding:12px 10px;
+        min-height:76px;
+
+        align-items:center;
+        align-content:center;
       }
 
       .place{width:42px;height:42px;font-size:16px}
 
       .rank-mini{width:28px;height:28px}
-      .nm{font-size:17px}
+      .nm{font-size:17px; line-height:1.05}
 
-      .t9-badge{width:26px;height:26px}
+      .namebox{
+        justify-content:center;
+      }
 
-      /* много достижений -> горизонтальный свайп, но старт слева как у щита */
       .ach-mini{
+        margin-left:38px;        /* под уменьшенный rank */
         gap:5px;
         flex-wrap:nowrap;
         overflow-x:auto;
         overflow-y:hidden;
         -webkit-overflow-scrolling:touch;
-        padding-bottom:2px;
+
+        /* ВАЖНО: убрать “низовую” подкладку, которая визуально прижимала вниз */
+        padding-bottom:0;
+        margin-top:2px;
       }
       .ach-mini img{width:18px;height:18px}
 
@@ -430,7 +394,7 @@
         border-radius:12px;
       }
       .score-pill .lbl{font-size:9px}
-      .score-pill .val{font-size:16px}
+      .score-pill .val{font-size:16px; line-height:1.05}
     }
 
     /* ====== Modal (как было) ====== */
@@ -671,15 +635,9 @@
     lbEl.innerHTML = rows.map((r, idx) => {
       const place = idx + 1;
       const rankLevel = Number(r.rank_level || 1);
-
-      const achRaw = r.achievements_list || (String(r.achievements || "").split(",").map(s=>s.trim()).filter(Boolean));
-      const hasT9 = achRaw.includes("t9");
-      const achList = achRaw.filter(x => x !== "t9"); // t9 убираем из строки
-
+      const achList = r.achievements_list || (String(r.achievements || "").split(",").map(s=>s.trim()).filter(Boolean));
       const seasonScore = toNum(r.season_score);
       const totalScore  = toNum(r.all_seasons_score);
-
-      const t9Html = hasT9 ? `<img class="t9-badge" decoding="async" loading="eager" src="./assets/t9.png" alt="t9">` : "";
 
       return `
         <div class="lb-row" data-player="${r.player_id}">
@@ -687,11 +645,8 @@
 
           <div class="namebox">
             <div class="name-top">
-              <img class="rank-mini" decoding="async" loading="eager" src="./assets/rank${rankLevel}.png" alt="rank${rankLevel}" onerror="this.style.display='none'">
-              <div class="nm-wrap">
-                <div class="nm">${r.name ?? ""}</div>
-                ${t9Html}
-              </div>
+              <img class="rank-mini" decoding="async" loading="eager" src="./assets/rank${rankLevel}.png" alt="rank${rankLevel}">
+              <div class="nm">${r.name ?? ""}</div>
             </div>
             ${miniAchievementsHtml(achList)}
           </div>
