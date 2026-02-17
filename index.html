@@ -210,7 +210,7 @@
       display:grid;
       grid-template-columns: 68px 1fr auto;
       gap:12px;
-      align-items:center; /* центр по вертикали */
+      align-items:center;
       padding:12px 12px;
       border-radius:18px;
 
@@ -264,59 +264,58 @@
     .place.p2{ color:rgba(220,226,235,.98); border-color:rgba(220,226,235,.55); box-shadow:0 0 14px rgba(220,226,235,.12); }
     .place.p3{ color:rgba(205,127,50,.98); border-color:rgba(205,127,50,.55); box-shadow:0 0 14px rgba(205,127,50,.12); }
 
-    /* ======= ВАЖНО: namebox теперь grid, чтобы:
-       - имя в одной строке с щитом
-       - t9 справа от имени
-       - достижения начинаются ПОД щитом (с самого левого края namebox), без пустой зоны
-    ======= */
-    .namebox{
-      display:grid;
-      grid-template-columns: auto 1fr auto;
-      grid-template-rows: auto auto;
-      column-gap:10px;
-      row-gap:6px;
-      align-items:center;
-      min-width:0;
-      align-self:center; /* центр в строке */
-    }
+    .namebox{display:flex;flex-direction:column;gap:6px;min-width:0}
+    .name-top{display:flex;align-items:center;gap:10px;min-width:0}
+
     .rank-mini{
-      grid-column:1;
-      grid-row:1;
       width:40px;height:40px;object-fit:contain;
       filter:drop-shadow(0 12px 18px rgba(0,0,0,.55));
       flex:0 0 auto;
     }
+
+    /* имя + t9 справа */
+    .nm-wrap{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      min-width:0;
+      flex:1 1 auto;
+    }
     .nm{
-      grid-column:2;
-      grid-row:1;
       font-family:Cinzel,serif;
       font-weight:700;
       font-size:22px;
       color:rgba(255,255,255,.95);
       text-shadow:0 14px 34px rgba(0,0,0,.55);
       overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;
-      line-height:1.05;
     }
     .t9-mini{
-      grid-column:3;
-      grid-row:1;
-      width:30px;height:30px;
-      object-fit:contain;
+      width:26px;height:26px;object-fit:contain;
       filter:drop-shadow(0 10px 14px rgba(0,0,0,.55));
+      flex:0 0 auto;
       opacity:.98;
-      justify-self:end;
     }
 
+    /* достижениями управляем через padding-left, чтобы стартовали под щитом и НЕ оставляли пустоту при скролле */
     .ach-mini{
-      grid-row:2;
-      grid-column:1 / span 3;  /* начинается прямо под щитом */
       display:flex;
       gap:6px;
+      flex-wrap:nowrap;
       align-items:center;
-      min-width:0;
-      justify-content:flex-start;
-      /* ВАЖНО: НЕТ padding-left / margin-left -> не будет "пустого места" при скролле */
+
+      overflow-x:auto;
+      overflow-y:hidden;
+      -webkit-overflow-scrolling:touch;
+
+      scrollbar-width:none;
+      padding-bottom:2px;
+
+      /* ВАЖНО: "начало ленты" всегда под щитом */
+      padding-left:50px;
+      margin-left:-50px;
     }
+    .ach-mini::-webkit-scrollbar{height:0}
+
     .ach-mini img{
       width:24px;height:24px;object-fit:contain;
       filter:drop-shadow(0 10px 14px rgba(0,0,0,.55));
@@ -328,9 +327,8 @@
       display:flex;
       gap:8px;
       justify-content:flex-end;
-      align-items:center; /* центр */
+      align-items:center;
       flex-wrap:nowrap;
-      align-self:center; /* центр в строке */
     }
     .score-pill{
       border:1px solid rgba(214,181,106,.28);
@@ -358,37 +356,24 @@
       .lb-row{
         grid-template-columns: 54px 1fr auto;
         gap:8px;
-        padding:10px 10px;
+        padding:12px 10px; /* чуть выше, чтобы не "прилипало вниз" */
         border-radius:16px;
-        align-items:center;
+        align-items:center; /* центр по вертикали */
       }
 
       .place{width:42px;height:42px;font-size:16px}
 
-      .namebox{
-        column-gap:8px;
-        row-gap:5px;
-      }
-
       .rank-mini{width:28px;height:28px}
       .nm{font-size:17px}
-      .t9-mini{width:24px;height:24px}
+      .t9-mini{width:20px;height:20px}
 
-      /* достижения: всегда в одну строку, горизонтальный скролл */
+      /* Под щитом начало */
       .ach-mini{
+        padding-left:38px;
+        margin-left:-38px;
         gap:5px;
-        flex-wrap:nowrap;
-        overflow-x:auto;
-        overflow-y:hidden;
-        -webkit-overflow-scrolling:touch;
-        padding-bottom:0;
-        justify-content:flex-start;
       }
       .ach-mini img{width:18px;height:18px}
-
-      /* скрыть полосу скролла */
-      .ach-mini::-webkit-scrollbar{height:0}
-      .ach-mini{scrollbar-width:none}
 
       .scores{gap:6px}
       .score-pill{
@@ -599,6 +584,13 @@
     return await res.json();
   }
 
+  // ✅ ВАЖНО: устанавливаем текущий сезон (пишет Leaderboard!G2)
+  async function apiSetSeason(seasonId){
+    try{
+      await fetch(`${API_BASE}?season_id=${encodeURIComponent(seasonId)}`, { cache: "no-store" });
+    }catch(e){}
+  }
+
   let seasonsCache = [];
 
   function updateSeasonName(){
@@ -616,14 +608,22 @@
   }
 
   function miniAchievementsHtml(list){
-    const items = (list || []).map(x => String(x).trim()).filter(Boolean).slice(0, 30);
+    const itemsAll = (list || []).map(x => String(x).trim()).filter(Boolean);
+    if (!itemsAll.length) return "";
+
+    // t9 вынесем отдельно справа от имени
+    const items = itemsAll.filter(x => x !== "t9");
     if (!items.length) return "";
+
     return `<div class="ach-mini">` + items.map(t => `<img loading="lazy" decoding="async" src="./assets/${t}.png" alt="${t}">`).join("") + `</div>`;
   }
 
   async function renderLeaderboard(){
     setStatus("Загрузка…");
     const seasonId = up(seasonSelect.value);
+
+    // ✅ синхронизируем "текущий сезон" в Sheets
+    await apiSetSeason(seasonId);
 
     const dash = await apiDashboard(seasonId);
     const rowsRaw = dash.leaderboard || [];
@@ -638,10 +638,9 @@
     lbEl.innerHTML = rows.map((r, idx) => {
       const place = idx + 1;
       const rankLevel = Number(r.rank_level || 1);
+      const achList = r.achievements_list || (String(r.achievements || "").split(",").map(s=>s.trim()).filter(Boolean));
 
-      const achListAll = r.achievements_list || (String(r.achievements || "").split(",").map(s=>s.trim()).filter(Boolean));
-      const hasT9 = achListAll.includes("t9");
-      const achList = achListAll.filter(x => x !== "t9"); // t9 отдельно справа от имени
+      const hasT9 = (achList || []).includes("t9");
 
       const seasonScore = toNum(r.season_score);
       const totalScore  = toNum(r.all_seasons_score);
@@ -651,13 +650,13 @@
           <div class="place ${placeClass(place)}">${place}</div>
 
           <div class="namebox">
-            <img class="rank-mini" decoding="async" loading="eager"
-              src="./assets/rank${rankLevel}.png" alt="rank${rankLevel}"
-              onerror="this.onerror=null;this.src='./assets/rank1.png';">
-
-            <div class="nm">${r.name ?? ""}</div>
-
-            ${hasT9 ? `<img class="t9-mini" decoding="async" loading="eager" src="./assets/t9.png" alt="t9">` : ""}
+            <div class="name-top">
+              <img class="rank-mini" decoding="async" loading="eager" src="./assets/rank${rankLevel}.png" alt="rank${rankLevel}">
+              <div class="nm-wrap">
+                <div class="nm">${r.name ?? ""}</div>
+                ${hasT9 ? `<img class="t9-mini" decoding="async" loading="eager" src="./assets/t9.png" alt="t9">` : ``}
+              </div>
+            </div>
 
             ${miniAchievementsHtml(achList)}
           </div>
@@ -832,6 +831,7 @@
 
       const currentSeason = up(meta.current_season_id || "");
       const exists = seasonsCache.some(s => up(s.season_id) === currentSeason);
+
       if (currentSeason && exists) seasonSelect.value = currentSeason;
       else if (seasonsCache.length) seasonSelect.value = up(seasonsCache[seasonsCache.length - 1].season_id);
       else seasonSelect.value = "TOTAL";
