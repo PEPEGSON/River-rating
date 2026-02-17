@@ -210,10 +210,8 @@
       display:grid;
       grid-template-columns: 68px 1fr auto;
       gap:12px;
-
       align-items:center;
       align-content:center;
-
       padding:12px 12px;
       border-radius:18px;
 
@@ -276,26 +274,32 @@
       justify-content:center;
     }
 
-    /* имя + t9 справа от имени */
-    .name-top{
-      display:flex;
+    /* ВАЖНО: отдельная сетка, чтобы 2-я строка начиналась под rank */
+    .name-grid{
+      display:grid;
+      grid-template-columns: 40px 1fr;   /* = rank width */
+      column-gap:10px;                  /* = gap как в верхней строке */
+      row-gap:6px;
       align-items:center;
-      gap:10px;
       min-width:0;
-    }
-    .nm-wrap{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      min-width:0;
-      flex:1 1 auto;
     }
 
     .rank-mini{
+      grid-row:1;
+      grid-column:1;
       width:40px;height:40px;object-fit:contain;
       filter:drop-shadow(0 12px 18px rgba(0,0,0,.55));
-      flex:0 0 auto;
     }
+
+    .name-line{
+      grid-row:1;
+      grid-column:2;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+    }
+
     .nm{
       font-family:Cinzel,serif;
       font-weight:700;
@@ -306,7 +310,6 @@
       line-height:1.05;
     }
 
-    /* иконка t9 рядом с именем (чуть крупнее) */
     .t9-mini{
       width:28px;height:28px;
       object-fit:contain;
@@ -315,16 +318,19 @@
       flex:0 0 auto;
     }
 
-    /* достижения должны начинаться под иконкой ранга */
     .ach-mini{
+      grid-row:2;
+      grid-column:1 / span 2;
       display:flex;
       gap:6px;
-      flex-wrap:wrap;
       align-items:center;
 
-      /* ключевое: сдвиг = ширина rank-mini (40) + gap в name-top (10) */
-      margin-left:50px;
+      /* ключ: делаем "пустую колонку" шириной rank,
+         чтобы иконки начинались строго под rank */
+      padding-left:50px; /* 40 (rank) + 10 (gap) */
+      min-width:0;
     }
+
     .ach-mini img{
       width:24px;height:24px;object-fit:contain;
       filter:drop-shadow(0 10px 14px rgba(0,0,0,.55));
@@ -372,22 +378,24 @@
 
       .place{width:42px;height:42px;font-size:16px}
 
+      .name-grid{
+        grid-template-columns: 28px 1fr; /* = rank-mini mobile */
+        column-gap:10px;
+        row-gap:4px;
+      }
+
       .rank-mini{width:28px;height:28px}
       .nm{font-size:17px; line-height:1.05}
-
-      /* t9 на телефоне чуть меньше, но всё равно рядом с именем */
       .t9-mini{width:22px;height:22px}
 
-      /* достижения стартуют ровно под rank (28) + gap (10) = 38 */
       .ach-mini{
-        margin-left:38px;
+        padding-left:38px; /* 28 + 10 */
         gap:5px;
         flex-wrap:nowrap;
         overflow-x:auto;
         overflow-y:hidden;
         -webkit-overflow-scrolling:touch;
         padding-bottom:0;
-        margin-top:2px;
       }
       .ach-mini img{width:18px;height:18px}
       .ach-mini::-webkit-scrollbar{height:0}
@@ -618,9 +626,6 @@
     return "";
   }
 
-  /* achievements в карточке:
-     - t9 убираем из нижней линии
-     - t9 показываем справа от имени */
   function splitT9(list){
     const items = (list || []).map(x => String(x).trim()).filter(Boolean);
     const hasT9 = items.includes("t9");
@@ -662,14 +667,14 @@
           <div class="place ${placeClass(place)}">${place}</div>
 
           <div class="namebox">
-            <div class="name-top">
+            <div class="name-grid">
               <img class="rank-mini" decoding="async" loading="eager" src="./assets/rank${rankLevel}.png" alt="rank${rankLevel}">
-              <div class="nm-wrap">
+              <div class="name-line">
                 <div class="nm">${r.name ?? ""}</div>
                 ${hasT9 ? `<img class="t9-mini" decoding="async" loading="eager" src="./assets/t9.png" alt="t9">` : ``}
               </div>
+              ${miniAchievementsHtml(rest)}
             </div>
-            ${miniAchievementsHtml(rest)}
           </div>
 
           <div class="scores">
