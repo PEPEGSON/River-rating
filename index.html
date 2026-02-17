@@ -211,7 +211,6 @@
       grid-template-columns: 68px 1fr auto;
       gap:12px;
 
-      /* ВАЖНО: центрируем всё содержимое по вертикали */
       align-items:center;
       align-content:center;
 
@@ -231,8 +230,6 @@
       content-visibility:auto;
       contain-intrinsic-size: 92px 340px;
     }
-
-    /* дополнительно: каждый блок в строке принудительно по центру */
     .lb-row > *{ position:relative; z-index:1; align-self:center; }
 
     .lb-row:nth-child(odd)::before,
@@ -276,16 +273,22 @@
       flex-direction:column;
       gap:6px;
       min-width:0;
-
-      /* ВАЖНО: центр по вертикали внутри namebox */
       justify-content:center;
     }
 
+    /* имя + t9 справа от имени */
     .name-top{
       display:flex;
       align-items:center;
       gap:10px;
       min-width:0;
+    }
+    .nm-wrap{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width:0;
+      flex:1 1 auto;
     }
 
     .rank-mini{
@@ -303,13 +306,23 @@
       line-height:1.05;
     }
 
+    /* иконка t9 рядом с именем (чуть крупнее) */
+    .t9-mini{
+      width:28px;height:28px;
+      object-fit:contain;
+      filter:drop-shadow(0 10px 14px rgba(0,0,0,.55));
+      opacity:.98;
+      flex:0 0 auto;
+    }
+
+    /* достижения должны начинаться под иконкой ранга */
     .ach-mini{
       display:flex;
       gap:6px;
       flex-wrap:wrap;
       align-items:center;
 
-      /* было: margin-left:50px; — оставляем как в рабочей версии */
+      /* ключевое: сдвиг = ширина rank-mini (40) + gap в name-top (10) */
       margin-left:50px;
     }
     .ach-mini img{
@@ -339,7 +352,6 @@
     .score-pill .lbl{font-size:10px;color:rgba(255,255,255,.55);letter-spacing:.06em;text-transform:uppercase}
     .score-pill .val{margin-top:4px;font-size:20px;font-weight:800;color:rgba(255,255,255,.92);line-height:1.05}
 
-    /* ====== МОБИЛЬНАЯ АДАПТАЦИЯ (центрирование по вертикали) ====== */
     @media (max-width: 760px){
       .topbar{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
       .brand{min-width:0;justify-content:center}
@@ -352,11 +364,8 @@
       .lb-row{
         grid-template-columns: 54px 1fr auto;
         gap:8px;
-
-        /* симметричные отступы + минимальная высота, чтобы ничего не “прилипало” */
         padding:12px 10px;
         min-height:76px;
-
         align-items:center;
         align-content:center;
       }
@@ -366,24 +375,21 @@
       .rank-mini{width:28px;height:28px}
       .nm{font-size:17px; line-height:1.05}
 
-      .namebox{
-        justify-content:center;
-      }
+      /* t9 на телефоне чуть меньше, но всё равно рядом с именем */
+      .t9-mini{width:22px;height:22px}
 
+      /* достижения стартуют ровно под rank (28) + gap (10) = 38 */
       .ach-mini{
-        margin-left:38px;        /* под уменьшенный rank */
+        margin-left:38px;
         gap:5px;
         flex-wrap:nowrap;
         overflow-x:auto;
         overflow-y:hidden;
         -webkit-overflow-scrolling:touch;
-
-        /* ВАЖНО: убрать “низовую” подкладку, которая визуально прижимала вниз */
         padding-bottom:0;
         margin-top:2px;
       }
       .ach-mini img{width:18px;height:18px}
-
       .ach-mini::-webkit-scrollbar{height:0}
       .ach-mini{scrollbar-width:none}
 
@@ -397,7 +403,7 @@
       .score-pill .val{font-size:16px; line-height:1.05}
     }
 
-    /* ====== Modal (как было) ====== */
+    /* ====== Modal (без изменений) ====== */
     .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.70);backdrop-filter:blur(6px);z-index:50}
     .card{
       width:min(560px,92vw);
@@ -612,8 +618,18 @@
     return "";
   }
 
-  function miniAchievementsHtml(list){
-    const items = (list || []).map(x => String(x).trim()).filter(Boolean).slice(0, 30);
+  /* achievements в карточке:
+     - t9 убираем из нижней линии
+     - t9 показываем справа от имени */
+  function splitT9(list){
+    const items = (list || []).map(x => String(x).trim()).filter(Boolean);
+    const hasT9 = items.includes("t9");
+    const rest = items.filter(x => x !== "t9");
+    return { hasT9, rest };
+  }
+
+  function miniAchievementsHtml(listWithoutT9){
+    const items = (listWithoutT9 || []).map(x => String(x).trim()).filter(Boolean).slice(0, 30);
     if (!items.length) return "";
     return `<div class="ach-mini">` + items.map(t => `<img loading="lazy" decoding="async" src="./assets/${t}.png" alt="${t}">`).join("") + `</div>`;
   }
@@ -636,6 +652,8 @@
       const place = idx + 1;
       const rankLevel = Number(r.rank_level || 1);
       const achList = r.achievements_list || (String(r.achievements || "").split(",").map(s=>s.trim()).filter(Boolean));
+      const { hasT9, rest } = splitT9(achList);
+
       const seasonScore = toNum(r.season_score);
       const totalScore  = toNum(r.all_seasons_score);
 
@@ -646,9 +664,12 @@
           <div class="namebox">
             <div class="name-top">
               <img class="rank-mini" decoding="async" loading="eager" src="./assets/rank${rankLevel}.png" alt="rank${rankLevel}">
-              <div class="nm">${r.name ?? ""}</div>
+              <div class="nm-wrap">
+                <div class="nm">${r.name ?? ""}</div>
+                ${hasT9 ? `<img class="t9-mini" decoding="async" loading="eager" src="./assets/t9.png" alt="t9">` : ``}
+              </div>
             </div>
-            ${miniAchievementsHtml(achList)}
+            ${miniAchievementsHtml(rest)}
           </div>
 
           <div class="scores">
