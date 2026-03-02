@@ -380,7 +380,6 @@
       .score-pill .val{font-size:16px}
     }
 
-    /* ===== Modal ===== */
     .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.70);backdrop-filter:blur(6px);z-index:50}
     .card{
       width:min(560px,92vw);
@@ -566,19 +565,16 @@
     return Number.isFinite(n) ? n : 0;
   }
 
-  // cache-buster + запрет кэша
-  function bust(){ return `&_ts=${Date.now()}`; }
-
   async function apiMeta(){
-    const res = await fetch(`${API_BASE}?mode=meta${bust()}`, { cache: "no-store" });
+    const res = await fetch(`${API_BASE}?mode=meta`);
     return await res.json();
   }
   async function apiDashboard(seasonId){
-    const res = await fetch(`${API_BASE}?mode=dashboard&season_id=${encodeURIComponent(seasonId)}${bust()}`, { cache: "no-store" });
+    const res = await fetch(`${API_BASE}?mode=dashboard&season_id=${encodeURIComponent(seasonId)}`);
     return await res.json();
   }
   async function apiProfile(playerId, seasonId){
-    const res = await fetch(`${API_BASE}?player_id=${encodeURIComponent(playerId)}&season_id=${encodeURIComponent(seasonId)}${bust()}`, { cache: "no-store" });
+    const res = await fetch(`${API_BASE}?player_id=${encodeURIComponent(playerId)}&season_id=${encodeURIComponent(seasonId)}`);
     return await res.json();
   }
 
@@ -586,7 +582,6 @@
 
   function updateSeasonName(){
     const id = up(seasonSelect.value);
-    if (id === "TOTAL") { seasonNameEl.textContent = "Общий зачёт (Total)"; return; }
     const s = seasonsCache.find(x => up(x.season_id) === id);
     seasonNameEl.textContent = s ? s.season_name : "—";
   }
@@ -613,8 +608,8 @@
     const rowsRaw = dash.leaderboard || [];
 
     const rows = [...rowsRaw].sort((a,b) => {
-      const keyA = (seasonId === "TOTAL") ? toNum(a.all_seasons_score) : toNum(a.season_score);
-      const keyB = (seasonId === "TOTAL") ? toNum(b.all_seasons_score) : toNum(b.season_score);
+      const keyA = toNum(a.season_score);
+      const keyB = toNum(b.season_score);
       if (keyB !== keyA) return keyB - keyA;
       return String(a.name ?? "").localeCompare(String(b.name ?? ""), "ru", {sensitivity:"base"});
     });
@@ -749,11 +744,12 @@
     const rankIcon = `./assets/rank${rank.level}.png`;
     const nameFromProfile = (data.profile || []).find(x => String(x.label || '').toLowerCase().includes("имя"))?.value || "";
 
+    // ✅ Убрали надписи Top-1/Top-2/Top-3 — оставили только иконку и число
     const medalsHtml = `
       <div class="medals">
-        <div class="pill"><div class="left"><span>${medalIcon('top1')}</span><span>Top-1</span></div><div class="num">${medals.top1 ?? 0}</div></div>
-        <div class="pill"><div class="left"><span>${medalIcon('top2')}</span><span>Top-2</span></div><div class="num">${medals.top2 ?? 0}</div></div>
-        <div class="pill"><div class="left"><span>${medalIcon('top3')}</span><span>Top-3</span></div><div class="num">${medals.top3 ?? 0}</div></div>
+        <div class="pill"><div class="left"><span>${medalIcon('top1')}</span></div><div class="num">${medals.top1 ?? 0}</div></div>
+        <div class="pill"><div class="left"><span>${medalIcon('top2')}</span></div><div class="num">${medals.top2 ?? 0}</div></div>
+        <div class="pill"><div class="left"><span>${medalIcon('top3')}</span></div><div class="num">${medals.top3 ?? 0}</div></div>
       </div>
     `;
 
@@ -807,15 +803,21 @@
       const meta = await apiMeta();
       seasonsCache = meta.seasons || [];
 
+      // ✅ Убрали TOTAL из списка — только сезоны
       seasonSelect.innerHTML =
-        `<option value="TOTAL">Total</option>` +
         seasonsCache.map(s => `<option value="${up(s.season_id)}">${s.season_name}</option>`).join("");
+
+      if (!seasonsCache.length){
+        seasonNameEl.textContent = "—";
+        lbEl.innerHTML = "";
+        setStatus("Нет сезонов в Seasons");
+        return;
+      }
 
       const currentSeason = up(meta.current_season_id || "");
       const exists = seasonsCache.some(s => up(s.season_id) === currentSeason);
       if (currentSeason && exists) seasonSelect.value = currentSeason;
-      else if (seasonsCache.length) seasonSelect.value = up(seasonsCache[seasonsCache.length - 1].season_id);
-      else seasonSelect.value = "TOTAL";
+      else seasonSelect.value = up(seasonsCache[seasonsCache.length - 1].season_id);
 
       updateSeasonName();
       await renderLeaderboard();
@@ -826,28 +828,25 @@
         await renderLeaderboard();
       };
 
+      // ✅ prev/next теперь крутят ТОЛЬКО сезоны (без TOTAL)
       prevBtn.onclick = async () => {
+        if (!seasonsCache.length) return;
         const current = up(seasonSelect.value);
-        if (current === "TOTAL"){
-          if (!seasonsCache.length) return;
-          seasonSelect.value = up(seasonsCache[seasonsCache.length - 1].season_id);
-        } else {
-          const idx = seasonsCache.findIndex(s => up(s.season_id) === current);
-          if (idx > 0) seasonSelect.value = up(seasonsCache[idx - 1].season_id);
-        }
+        let idx = seasonsCache.findIndex(s => up(s.season_id) === current);
+        if (idx < 0) idx = 0;
+        idx = (idx - 1 + seasonsCache.length) % seasonsCache.length;
+        seasonSelect.value = up(seasonsCache[idx].season_id);
         updateSeasonName();
         await renderLeaderboard();
       };
 
       nextBtn.onclick = async () => {
+        if (!seasonsCache.length) return;
         const current = up(seasonSelect.value);
-        if (current === "TOTAL"){
-          if (!seasonsCache.length) return;
-          seasonSelect.value = up(seasonsCache[0].season_id);
-        } else {
-          const idx = seasonsCache.findIndex(s => up(s.season_id) === current);
-          if (idx >= 0 && idx < seasonsCache.length - 1) seasonSelect.value = up(seasonsCache[idx + 1].season_id);
-        }
+        let idx = seasonsCache.findIndex(s => up(s.season_id) === current);
+        if (idx < 0) idx = 0;
+        idx = (idx + 1) % seasonsCache.length;
+        seasonSelect.value = up(seasonsCache[idx].season_id);
         updateSeasonName();
         await renderLeaderboard();
       };
