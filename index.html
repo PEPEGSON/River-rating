@@ -586,6 +586,12 @@
     seasonNameEl.textContent = s ? s.season_name : "—";
   }
 
+  function getSeasonNameById(seasonId){
+    const id = up(seasonId);
+    const s = seasonsCache.find(x => up(x.season_id) === id);
+    return s ? s.season_name : String(seasonId || "").trim();
+  }
+
   function placeClass(n){
     if (n === 1) return "p1";
     if (n === 2) return "p2";
@@ -706,7 +712,8 @@
 
     const parts = blocks.map(b => {
       const games = (b.games || []);
-      const seasonLabel = String(b.season_name || b.season || "").trim() || "—";
+      const seasonId = String(b.season_id || b.season || "").trim();
+      const seasonLabel = getSeasonNameById(seasonId);
 
       const rows = games.map(g => `
         <div class="hist-card">
@@ -783,6 +790,7 @@
       img.src = url;
     });
   }
+
   function warmupAssets(){
     preloadImages([
       "./assets/rank1.png","./assets/rank2.png","./assets/rank3.png",
