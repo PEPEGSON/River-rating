@@ -706,6 +706,8 @@
 
     const parts = blocks.map(b => {
       const games = (b.games || []);
+      const seasonLabel = String(b.season_name || b.season || "").trim() || "—";
+
       const rows = games.map(g => `
         <div class="hist-card">
           <div class="hist-date">${g.date || "—"}</div>
@@ -719,7 +721,7 @@
 
       return `
         <div>
-          <div class="season-block-title">Сезон «${b.season}»</div>
+          <div class="season-block-title">Сезон «${seasonLabel}»</div>
           <div class="hist">${rows || `<div class="hint">Нет игр</div>`}</div>
         </div>
       `;
