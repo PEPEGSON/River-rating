@@ -744,7 +744,6 @@
     const rankIcon = `./assets/rank${rank.level}.png`;
     const nameFromProfile = (data.profile || []).find(x => String(x.label || '').toLowerCase().includes("имя"))?.value || "";
 
-    // ✅ Убрали надписи Top-1/Top-2/Top-3 — оставили только иконку и число
     const medalsHtml = `
       <div class="medals">
         <div class="pill"><div class="left"><span>${medalIcon('top1')}</span></div><div class="num">${medals.top1 ?? 0}</div></div>
@@ -803,7 +802,6 @@
       const meta = await apiMeta();
       seasonsCache = meta.seasons || [];
 
-      // ✅ Убрали TOTAL из списка — только сезоны
       seasonSelect.innerHTML =
         seasonsCache.map(s => `<option value="${up(s.season_id)}">${s.season_name}</option>`).join("");
 
@@ -828,7 +826,6 @@
         await renderLeaderboard();
       };
 
-      // ✅ prev/next теперь крутят ТОЛЬКО сезоны (без TOTAL)
       prevBtn.onclick = async () => {
         if (!seasonsCache.length) return;
         const current = up(seasonSelect.value);
