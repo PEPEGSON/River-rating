@@ -300,14 +300,11 @@
       gap:6px;
       flex-wrap:nowrap;
       align-items:center;
-
       overflow-x:auto;
       overflow-y:hidden;
       -webkit-overflow-scrolling:touch;
-
       scrollbar-width:none;
       padding-bottom:2px;
-
       padding-left:50px;
       margin-left:-50px;
     }
@@ -706,7 +703,7 @@
 
     const parts = blocks.map(b => {
       const games = (b.games || []);
-      const seasonLabel = String(b.season_name || b.season || b.season_id || "—").trim() || "—";
+      const seasonLabel = String(b.season_name || "").trim() || String(b.season_id || "").trim() || "—";
 
       const rows = games.map(g => `
         <div class="hist-card">
