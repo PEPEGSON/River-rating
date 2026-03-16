@@ -213,17 +213,13 @@
       align-items:center;
       padding:12px 12px;
       border-radius:18px;
-
       background: var(--glass);
       border:1px solid rgba(214,181,106,.18);
       box-shadow:0 14px 34px rgba(0,0,0,.40);
-
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-
       overflow:hidden;
       cursor:pointer;
-
       content-visibility:auto;
       contain-intrinsic-size: 92px 340px;
     }
@@ -562,6 +558,18 @@
     return Number.isFinite(n) ? n : 0;
   }
 
+  function parseDdMmKey(v){
+    let s = String(v ?? "").trim();
+    if (!s) return -1;
+    s = s.replace(/\s+/g, "").replace(/[,\/-]/g, ".");
+    let m = s.match(/^(\d{1,2})\.(\d{1,2})$/);
+    if (!m) m = s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{2,4})$/);
+    if (!m) return -1;
+    const dd = Number(m[1] || 0);
+    const mm = Number(m[2] || 0);
+    return mm * 100 + dd;
+  }
+
   async function apiMeta(){
     const res = await fetch(`${API_BASE}?mode=meta`);
     return await res.json();
@@ -703,51 +711,43 @@
     return html;
   }
 
- function buildHistoryHtml(history){
-  const blocks = (history || []);
-  if (!blocks.length) return `<div class="hint">Нет игр</div>`;
+  function buildHistoryHtml(history){
+    const blocks = (history || []);
+    if (!blocks.length) return `<div class="hint">Нет игр</div>`;
 
-  function dateKeyDesc(v){
-    const s = String(v || "").trim();
-    const m = s.match(/^(\d{2})\.(\d{2})$/);
-    if (!m) return -1;
-    const dd = Number(m[1] || 0);
-    const mm = Number(m[2] || 0);
-    return mm * 100 + dd;
-  }
+    const parts = blocks.map(block => {
+      const rawSeasonId = String(block.season_id || block.season || "").trim();
+      const seasonLabel =
+        String(block.season_name || "").trim() ||
+        getSeasonNameById(rawSeasonId) ||
+        String(seasonNameEl.textContent || "").trim() ||
+        "—";
 
-  const parts = blocks.map(b => {
-    const seasonLabel =
-      String(b.season_name || "").trim() ||
-      String(b.season || "").trim() ||
-      String(b.season_id || "").trim() ||
-      "—";
+      const games = [...(block.games || [])].sort((g1, g2) => {
+        return parseDdMmKey(g2.date) - parseDdMmKey(g1.date);
+      });
 
-    const games = [...(b.games || [])].sort((a, b) => {
-      return dateKeyDesc(b.date) - dateKeyDesc(a.date);
-    });
-
-    const rows = games.map(g => `
-      <div class="hist-card">
-        <div class="hist-date">${g.date || "—"}</div>
-        <div class="hist-game">${g.game_name || "—"}</div>
-        <div class="chips">
-          <div class="chip">место: ${g.place ?? "—"}</div>
-          <div class="chip">очки: ${g.points ?? "—"}</div>
+      const rows = games.map(g => `
+        <div class="hist-card">
+          <div class="hist-date">${g.date || "—"}</div>
+          <div class="hist-game">${g.game_name || "—"}</div>
+          <div class="chips">
+            <div class="chip">место: ${g.place ?? "—"}</div>
+            <div class="chip">очки: ${g.points ?? "—"}</div>
+          </div>
         </div>
-      </div>
-    `).join("");
+      `).join("");
 
-    return `
-      <div>
-        <div class="season-block-title">Сезон «${seasonLabel}»</div>
-        <div class="hist">${rows || `<div class="hint">Нет игр</div>`}</div>
-      </div>
-    `;
-  }).join("");
+      return `
+        <div>
+          <div class="season-block-title">Сезон «${seasonLabel}»</div>
+          <div class="hist">${rows || `<div class="hint">Нет игр</div>`}</div>
+        </div>
+      `;
+    }).join("");
 
-  return `<div class="history-wrap"><div class="history-scroll">${parts}</div></div>`;
-}
+    return `<div class="history-wrap"><div class="history-scroll">${parts}</div></div>`;
+  }
 
   async function openProfile(playerId){
     modalEl.style.display = "block";
