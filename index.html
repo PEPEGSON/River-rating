@@ -703,40 +703,51 @@
     return html;
   }
 
-  function buildHistoryHtml(history){
-    const blocks = (history || []);
-    if (!blocks.length) return `<div class="hint">Нет игр</div>`;
+ function buildHistoryHtml(history){
+  const blocks = (history || []);
+  if (!blocks.length) return `<div class="hint">Нет игр</div>`;
 
-    const parts = blocks.map(b => {
-      const games = (b.games || []);
-      const rawSeasonId = String(b.season_id || b.season || "").trim();
-      const seasonLabel =
-        String(b.season_name || "").trim() ||
-        getSeasonNameById(rawSeasonId) ||
-        String(seasonNameEl.textContent || "").trim() ||
-        "—";
-
-      const rows = games.map(g => `
-        <div class="hist-card">
-          <div class="hist-date">${g.date || "—"}</div>
-          <div class="hist-game">${g.game_name || "—"}</div>
-          <div class="chips">
-            <div class="chip">место: ${g.place ?? "—"}</div>
-            <div class="chip">очки: ${g.points ?? "—"}</div>
-          </div>
-        </div>
-      `).join("");
-
-      return `
-        <div>
-          <div class="season-block-title">Сезон «${seasonLabel}»</div>
-          <div class="hist">${rows || `<div class="hint">Нет игр</div>`}</div>
-        </div>
-      `;
-    }).join("");
-
-    return `<div class="history-wrap"><div class="history-scroll">${parts}</div></div>`;
+  function dateKeyDesc(v){
+    const s = String(v || "").trim();
+    const m = s.match(/^(\d{2})\.(\d{2})$/);
+    if (!m) return -1;
+    const dd = Number(m[1] || 0);
+    const mm = Number(m[2] || 0);
+    return mm * 100 + dd;
   }
+
+  const parts = blocks.map(b => {
+    const seasonLabel =
+      String(b.season_name || "").trim() ||
+      String(b.season || "").trim() ||
+      String(b.season_id || "").trim() ||
+      "—";
+
+    const games = [...(b.games || [])].sort((a, b) => {
+      return dateKeyDesc(b.date) - dateKeyDesc(a.date);
+    });
+
+    const rows = games.map(g => `
+      <div class="hist-card">
+        <div class="hist-date">${g.date || "—"}</div>
+        <div class="hist-game">${g.game_name || "—"}</div>
+        <div class="chips">
+          <div class="chip">место: ${g.place ?? "—"}</div>
+          <div class="chip">очки: ${g.points ?? "—"}</div>
+        </div>
+      </div>
+    `).join("");
+
+    return `
+      <div>
+        <div class="season-block-title">Сезон «${seasonLabel}»</div>
+        <div class="hist">${rows || `<div class="hint">Нет игр</div>`}</div>
+      </div>
+    `;
+  }).join("");
+
+  return `<div class="history-wrap"><div class="history-scroll">${parts}</div></div>`;
+}
 
   async function openProfile(playerId){
     modalEl.style.display = "block";
